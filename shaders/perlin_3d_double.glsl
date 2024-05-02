@@ -1,3 +1,9 @@
+// This is a modified version of the original code from Brian Sharpe's Wombat library: 
+// https://github.com/BrianSharpe/Wombat/blob/master/Perlin3D.glsl
+//
+// Modifications include:
+// - Calculating two noise values for different Z planes
+
 //
 //  Perlin Noise 3D
 //  Computes two noise values for different Z planes
@@ -5,9 +11,6 @@
 //
 vec2 Perlin3D_Double( vec3 P, float P2z )
 {
-    // This is a modified version of the original code from Brian Sharpe: 
-    // https://github.com/BrianSharpe/Wombat/blob/master/Perlin3D.glsl
-
     vec3 Pi = floor(P);
     vec3 Pf = P - Pi;
     vec3 Pf_min1 = Pf - 1.0;
