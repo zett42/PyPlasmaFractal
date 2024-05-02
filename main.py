@@ -18,6 +18,7 @@ Major dependencies:
 """
 
 import logging
+import time
 import moderngl
 import glfw
 import os
@@ -46,6 +47,10 @@ class PyPlasmaFractalApp:
 
         self.app_name = 'PyPlasmaFractal'
         self.app_author = 'zett42'
+
+        self.last_resize_time = 0
+        self.resize_requested = False
+        self.resize_delay = 0.25  # Delay in seconds before applying resize changes
 
 
     def run(self):
@@ -82,6 +87,8 @@ class PyPlasmaFractalApp:
 
             glfw.poll_events()
 
+            self.handle_window_resize()
+
             self.im_gui_renderer.process_inputs()
             imgui.new_frame()
             self.handle_gui()
@@ -98,6 +105,24 @@ class PyPlasmaFractalApp:
             self.im_gui_renderer.render(imgui.get_draw_data())
 
             glfw.swap_buffers(self.window)
+
+
+    def handle_window_resize(self):
+        """
+        This method checks if a resize is needed and if the debounce period has passed. If both conditions are met,
+        it calls the `handle_resize` method with the window, pending width, and pending height as arguments.
+        """
+
+        if self.resize_requested:
+    
+            if time.time() - self.last_resize_time >= self.resize_delay:
+              
+                logging.info(f"Handling window resize to {self.pending_width}x{self.pending_height}")
+
+                self.ctx.viewport = (0, 0, self.pending_width, self.pending_height)
+                self.feedback_manager.resize(self.pending_width, self.pending_height)
+                
+                self.resize_requested = False
 
 
     def load_render_config(self):
@@ -137,7 +162,20 @@ class PyPlasmaFractalApp:
         glfw.make_context_current(window)
         glfw.set_window_pos(window, pos_x, pos_y)
 
+        # Set up a callback to handle window resize
+        glfw.set_framebuffer_size_callback(window, self.framebuffer_size_callback)        
+
         return window, app_config_manager
+
+
+    def framebuffer_size_callback(self, window, width, height):
+        """
+        Mark that a resize has been requested and store the new dimensions.
+        """
+        self.resize_requested = True
+        self.pending_width = width
+        self.pending_height = height
+        self.last_resize_time = time.time()
 
 
     def create_context_and_feedback_manager(self, window):

@@ -1,3 +1,4 @@
+import logging
 import moderngl
 
 class FeedbackTextureManager:
@@ -52,6 +53,44 @@ class FeedbackTextureManager:
         
         # Revert to default framebuffer
         self.ctx.screen.use()
+
+
+    def resize(self, new_width, new_height):
+        """
+        Resizes the textures and framebuffers used in the feedback loop.
+        """
+        if new_width <= 0 or new_height <= 0:
+            return
+
+        # Temporarily store texture properties
+        repeat_x = self.textures[0].repeat_x
+        repeat_y = self.textures[0].repeat_y
+        filter = self.textures[0].filter
+        dtype = self.textures[0].dtype
+
+        # Release existing textures and framebuffers
+        for fbo in self.framebuffers:
+            fbo.release()
+        for tex in self.textures:
+            tex.release()
+
+        # Clear lists to avoid accidental use of released resources
+        self.textures = []
+        self.framebuffers = []
+
+        # Update the internal dimensions
+        self.width = new_width
+        self.height = new_height
+
+        # Attempt to re-create the textures and framebuffers with the new dimensions
+        self.textures = [self.ctx.texture((self.width, self.height), components=4, dtype=dtype) for _ in range(2)]
+        self.framebuffers = [self.ctx.framebuffer(color_attachments=[tex]) for tex in self.textures]
+
+        # Reapply the stored texture settings
+        for texture in self.textures:
+            texture.repeat_x = repeat_x
+            texture.repeat_y = repeat_y
+            texture.filter = filter
 
 
     @property
