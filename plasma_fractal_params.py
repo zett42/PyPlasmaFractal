@@ -22,6 +22,7 @@ class WarpFunction(Enum):
     """
     Offset = auto()
     Polar = auto()
+    OffsetDeriv = auto()
     Swirl = auto()
     Test = auto()
 
@@ -82,6 +83,12 @@ WARP_FUNCTION_INFOS = {
             WarpFunctionParam('Radial Strength', logarithmic=True, default=0.02),
             WarpFunctionParam('Swirl Strength', logarithmic=True, default=0.08),
             WarpFunctionParam('Isolation Factor', logarithmic=True, default=0.0),
+        ]
+    ),    
+    WarpFunction.OffsetDeriv: WarpFunctionInfo(
+        FractalNoiseVariant.Deriv, 
+        params=[
+            WarpFunctionParam('Amplitude', logarithmic=True, default=0.02),
         ]
     ),
     WarpFunction.Test: WarpFunctionInfo(

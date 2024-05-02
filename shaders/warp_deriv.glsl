@@ -5,6 +5,19 @@
 
 #include "math_constants.glsl"
 
+// Applies a simple offset to texture coordinates based on noise derivatives.
+vec2 warpOffsetDeriv(vec2 pos, vec4 noiseWithDerivatives, float time, float params[MAX_WARP_PARAMS]) {
+
+    float amplitude = params[0] * 0.01;
+
+    vec2 derivatives = noiseWithDerivatives.yz;
+
+    // Calculate the offset for the texture coordinates
+    vec2 offset = amplitude * derivatives;
+
+    return pos + offset;
+}
+
 // Applies a swirling effect to texture coordinates based on noise and its derivatives.
 //
 // This function modifies texture coordinates by introducing a swirling motion centered dynamically
