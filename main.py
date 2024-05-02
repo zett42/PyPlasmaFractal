@@ -54,8 +54,6 @@ def main():
     render_config_manager, params = load_render_config()
 
     window, window_config_manager = initialize_glfw()
-    if window is None:
-        return
 
     ctx = moderngl.create_context()
 
@@ -65,7 +63,7 @@ def main():
 
     finalize_glfw(window, window_config_manager)
 
-    render_config_manager.save_config(params, 'params.pkl')
+    render_config_manager.save_config(params)
 
 #---------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -122,9 +120,9 @@ def main_loop(window, ctx, im_gui_renderer, params: PlasmaFractalParams):
 
 def load_render_config():
     
-    app_config_manager = ConfigFileManager(MY_APP_NAME, MY_APP_AUTHOR)
+    app_config_manager = ConfigFileManager(MY_APP_NAME, MY_APP_AUTHOR, 'params.pkl')
 
-    params = app_config_manager.load_config('params.pkl') or PlasmaFractalParams(use_defaults=True) 
+    params = app_config_manager.load_config() or PlasmaFractalParams(use_defaults=True) 
     #params = PlasmaFractalParams(use_defaults=True) 
 
     logging.debug("PlasmaFractalParams:\n" + '\n'.join(f"    {key}={value}" for key, value in vars(params).items()))
