@@ -43,7 +43,7 @@ def handle_noise_tab(params: PlasmaFractalParams):
 
     # Noise Settings
     if ih.collapsing_header("Noise Settings", params, 'noise_settings_open'):
-        ih.slider_float("Scale", params, 'scale', min_value=0.1, max_value=50.0, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)
+        ih.slider_float("Scale", params, 'scale', min_value=0.1, max_value=100.0, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)
         ih.enum_combo("Noise Algorithm", params, 'noise_algorithm')
 
     # Octave Settings
