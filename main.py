@@ -210,13 +210,15 @@ class PyPlasmaFractalApp:
         """
         Handles mouse button events to detect double-clicks and toggle fullscreen.
         """
-        if button == glfw.MOUSE_BUTTON_LEFT and action == glfw.PRESS:
-            # Check for double click (within 0.4 seconds)
-            current_time = time.time()
-            if current_time - self.last_click_time < 0.4:
-                self.toggle_fullscreen()
+        io = imgui.get_io()
+        if not io.want_capture_mouse:
+            if button == glfw.MOUSE_BUTTON_LEFT and action == glfw.PRESS:
+                # Check for double click (within 0.4 seconds)
+                current_time = time.time()
+                if current_time - self.last_click_time < 0.4:
+                    self.toggle_fullscreen()
 
-            self.last_click_time = current_time
+                self.last_click_time = current_time
 
 
     def create_context_and_feedback_manager(self, window):
