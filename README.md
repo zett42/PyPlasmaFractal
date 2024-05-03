@@ -14,20 +14,13 @@ PyPlasmaFractal is a Python based real-time application for rendering and explor
 - High-performance graphics rendering using ModernGL and GLFW.
 - A user-friendly GUI powered by ImGui.
 
-## Dependencies
-
-To run PyPlasmaFractal, you need the following libraries:
-- `moderngl`
-- `glfw`
-- `imgui`
-- `moderngl-window` (for window and context management)
-
 ## Installation
 
 Before running the application, ensure you have the necessary libraries installed. You can install them using pip:
 
 ```bash
-pip install moderngl glfw imgui moderngl-window
+pip install moderngl glfw imgui PyOpenGL PyOpenGL_accelerate numpy appdirs
+
 ```
 
 ## Usage
