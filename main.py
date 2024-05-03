@@ -56,6 +56,8 @@ class PyPlasmaFractalApp:
         self.last_click_time = 0
         self.is_fullscreen = False
 
+        self.ui_state = {}
+
     def run(self):
         """
         Main entry point of the application which orchestrates the initialization,
@@ -134,16 +136,8 @@ class PyPlasmaFractalApp:
         """
         Loads or initializes the application's render configuration.
         """
-        app_config_manager = ConfigFileManager(
-            self.app_name, 
-            self.app_author, 
-            'fractal_config.json',
-            save_function=lambda obj: obj.to_json(),
-            load_function=lambda data: PlasmaFractalParams.from_json( data )            
-        )
-
-        params = PlasmaFractalParams(use_defaults=True)
-        params = app_config_manager.load_config() or params
+        app_config_manager = ConfigFileManager(self.app_name, self.app_author, 'fractal_config.json', model_class=PlasmaFractalParams)
+        params = app_config_manager.load_config_or_default()
 
         logging.debug("PlasmaFractalParams:\n" + '\n'.join(f"{key}={value}" for key, value in vars(params).items()))
 
@@ -260,7 +254,7 @@ class PyPlasmaFractalApp:
         """
         if not self.is_fullscreen:
             imgui.begin("Control Panel")
-            plasma_fractal_gui.handle_imgui_controls(self.params)
+            plasma_fractal_gui.handle_imgui_controls(self.params, self.ui_state)
             imgui.end()
 
 

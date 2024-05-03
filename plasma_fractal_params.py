@@ -90,206 +90,86 @@ WARP_FUNCTION_INFOS = {
     ),
 }
 
+
 class PlasmaFractalParams:
     """
     Represents the parameters for a plasma fractal.
-
     This class stores various attributes that define the settings for a plasma fractal.
     """
-
-    def __init__(self, use_defaults=False):
+    
+    def __init__(self):
         """
-        Initializes a new instance of the PlasmaFractalParams class.
-
-        Args:
-            use_defaults (bool, optional): Whether to apply default values to the attributes. Defaults to False.
+        Initializes a new instance of the PlasmaFractalParams class with default values.
         """
-        # Initialize all attributes to None to ensure they are defined (helps code completion in IDEs)
-        
         # General settings
-        self.paused = None
+        self.paused = False
         
         # NOISE
         # General noise settings
-        self.speed = None
-        self.scale = None
+        self.speed = 1.0
+        self.scale = 2.0
         
         # Specific noise settings
-        self.noise_algorithm = None
-        self.octaves = None
-        self.gain = None
-        self.amplitude = None
-        self.timeScaleFactor = None
-        self.positionScaleFactor = None
-        self.rotationAngleIncrement = None
-        self.timeOffsetIncrement = None
+        self.noise_algorithm = NoiseAlgorithm.Perlin3D  
+        self.octaves = 1
+        self.gain = 0.5
+        self.timeScaleFactor = 1.3
+        self.positionScaleFactor = 2.0
+        self.rotationAngleIncrement = 0.0
+        self.timeOffsetIncrement = 12.0
         
-        # Contrast settings for noise
-        self.contrastSteepness = None
-        self.contrastMidpoint = None
+        # Output settings for noise
+        self.brightness = 1.0
+        self.contrastSteepness = 10.0
+        self.contrastMidpoint = 0.5
         
         # FEEDBACK
         # General Feedback Settings
-        self.enable_feedback = None
-        self.feedback_decay = None
+        self.enable_feedback = False
+        self.feedback_decay = 0.01
         
         # Warp settings for feedback
-        self.warpFunction = None
-        self.warpParams = None
-        self.warpSpeed = None
-        self.warpNoiseAlgorithm = None
-        self.warpScale = None
-        self.warpOctaves = None
-        self.warpGain = None
-        self.warpAmplitude = None
-        self.warpTimeScaleFactor = None
-        self.warpPositionScaleFactor = None
-        self.warpRotationAngleIncrement = None
-        self.warpTimeOffsetInitial = None
-        self.warpTimeOffsetIncrement = None
-        
-        # GUI State flags
-        self.general_settings_open = None
-        self.noise_settings_open = None
-        self.fractal_settings_open = None
-        self.output_settings_open = None
-        self.feedback_general_settings_open = None
-        self.feedback_warp_general_settings_open = None
-        self.feedback_warp_noise_settings_open = None
-        self.feedback_warp_octave_settings_open = None
-        self.feedback_warp_contrast_settings_open = None
-       
-        # Apply default settings if requested
-        if use_defaults:
-            self.apply_defaults()
-
-    def get_default_values(self):
-        """
-        Returns a dictionary containing the default values for the parameters used in the plasma fractal generator.
-        
-        Returns:
-            dict: A dictionary containing the default values for the parameters.
-        """
-
-        warp_params_defaults = {
+        self.warpFunction = list(WARP_FUNCTION_INFOS.keys())[0]   # Default to the first warp function
+        self.warpParams = {
             key: [param.default for param in WARP_FUNCTION_INFOS[key].params]
             for key in WARP_FUNCTION_INFOS
         }
-
-
-        return {
-            # General settings
-            'paused': False,
-            
-            # NOISE
-            # General noise settings
-            'speed': 1.0,
-            'scale': 2.0,
-            
-            # Specific noise settings
-            'noise_algorithm': NoiseAlgorithm.Perlin3D,
-            'octaves': 1,
-            'gain': 0.5,
-            'timeScaleFactor': 1.3,
-            'positionScaleFactor': 2.0,
-            'rotationAngleIncrement': 0.0,
-            'timeOffsetIncrement': 12.0,
-            
-            # Output adjustment for noise
-            'brightness': 1.0,
-            'contrastSteepness': 10.0,
-            'contrastMidpoint': 0.5,
-            
-            # FEEDBACK
-            # General feedback settings
-            'enable_feedback': False,
-            'feedback_decay': 0.01,
-            
-            # Warp settings for feedback
-            'warpSpeed': 1.0,
-            'warpScale': 1.0,
-            'warpNoiseAlgorithm': NoiseAlgorithm.Perlin3D,
-            'warpOctaves': 1,
-            'warpGain': 0.5,
-            'warpTimeScaleFactor': 1.0,
-            'warpPositionScaleFactor': 2.0,
-            'warpRotationAngleIncrement': 0.0,
-            'warpTimeOffsetInitial': 42.0,
-            'warpTimeOffsetIncrement': 12.0,
-            'warpFunction': list(WARP_FUNCTION_INFOS.keys())[0],
-            'warpParams': warp_params_defaults,
-
-            # GUI State flags
-            'general_settings_open': True,
-            'noise_settings_open': True,
-            'fractal_settings_open': True,
-            'output_settings_open': True,
-            'feedback_general_settings_open': True,
-            'feedback_warp_general_settings_open': True,
-            'feedback_warp_noise_settings_open': True,
-            'feedback_warp_effect_settings_open': True,
-            'feedback_warp_octave_settings_open': True,
-            'feedback_warp_contrast_settings_open': True
-        }
-    
+        self.warpSpeed = 1.0
+        self.warpNoiseAlgorithm = NoiseAlgorithm.Perlin3D
+        self.warpScale = 1.0
+        self.warpOctaves = 1
+        self.warpGain = 0.5
+        self.warpAmplitude = 1.0  # Assuming a default value for amplitude
+        self.warpTimeScaleFactor = 1.0
+        self.warpPositionScaleFactor = 2.0
+        self.warpRotationAngleIncrement = 0.0
+        self.warpTimeOffsetInitial = 42.0
+        self.warpTimeOffsetIncrement = 12.0
+         
     
     def get_warp_function_names(self) -> List[str]:
-        """
-        Gets the names of the available warp functions.
-
-        Returns:
-            List[str]: A list of the names of the available warp functions.
-        """
         return list(WARP_FUNCTION_INFOS.keys())
 
-
     def get_current_warp_function_info(self) -> WarpFunctionInfo:
-        """
-        Gets the WarpFunctionInfo object for the current warp function.
-
-        Returns:
-            WarpFunctionInfo: The WarpFunctionInfo object for the current warp function.
-        """
         return WARP_FUNCTION_INFOS[self.warpFunction]
 
     def get_current_warp_params(self) -> List[float]:
-        """
-        Gets the current warp parameters for the selected warp function.
-
-        Returns:
-            List[float]: The current warp parameter values.
-        """
         return self.warpParams[self.warpFunction]
 
     
-    def apply_defaults(self):
-        """
-        Applies default values to the attributes of the object.
-
-        This method retrieves the default values for each attribute from the
-        `get_default_values` method and sets them using the `setattr` function.
-
-        Args:
-            None
-
-        Returns:
-            None
-        """
-        defaults = self.get_default_values()
-        for key, value in defaults.items():
-            setattr(self, key, value)
-
+    #............ Serialization methods ........................................................................
 
     def to_dict(self):
-        """Convert all attributes of the class to a dictionary."""
+        """Convert all public attributes of the class to a dictionary."""
         return {attr: getattr(self, attr) for attr in self.__dict__ if not attr.startswith('_')}
 
     @classmethod
     def from_dict(cls, data):
-        """Initialize the class from a dictionary."""
+        """Initialize the class from a dictionary, setting only attributes that already exist after default construction."""
         obj = cls()
         for key, value in data.items():
-            setattr(obj, key, value)
+            if hasattr(obj, key):
+                setattr(obj, key, value)
         return obj
 
     def to_json(self):
