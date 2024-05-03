@@ -1,0 +1,55 @@
+{
+    "speed": 1.0,
+    "scale": 60.82600021362305,
+    "noise_algorithm": {
+        "__enum__": "NoiseAlgorithm.SimplexPerlin3D"
+    },
+    "octaves": 1,
+    "gain": 0.5,
+    "timeScaleFactor": 1.3,
+    "positionScaleFactor": 2.0,
+    "rotationAngleIncrement": 0.0,
+    "timeOffsetIncrement": 12.0,
+    "brightness": 0.7419999837875366,
+    "contrastSteepness": 44.696998596191406,
+    "contrastMidpoint": 0.9580000042915344,
+    "enable_feedback": true,
+    "feedback_decay": 0.003000000026077032,
+    "warpFunction": "Swirl",
+    "warpParams": {
+        "Offset": [
+            0.05
+        ],
+        "Polar": [
+            0.02,
+            0.1
+        ],
+        "Swirl": [
+            0.03500000014901161,
+            0.026000000536441803,
+            0.07699999958276749
+        ],
+        "OffsetDeriv": [
+            0.02
+        ],
+        "Test": [
+            0.1,
+            0.1,
+            0.0,
+            0.0
+        ]
+    },
+    "warpSpeed": 0.10000000149011612,
+    "warpNoiseAlgorithm": {
+        "__enum__": "NoiseAlgorithm.Perlin3D"
+    },
+    "warpScale": 0.9290000200271606,
+    "warpOctaves": 1,
+    "warpGain": 0.5,
+    "warpAmplitude": null,
+    "warpTimeScaleFactor": 1.0,
+    "warpPositionScaleFactor": 2.0,
+    "warpRotationAngleIncrement": 0.0,
+    "warpTimeOffsetInitial": 42.0,
+    "warpTimeOffsetIncrement": 12.0
+}
