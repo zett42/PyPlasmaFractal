@@ -18,7 +18,7 @@ def handle_imgui_controls(params: PlasmaFractalParams, ui_state: dict[str, Any])
     imgui.set_next_item_width(width - 160)
     ih.slider_float("Speed", params, 'speed', min_value=0.1, max_value=10.0, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)
     imgui.same_line()
-    ih.checkbox("Paused", params, 'paused')
+    ih.checkbox("Paused", ui_state, index='animation_paused')
     imgui.spacing()
 
     with imgui.begin_tab_bar("Control Tabs") as tab_bar:

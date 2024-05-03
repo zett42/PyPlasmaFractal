@@ -56,7 +56,9 @@ class PyPlasmaFractalApp:
         self.last_click_time = 0
         self.is_fullscreen = False
 
-        self.ui_state = {}
+        self.ui_state = {
+            'animation_paused': False,
+        }
 
     def run(self):
         """
@@ -100,7 +102,7 @@ class PyPlasmaFractalApp:
             imgui.new_frame()
             self.handle_gui()
 
-            elapsed_time = timer.update(self.params.paused, self.params.speed)
+            elapsed_time = timer.update(self.ui_state['animation_paused'], self.params.speed)
 
             main_renderer.update_params(self.params, self.feedback_manager.previous_texture, elapsed_time)
 

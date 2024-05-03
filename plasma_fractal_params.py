@@ -100,10 +100,7 @@ class PlasmaFractalParams:
     def __init__(self):
         """
         Initializes a new instance of the PlasmaFractalParams class with default values.
-        """
-        # General settings
-        self.paused = False
-        
+        """     
         # NOISE
         # General noise settings
         self.speed = 1.0
