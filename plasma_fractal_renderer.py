@@ -104,7 +104,7 @@ class PlasmaFractalRenderer:
             'FB_ENABLED': 'Enabled' if params.enable_feedback else 'Disabled',
             'FB_WARP_FRACTAL_NOISE_VARIANT': params.get_current_warp_function_info().fractal_noise_variant.name,
             'FB_WARP_NOISE_FUNC': params.warpNoiseAlgorithm.name,
-            'FB_WARP_XFORM_FUNC': params.warpFunction.name,
+            'FB_WARP_XFORM_FUNC': params.warpFunction,
             'MAX_WARP_PARAMS': WarpFunctionInfo.MAX_WARP_PARAMS,
         }
         self.program, _ = self.shader_cache.get_or_create_program(fragment_template_params=fragment_template_params)

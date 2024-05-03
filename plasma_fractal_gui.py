@@ -90,16 +90,19 @@ def handle_feedback_controls(params: PlasmaFractalParams):
 
     # Feedback General Settings
     if ih.collapsing_header("Feedback Mix Settings", params, 'feedback_general_settings_open'):
+
         ih.slider_float("Feedback Decay", params, 'feedback_decay', min_value=0, max_value=1.0, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)
 
     # Feedback Noise Settings
     if ih.collapsing_header("Feedback Noise Settings", params, 'feedback_warp_noise_settings_open'):
+
         ih.slider_float("Speed", params, 'warpSpeed', min_value=0.1, max_value=10.0)
         ih.slider_float("Scale", params, 'warpScale', min_value=0.1, max_value=20.0)
         ih.enum_combo("Noise Algorithm", params, 'warpNoiseAlgorithm')
 
     # Feedback Octave Settings
     if ih.collapsing_header("Feedback Fractal Settings", params, 'feedback_warp_octave_settings_open'):
+
         ih.slider_int("Num. Octaves", params, 'warpOctaves', min_value=1, max_value=12)
         ih.slider_float("Gain", params, 'warpGain', min_value=0.1, max_value=1.0)
         ih.slider_float("Time Scale", params, 'warpTimeScaleFactor', min_value=0.1, max_value=2.0)
@@ -109,7 +112,8 @@ def handle_feedback_controls(params: PlasmaFractalParams):
 
     # Feedback Effect Settings
     if ih.collapsing_header("Feedback Effect Settings", params, 'feedback_warp_effect_settings_open'):
-        ih.enum_combo("Warp Function", params, 'warpFunction')
+
+        ih.list_combo("Warp Function", params, 'warpFunction', items=params.get_warp_function_names())
 
         # Update GUI slider for each parameter in the selected warp function
 

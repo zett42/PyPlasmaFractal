@@ -91,6 +91,46 @@ def checkbox(label: str, obj: object, attr: str = None, index: Optional[IndexTyp
     )
 
 
+def list_combo(label: str, obj: object, attr: str = None, index: int = None, items: list = [] ) -> None:
+    """
+    Creates an ImGui combo box for selecting a value from a provided list, modifying an attribute of an object directly or at a specified index within a collection using a centralized attribute management function.
+
+    Args:
+        label (str): The label for the combo box.
+        items (list): List of items to be displayed in the combo box.
+        obj (object): The object containing the attribute to be updated.
+        attr (str, optional): The attribute name to update. If None, `obj` should be a collection, and `index` must be specified.
+        index (int, optional): The index within the collection attribute to update, applicable if `attr` points to a collection.
+
+    Returns:
+        None: This function performs in-place modification and does not return a value.
+    """
+
+    def interaction(current_index, current_value):
+        changed, new_index = imgui.combo(label, current_index, items)
+        return changed, new_index
+
+    def convert_to_display(current_value):
+        # Use the index of the current value in items as the display value
+        try:
+            return items.index(current_value)
+        except ValueError:
+            return -1  # If current value is not in items
+
+    def convert_from_display(index, _):
+        # Convert the selected index back to the item
+        return items[index]
+
+    _manage_attribute_interaction(
+        obj,
+        interaction_func=interaction,
+        attr=attr,
+        index=index,
+        convert_to_display=convert_to_display,
+        convert_from_display=convert_from_display
+    )
+
+
 def enum_combo(label: str, obj: object, attr: str = None, index: Optional[IndexType] = None) -> None:
     """
     Creates an ImGui combo box for selecting an enum value, modifying an attribute of an object directly or at a specified index within a collection.

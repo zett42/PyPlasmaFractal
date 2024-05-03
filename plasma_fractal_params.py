@@ -1,3 +1,5 @@
+from json import JSONEncoder
+import json
 from typing import *
 from enum import Enum, auto
 
@@ -16,21 +18,6 @@ class FractalNoiseVariant(Enum):
     Double = auto()
     Deriv = auto()
 
-class WarpFunction(Enum):
-    """
-    Enumeration of warp functions used for modifying noise fields.
-    """
-    Offset = auto()
-    Polar = auto()
-    OffsetDeriv = auto()
-    Swirl = auto()
-    Test = auto()
-
-    # Default fallback value for missing keys (due to serialization/deserialization issues)
-    @staticmethod
-    def _missing_(value):
-        return WarpFunction.Offset
-    
 class WarpFunctionParam:
     """
     Information about a parameter used in warp functions and how to represent it in the UI.
@@ -50,12 +37,13 @@ class WarpFunctionInfo:
     # Define the maximum allowed number of parameters for any warp function. This needs to be hardcoded, because shader uniforms are fixed-size arrays.
     MAX_WARP_PARAMS: int = 4
 
-    def __init__(self, fractal_noise_variant: FractalNoiseVariant, params: List[WarpFunctionParam] = []):
+    def __init__(self, fractal_noise_variant: FractalNoiseVariant, params: List[WarpFunctionParam] = [], display_name: str = None):
 
        # Check if the number of provided parameters exceeds the maximum allowed
         if len(params) > self.MAX_WARP_PARAMS:
             raise ValueError(f"Too many parameters: {len(params)} provided, but the maximum is {self.MAX_WARP_PARAMS}")
 
+        self.display_name = display_name
         self.fractal_noise_variant = fractal_noise_variant
         self.params = params
 
@@ -64,34 +52,34 @@ class WarpFunctionInfo:
 # NOTE: adjust MAX_WARP_PARAMS according to the maximum number of parameters for any warp function
 
 WARP_FUNCTION_INFOS = {
-    WarpFunction.Offset: WarpFunctionInfo(
+    'Offset': WarpFunctionInfo(
         FractalNoiseVariant.Double,
         params=[
             WarpFunctionParam('Amplitude', logarithmic=True, default=0.05),
         ]
     ),
-    WarpFunction.Polar: WarpFunctionInfo(
+    'Polar': WarpFunctionInfo(
         FractalNoiseVariant.Double, 
         params=[
             WarpFunctionParam('Radial Strength', logarithmic=True, default=0.02),
             WarpFunctionParam('Rotation Factor', logarithmic=True, default=0.1),
         ]
     ),
-    WarpFunction.Swirl: WarpFunctionInfo(
+    'Swirl': WarpFunctionInfo(
         FractalNoiseVariant.Deriv, 
         params=[
             WarpFunctionParam('Radial Strength', logarithmic=True, default=0.02),
             WarpFunctionParam('Swirl Strength', logarithmic=True, default=0.08),
             WarpFunctionParam('Isolation Factor', logarithmic=True, default=0.0),
         ]
-    ),    
-    WarpFunction.OffsetDeriv: WarpFunctionInfo(
+    ),
+    'OffsetDeriv': WarpFunctionInfo(
         FractalNoiseVariant.Deriv, 
         params=[
             WarpFunctionParam('Amplitude', logarithmic=True, default=0.02),
         ]
     ),
-    WarpFunction.Test: WarpFunctionInfo(
+    'Test': WarpFunctionInfo(
         FractalNoiseVariant.Deriv, 
         params=[
             WarpFunctionParam('Param1', logarithmic=True, default=0.1),
@@ -184,9 +172,10 @@ class PlasmaFractalParams:
         """
 
         warp_params_defaults = {
-            warp_func: [param.default for param in WARP_FUNCTION_INFOS[warp_func].params]
-            for warp_func in WarpFunction
+            key: [param.default for param in WARP_FUNCTION_INFOS[key].params]
+            for key in WARP_FUNCTION_INFOS
         }
+
 
         return {
             # General settings
@@ -227,7 +216,7 @@ class PlasmaFractalParams:
             'warpRotationAngleIncrement': 0.0,
             'warpTimeOffsetInitial': 42.0,
             'warpTimeOffsetIncrement': 12.0,
-            'warpFunction': WarpFunction.Offset,
+            'warpFunction': list(WARP_FUNCTION_INFOS.keys())[0],
             'warpParams': warp_params_defaults,
 
             # GUI State flags
@@ -243,6 +232,16 @@ class PlasmaFractalParams:
             'feedback_warp_contrast_settings_open': True
         }
     
+    
+    def get_warp_function_names(self) -> List[str]:
+        """
+        Gets the names of the available warp functions.
+
+        Returns:
+            List[str]: A list of the names of the available warp functions.
+        """
+        return list(WARP_FUNCTION_INFOS.keys())
+
 
     def get_current_warp_function_info(self) -> WarpFunctionInfo:
         """
@@ -280,23 +279,41 @@ class PlasmaFractalParams:
         for key, value in defaults.items():
             setattr(self, key, value)
 
-    def __setstate__(self, state):
-        """
-        Customize the deserialization process to ensure the object's attributes align with
-        the current class definition. This method applies default values to missing keys, updates
-        the object's state from the provided serialized data, and issues warnings for any 
-        unrecognized keys.
 
-        Parameters:
-        - state (dict): The dictionary representing the serialized state of the object.
+    def to_dict(self):
+        """Convert all attributes of the class to a dictionary."""
+        return {attr: getattr(self, attr) for attr in self.__dict__ if not attr.startswith('_')}
 
-        This method ensures smooth updates and integrity checks during object deserialization,
-        aiding in backward compatibility and error identification in serialized data management.
-        """
-        defaults = self.get_default_values()
+    @classmethod
+    def from_dict(cls, data):
+        """Initialize the class from a dictionary."""
+        obj = cls()
+        for key, value in data.items():
+            setattr(obj, key, value)
+        return obj
 
-        for key, default_value in defaults.items():
-            try:
-                self.__dict__[key] = state.get(key, default_value)
-            except ValueError:
-                self.__dict__[key] = default_value
+    def to_json(self):
+        """Serializes the object to a JSON formatted str."""
+
+        # Define the custom JSON encoder for complex types
+        class CustomEncoder(JSONEncoder):
+            def default(self, obj):
+                if isinstance(obj, Enum):
+                    return {"__enum__": str(obj)}
+                elif isinstance(obj, PlasmaFractalParams):
+                    return obj.to_dict()  # Serialize PlasmaFractalParams using its to_dict method
+                return JSONEncoder.default(self, obj)
+
+        return json.dumps(self, cls=CustomEncoder, indent=4)
+
+    @classmethod
+    def from_json(cls, json_str):
+        """Deserializes JSON formatted str to an instance of the class."""
+
+        def decode_custom(dct):
+            if "__enum__" in dct:
+                enum_name, member_name = dct["__enum__"].split('.')
+                return getattr(globals()[enum_name], member_name)
+            return dct
+
+        return cls.from_dict(json.loads(json_str, object_hook=decode_custom))

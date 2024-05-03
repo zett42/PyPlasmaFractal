@@ -25,6 +25,7 @@ import os
 import imgui
 from imgui.integrations.glfw import GlfwRenderer
 
+from mylib.format_exception import format_exception_ansi_colors
 from mylib.texture_renderer import TextureRenderer
 from mylib.feedback_texture import FeedbackTextureManager
 from mylib.window_config_manager import WindowConfigManager
@@ -133,9 +134,16 @@ class PyPlasmaFractalApp:
         """
         Loads or initializes the application's render configuration.
         """
-        app_config_manager = ConfigFileManager(self.app_name, self.app_author, 'params.pkl')
-        params = app_config_manager.load_config() or PlasmaFractalParams(use_defaults=True)
-        #params = PlasmaFractalParams(use_defaults=True)
+        app_config_manager = ConfigFileManager(
+            self.app_name, 
+            self.app_author, 
+            'fractal_config.json',
+            save_function=lambda obj: obj.to_json(),
+            load_function=lambda data: PlasmaFractalParams.from_json( data )            
+        )
+
+        params = PlasmaFractalParams(use_defaults=True)
+        params = app_config_manager.load_config() or params
 
         logging.debug("PlasmaFractalParams:\n" + '\n'.join(f"{key}={value}" for key, value in vars(params).items()))
 
@@ -280,5 +288,5 @@ if __name__ == "__main__":
         app = PyPlasmaFractalApp()  
         app.run()
     except Exception as e:
-        logging.error(f"Unhandled exception occurred: {e}", exc_info=True)
+        logging.error(f"Unhandled exception occurred:\n{format_exception_ansi_colors(e)}")
         raise
