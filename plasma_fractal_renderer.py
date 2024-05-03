@@ -43,8 +43,6 @@ class PlasmaFractalRenderer:
         self.scale = Vec2( 1.0, 1.0 )
         self.warp_scale = Vec2( 1.0, 1.0 )
 
-        self.fragment_template_params = {}
-
         # Get the shaders directory relative to the current script's directory
         shader_base_directory = os.path.join(os.path.dirname(__file__), 'shaders')
 
@@ -109,9 +107,6 @@ class PlasmaFractalRenderer:
         }
         self.program, _ = self.shader_cache.get_or_create_program(fragment_template_params=fragment_template_params)
         self.vao = self.shader_cache.get_or_create_vao(self.program, self.vbo, 'in_pos')
-
-        # Test if fragment shader has changed, in which case all uniforms need to be updated
-        self.fragment_template_params = fragment_template_params
 
         self.program['u_time'].value = time
 
