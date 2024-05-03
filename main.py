@@ -96,11 +96,7 @@ class PyPlasmaFractalApp:
             glfw.poll_events()
 
             self.handle_window_resize()
-            if not self.is_fullscreen:
-                self.windowed_size_pos = (*glfw.get_window_size(self.window), *glfw.get_window_pos(self.window))
 
-            self.im_gui_renderer.process_inputs()
-            imgui.new_frame()
             self.handle_gui()
 
             elapsed_time = timer.update(self.ui_state['animation_paused'], self.params.speed)
@@ -133,6 +129,9 @@ class PyPlasmaFractalApp:
                 self.feedback_manager.resize(self.pending_width, self.pending_height)
                 
                 self.resize_requested = False
+
+        if not self.is_fullscreen:
+            self.windowed_size_pos = (*glfw.get_window_size(self.window), *glfw.get_window_pos(self.window))
 
 
     def load_config(self):
@@ -258,6 +257,9 @@ class PyPlasmaFractalApp:
         """
         Handles the rendering and logic of the GUI elements with ImGui.
         """
+        self.im_gui_renderer.process_inputs()
+        imgui.new_frame()
+
         if not self.is_fullscreen:
             imgui.begin("Control Panel")
             plasma_fractal_gui.handle_imgui_controls(self.params, self.ui_state)
