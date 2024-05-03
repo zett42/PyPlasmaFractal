@@ -137,9 +137,17 @@ class PyPlasmaFractalApp:
     def load_render_config(self):
         """
         Loads or initializes the application's render configuration.
-        """
-        app_config_manager = ConfigFileManager(self.app_name, self.app_author, filename='fractal_config.json', model_class=PlasmaFractalParams)
-        params = app_config_manager.load_config_or_default()
+        """     
+    
+        app_config_manager = ConfigFileManager(
+            self.app_name,
+            self.app_author,
+            filename='fractal_config.json',
+            load_function=lambda json_str: PlasmaFractalParams.from_json(json_str),
+            save_function=lambda obj: obj.to_json()
+        )
+        
+        params = app_config_manager.load_config() or PlasmaFractalParams()
 
         logging.debug("PlasmaFractalParams:\n" + '\n'.join(f"{key}={value}" for key, value in vars(params).items()))
 

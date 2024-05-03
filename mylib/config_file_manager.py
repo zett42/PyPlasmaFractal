@@ -1,12 +1,19 @@
 import os
-from appdirs import user_data_dir, site_data_dir
+import json
 import logging
+from appdirs import user_data_dir, site_data_dir
 
 class ConfigFileManager:
     """
-    Manages the storage and retrieval of configuration objects in a serialized format.
-    Configurations are stored in a directory determined by the application name and author, with options for user-specific
-    or site-specific data directories.
+    Manages the storage and retrieval of configuration objects in a serialized format using JSON.
+    
+    This class allows storing configurations in either user-specific or site-specific directories
+    determined by application details. It supports both default and custom serialization functions.
+
+    Attributes:
+        app_name (str): The name of the application.
+        app_author (str): The author of the application.
+        default_filename (str): The default filename for storing the configuration file.
     """
 
     def __init__(self, app_name, app_author, 
@@ -14,130 +21,94 @@ class ConfigFileManager:
                  filename='config.json', 
                  use_user_dir=True, 
                  custom_user_dir=None, custom_site_dir=None,
-                 model_class=None,
                  save_function=None, load_function=None):
         """
-        Initialize the ConfigFileManager object.
+        Initializes the configuration file manager with specified application details and directory preferences.
 
-        Args:
-            app_name (str): The name of the application.
-            app_author (str): The author of the application.
-            sub_dir (str, optional): A subdirectory within the user or site directory to store the configuration file.
-            filename (str, optional): The name of the config file. Defaults to 'config.json'.
-            use_user_dir (bool, optional): Whether to use the user directory for loading and saving the config file. 
-                                           Defaults to True.
-            custom_user_dir (str, optional): A custom path for the user directory. If provided, overrides the default 
-                                             user directory. Defaults to None.
-            custom_site_dir (str, optional): A custom path for the site directory. Used only when use_user_dir is False. 
-                                             Defaults to None.
-            model_class (type, optional): The class to use for loading from and saving to the config file. If provided, 
-                                          defaults for loading and saving functions are set to use model_class.from_json() 
-                                          and .to_json(), respectively. Defaults to None.
-            save_function (callable, optional): A custom function to serialize the configuration data. If not provided 
-                                                and model_class is not set, the default is to call .to_json() on the object 
-                                                being saved. Defaults to None.
-            load_function (callable, optional): A custom function to deserialize the configuration data. If not provided 
-                                                and model_class is set, the default is to use model_class.from_json(). 
-                                                Defaults to None.
-        Raises:
-            ValueError: If neither load_function nor model_class with a from_json method is provided.
+        Parameters:
+            app_name (str): Name of the application.
+            app_author (str): Author of the application.
+            sub_dir (str, optional): Subdirectory within the main directory to store the configuration file.
+            filename (str, optional): Filename for the configuration file. Defaults to 'config.json'.
+            use_user_dir (bool, optional): Flag to use user directory instead of site directory. Defaults to True.
+            custom_user_dir (str, optional): Custom path for the user directory. Overrides default if provided.
+            custom_site_dir (str, optional): Custom path for the site directory. Used when use_user_dir is False.
+            save_function (callable, optional): Custom function to serialize the configuration object. If None, uses default JSON serialization.
+            load_function (callable, optional): Custom function to deserialize the configuration object. If None, uses default JSON deserialization.
         """
         self.app_name = app_name
         self.app_author = app_author
         self.default_filename = filename
 
-        # Determine the save directory (always user directory)
-        self.save_directory = custom_user_dir or user_data_dir(app_name, app_author)
-
-        # Determine the load directory based on user or site preference
         if use_user_dir:
-            self.load_directory = custom_user_dir or user_data_dir(app_name, app_author)
+            self.directory = custom_user_dir or user_data_dir(app_name, app_author)
         else:
-            self.load_directory = custom_site_dir or site_data_dir(app_name, app_author)
+            self.directory = custom_site_dir or site_data_dir(app_name, app_author)
+        
+        if sub_dir:
+            self.directory = os.path.join(self.directory, sub_dir)
+        
+        self.save_function = save_function or self._default_save
+        self.load_function = load_function or self._default_load
 
-        # Add a subdirectory if provided
-        self.save_directory = os.path.join(self.save_directory, sub_dir) if sub_dir else self.save_directory
-        self.load_directory = os.path.join(self.load_directory, sub_dir) if sub_dir else self.load_directory
 
-        # Default serialization methods, using class-specific methods if available and no custom function is provided
-        self.save_function = save_function if save_function else lambda obj: obj.to_json()
-        if load_function:
-            self.load_function = load_function
-        elif model_class:
-            self.load_function = lambda data: model_class.from_json(data)
-        else:
-            raise ValueError("A load function or a class with a from_json method must be provided")
+    @staticmethod
+    def _default_save(obj):
+        """ Default JSON save function. """
+        return json.dumps(obj, indent=4)
 
-        self.model_class = model_class
+
+    @staticmethod
+    def _default_load(json_str):
+        """ Default JSON load function. """
+        return json.loads(json_str)
 
 
     def save_config(self, config_object, filename=None):
         """
-        Save the configuration object to a file.
-        Args:
-            config_object: The configuration object to be saved.
-            filename (str, optional): The name of the file to save the configuration to. If not provided,
-                                      the default filename will be used.
-        Returns:
-            None
+        Saves the configuration object to a file within the specified directory.
+
+        Parameters:
+            config_object (object): The configuration object to save.
+            filename (str, optional): The filename to use for saving the object. Uses default_filename if None.
+
+        Raises:
+            OSError: If the directory creation fails.
         """
+        if not os.path.exists(self.directory):
+            os.makedirs(self.directory)
 
-        # Ensure the save directory exists
-        if not os.path.exists(self.save_directory):
-            os.makedirs(self.save_directory)
-
-        file_path = os.path.join(self.save_directory, filename or self.default_filename)
+        file_path = os.path.join(self.directory, filename or self.default_filename)
         logging.debug(f"Saving configuration to: {file_path}")
 
-        # Serialize the object to a string and write it to the file
         serialized_data = self.save_function(config_object)
-
         with open(file_path, 'w', encoding='utf-8') as file:
             file.write(serialized_data)
 
 
-    def load_config(self, filename=None, must_exist=True):
+    def load_config(self, filename=None, must_exist=False):
         """
-        Load a configuration file.
-        Args:
-            filename (str, optional): The name of the configuration file to load. If not provided,
-                                      the default filename will be used.
-            must_exist (bool, optional): Whether the file must exist. If False and file does not exist, returns None.
+        Loads a configuration object from a file in the specified directory.
+
+        Parameters:
+            filename (str, optional): The filename from which to load the configuration. Uses default_filename if None.
+            must_exist (bool, optional): If True, raises FileNotFoundError if the file does not exist. Returns None if False.
+
         Returns:
-            object: The loaded configuration object or None if the file does not exist and must_exist is False.
+            object: The loaded configuration object, or None if the file does not exist and must_exist is False.
+
         Raises:
             FileNotFoundError: If the file does not exist and must_exist is True.
         """
-        file_path = os.path.join(self.load_directory, filename or self.default_filename)
+        file_path = os.path.join(self.directory, filename or self.default_filename)
         logging.debug(f"Loading configuration from: {file_path}")
-        
+
         if not os.path.exists(file_path):
             if must_exist:
                 raise FileNotFoundError(f"Configuration file '{file_path}' not found.")
-            else:
-                return None
+            return None
         
         with open(file_path, 'r', encoding='utf-8') as file:
             serialized_data = file.read().strip()
 
-        # Deserialize the content if it is not empty; otherwise return None
         return self.load_function(serialized_data) if serialized_data else None
-
-
-    def load_config_or_default(self, filename=None):
-        """
-        Load the configuration or return a default instance if the file does not exist or content is empty.
-        
-        Args:
-            filename (str, optional): The name of the configuration file to load. If not provided, the default
-                                      filename will be used.
-        
-        Returns:
-            object: The loaded configuration object, or a default instance of model_class if not found.
-        """
-        config = self.load_config(filename, must_exist=False)
-
-        if config is None and self.model_class:
-            return self.model_class()
-
-        return config
