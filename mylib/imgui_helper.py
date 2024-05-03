@@ -1,3 +1,7 @@
+"""
+This module provides wrapper functions for ImGui controls to update attributes of objects or elements in lists more directly, with less code. 
+"""
+
 from enum import Enum
 import imgui
 from typing import *
