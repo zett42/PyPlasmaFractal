@@ -60,6 +60,7 @@ class PyPlasmaFractalApp:
             'animation_paused': False,
         }
 
+
     def run(self):
         """
         Main entry point of the application which orchestrates the initialization,
@@ -67,19 +68,19 @@ class PyPlasmaFractalApp:
         """
         logging.debug('App started.')
 
-        render_config_manager, self.params = self.load_render_config()
+        self.load_config()
 
-        self.window, self.window_config_manager = self.initialize_glfw()
+        self.initialize_glfw()
         
-        self.ctx, self.feedback_manager = self.create_context_and_feedback_manager(self.window)
+        self.create_context_and_feedback_manager(self.window)
         
-        self.im_gui_renderer = self.setup_imgui(self.window)
+        self.setup_imgui(self.window)
         
         self.main_loop()
         
         self.finalize_glfw()
         
-        render_config_manager.save_config(self.params)
+        self.fractal_config_manager.save_config(self.params)
 
 
     def main_loop(self):
@@ -134,12 +135,12 @@ class PyPlasmaFractalApp:
                 self.resize_requested = False
 
 
-    def load_render_config(self):
+    def load_config(self):
         """
         Loads or initializes the application's render configuration.
         """     
     
-        app_config_manager = ConfigFileManager(
+        self.fractal_config_manager = ConfigFileManager(
             self.app_name,
             self.app_author,
             filename='fractal_config.json',
@@ -147,11 +148,10 @@ class PyPlasmaFractalApp:
             save_function=lambda obj: obj.to_json()
         )
         
-        params = app_config_manager.load_config() or PlasmaFractalParams()
+        self.params = self.fractal_config_manager.load_config() or PlasmaFractalParams()
 
-        logging.debug("PlasmaFractalParams:\n" + '\n'.join(f"{key}={value}" for key, value in vars(params).items()))
+        logging.debug("PlasmaFractalParams: " + self.params.to_json())
 
-        return app_config_manager, params
 
 
     def initialize_glfw(self):
@@ -161,9 +161,9 @@ class PyPlasmaFractalApp:
         if not glfw.init():
             raise Exception("Failed to initialize GLFW")
         
-        app_config_manager = WindowConfigManager(self.app_name, self.app_author)
+        self.window_config_manager = WindowConfigManager(self.app_name, self.app_author)
 
-        width, height, pos_x, pos_y = app_config_manager.get_config()
+        width, height, pos_x, pos_y = self.window_config_manager.get_config()
 
         glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 3)
         glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 3)
@@ -171,22 +171,20 @@ class PyPlasmaFractalApp:
         glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, glfw.TRUE)
         glfw.window_hint(glfw.RESIZABLE, glfw.TRUE)
 
-        window = glfw.create_window(width, height, self.app_name, None, None)
-        if not window:
+        self.window = glfw.create_window(width, height, self.app_name, None, None)
+        if not self.window:
             glfw.terminate()
             raise Exception("Failed to create GLFW window")
 
-        glfw.make_context_current(window)
-        glfw.set_window_pos(window, pos_x, pos_y)
+        glfw.make_context_current(self.window)
+        glfw.set_window_pos(self.window, pos_x, pos_y)
 
         # Store initial window dimensions and position for toggling fullscreen
         self.windowed_size_pos = (width, height, pos_x, pos_y)
 
         # Set up callbacks
-        glfw.set_framebuffer_size_callback(window, self.framebuffer_size_callback)
-        glfw.set_mouse_button_callback(window, self.mouse_button_callback)
-
-        return window, app_config_manager
+        glfw.set_framebuffer_size_callback(self.window, self.framebuffer_size_callback)
+        glfw.set_mouse_button_callback(self.window, self.mouse_button_callback)
 
 
     def framebuffer_size_callback(self, window, width, height):
@@ -237,13 +235,11 @@ class PyPlasmaFractalApp:
         """
         Creates and configures the ModernGL context and associated feedback texture manager.
         """
-        ctx = moderngl.create_context()
+        self.ctx = moderngl.create_context()
 
         window_width, window_height = glfw.get_framebuffer_size(window)
 
-        feedback_manager = FeedbackTextureManager(ctx, width=window_width, height=window_height, dtype='f4', filter_x=moderngl.LINEAR, filter_y=moderngl.LINEAR, repeat_x=True, repeat_y=True)
-
-        return ctx, feedback_manager
+        self.feedback_manager = FeedbackTextureManager(self.ctx, width=window_width, height=window_height, dtype='f4', filter_x=moderngl.LINEAR, filter_y=moderngl.LINEAR, repeat_x=True, repeat_y=True)
 
 
     def finalize_glfw(self):
@@ -274,16 +270,14 @@ class PyPlasmaFractalApp:
         """
         imgui.create_context()
 
-        renderer = GlfwRenderer(window)
+        self.im_gui_renderer = GlfwRenderer(window)
 
         # Replace default font with custom font
         fonts = imgui.get_io().fonts
         fonts.clear()
         fontPath = os.path.join(os.path.dirname(__file__), 'fonts/Roboto-Regular.ttf')
         fonts.add_font_from_file_ttf(fontPath, 20)
-        renderer.refresh_font_texture()
-
-        return renderer
+        self.im_gui_renderer.refresh_font_texture()
 
 
 if __name__ == "__main__":
