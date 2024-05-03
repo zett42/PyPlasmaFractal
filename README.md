@@ -34,7 +34,7 @@ pip install moderngl glfw imgui moderngl-window
 
 To start the application, run the following command:
 ```bash
-python pyplasmafractal.py
+python main.py
 ```
 
 Ensure that all necessary modules and resources (e.g., shaders, fonts) are correctly set up in your project directory.
