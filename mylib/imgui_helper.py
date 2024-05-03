@@ -8,23 +8,37 @@ from typing import *
 
 IndexType = Union[int, Hashable]
 
-def collapsing_header(title: str, obj: object, attr: str, flags: int = 0) -> bool:
+def collapsing_header(title: str, obj: Any, attr: str = None, index: Optional[IndexType] = None, flags: int = 0) -> bool:
     """
-    Create and manage an ImGui collapsing header that updates a boolean attribute of an object directly.
+    Create and manage an ImGui collapsing header that updates a boolean attribute of an object or a specific index within a collection directly. It can use a default value if the attribute or index does not exist.
 
     Args:
         title (str): The title of the collapsing header in the ImGui interface.
-        obj (object): The object containing the attribute to update.
+        obj (Any): The object or collection containing the attribute to update.
         attr (str): The attribute name on the object corresponding to the boolean property.
+        index (IndexType, optional): The index within the collection attribute to update.
         flags (int): Additional flags for the collapsing header.
 
     Returns:
         bool: The updated value of the boolean attribute.
     """
-    is_open = getattr(obj, attr)
-    open, _ = imgui.collapsing_header(title, flags=flags | (imgui.TREE_NODE_DEFAULT_OPEN if is_open else 0))
-    setattr(obj, attr, open)
-    return open
+    current_state = [None]
+
+    def interaction_func(display_value, _):
+        open, _ = imgui.collapsing_header(title, flags=flags | (imgui.TREE_NODE_DEFAULT_OPEN if display_value else 0))
+        current_state[0] = open
+        return display_value != open, open
+
+    _manage_attribute_interaction(
+        obj=obj,
+        interaction_func=interaction_func,
+        attr=attr,
+        index=index,
+        convert_to_display=lambda x: x,
+        default_value=True  # Default to open if the attribute does not exist
+    )
+
+    return current_state[0]
 
 
 def slider_int(label: str, obj: object, attr: str = None, index: Optional[IndexType] = None, min_value: int = 0, max_value: int = 1) -> None:
@@ -180,7 +194,8 @@ def _manage_attribute_interaction(obj: Any,
                                   attr: Optional[str] = None, 
                                   index: Optional[IndexType] = None,
                                   convert_to_display: Optional[Callable[[Any], Any]] = None, 
-                                  convert_from_display: Optional[Callable[[int, Any], Any]] = None
+                                  convert_from_display: Optional[Callable[[int, Any], Any]] = None,
+                                  default_value: Any = None
                                   ) -> None:
     """
     Manages the updating of an object's attribute or a specific element based on user interactions.
@@ -216,15 +231,21 @@ def _manage_attribute_interaction(obj: Any,
     if attr == '':
         raise ValueError("Attribute name cannot be an empty string.")
 
-    # Determine the target for interaction
     if attr is None:
         target = obj
     else:
-        target = getattr(obj, attr)
+        target = getattr(obj, attr, default_value)
 
-    # If 'index' is provided, index into the target
     if index is not None:
-        current_value = target[index]
+        if hasattr(target, 'get'):
+            current_value = target.get(index, default_value)
+        elif hasattr(target, '__getitem__'):
+            try:
+                current_value = target[index]
+            except (IndexError, KeyError):
+                current_value = default_value
+        else:
+            raise TypeError("Indexing is attempted on a non-subscriptable object.")
     else:
         current_value = target
 
