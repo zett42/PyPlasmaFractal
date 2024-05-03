@@ -52,6 +52,8 @@ class PyPlasmaFractalApp:
         self.resize_requested = False
         self.resize_delay = 0.25  # Delay in seconds before applying resize changes
 
+        self.last_click_time = 0
+        self.is_fullscreen = False
 
     def run(self):
         """
@@ -88,6 +90,8 @@ class PyPlasmaFractalApp:
             glfw.poll_events()
 
             self.handle_window_resize()
+            if not self.is_fullscreen:
+                self.windowed_size_pos = (*glfw.get_window_size(self.window), *glfw.get_window_pos(self.window))
 
             self.im_gui_renderer.process_inputs()
             imgui.new_frame()
@@ -131,6 +135,7 @@ class PyPlasmaFractalApp:
         """
         app_config_manager = ConfigFileManager(self.app_name, self.app_author, 'params.pkl')
         params = app_config_manager.load_config() or PlasmaFractalParams(use_defaults=True)
+        #params = PlasmaFractalParams(use_defaults=True)
 
         logging.debug("PlasmaFractalParams:\n" + '\n'.join(f"{key}={value}" for key, value in vars(params).items()))
 
@@ -162,8 +167,12 @@ class PyPlasmaFractalApp:
         glfw.make_context_current(window)
         glfw.set_window_pos(window, pos_x, pos_y)
 
-        # Set up a callback to handle window resize
-        glfw.set_framebuffer_size_callback(window, self.framebuffer_size_callback)        
+        # Store initial window dimensions and position for toggling fullscreen
+        self.windowed_size_pos = (width, height, pos_x, pos_y)
+
+        # Set up callbacks
+        glfw.set_framebuffer_size_callback(window, self.framebuffer_size_callback)
+        glfw.set_mouse_button_callback(window, self.mouse_button_callback)
 
         return window, app_config_manager
 
@@ -176,6 +185,38 @@ class PyPlasmaFractalApp:
         self.pending_width = width
         self.pending_height = height
         self.last_resize_time = time.time()
+
+
+    def toggle_fullscreen(self):
+        """
+        Toggles the window between fullscreen and windowed mode based on current state.
+        """
+        window = self.window 
+        current_monitor = glfw.get_window_monitor(window)
+        if current_monitor:
+            # Currently fullscreen, switch to windowed mode
+            width, height, x, y = self.windowed_size_pos
+            glfw.set_window_monitor(window, None, x, y, width, height, glfw.DONT_CARE)
+        else:
+            # Currently windowed, switch to fullscreen
+            monitor = glfw.get_primary_monitor()
+            mode = glfw.get_video_mode(monitor)
+            glfw.set_window_monitor(window, monitor, 0, 0, mode.size.width, mode.size.height, mode.refresh_rate)
+
+        self.is_fullscreen = not current_monitor
+
+
+    def mouse_button_callback(self, window, button, action, mods):
+        """
+        Handles mouse button events to detect double-clicks and toggle fullscreen.
+        """
+        if button == glfw.MOUSE_BUTTON_LEFT and action == glfw.PRESS:
+            # Check for double click (within 0.4 seconds)
+            current_time = time.time()
+            if current_time - self.last_click_time < 0.4:
+                self.toggle_fullscreen()
+
+            self.last_click_time = current_time
 
 
     def create_context_and_feedback_manager(self, window):
@@ -207,9 +248,10 @@ class PyPlasmaFractalApp:
         """
         Handles the rendering and logic of the GUI elements with ImGui.
         """
-        imgui.begin("Control Panel")
-        plasma_fractal_gui.handle_imgui_controls(self.params)
-        imgui.end()
+        if not self.is_fullscreen:
+            imgui.begin("Control Panel")
+            plasma_fractal_gui.handle_imgui_controls(self.params)
+            imgui.end()
 
 
     def setup_imgui(self, window):
