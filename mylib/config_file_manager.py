@@ -9,8 +9,11 @@ class ConfigFileManager:
     or site-specific data directories.
     """
 
-    def __init__(self, app_name, app_author, filename='config.pkl', 
-                 use_user_dir=True, custom_user_dir=None, custom_site_dir=None,
+    def __init__(self, app_name, app_author, 
+                 sub_dir=None,
+                 filename='config.json', 
+                 use_user_dir=True, 
+                 custom_user_dir=None, custom_site_dir=None,
                  model_class=None,
                  save_function=None, load_function=None):
         """
@@ -19,7 +22,8 @@ class ConfigFileManager:
         Args:
             app_name (str): The name of the application.
             app_author (str): The author of the application.
-            filename (str, optional): The name of the config file. Defaults to 'config.pkl'.
+            sub_dir (str, optional): A subdirectory within the user or site directory to store the configuration file.
+            filename (str, optional): The name of the config file. Defaults to 'config.json'.
             use_user_dir (bool, optional): Whether to use the user directory for loading and saving the config file. 
                                            Defaults to True.
             custom_user_dir (str, optional): A custom path for the user directory. If provided, overrides the default 
@@ -51,9 +55,9 @@ class ConfigFileManager:
         else:
             self.load_directory = custom_site_dir or site_data_dir(app_name, app_author)
 
-        # Ensure the save directory exists
-        if not os.path.exists(self.save_directory):
-            os.makedirs(self.save_directory)
+        # Add a subdirectory if provided
+        self.save_directory = os.path.join(self.save_directory, sub_dir) if sub_dir else self.save_directory
+        self.load_directory = os.path.join(self.load_directory, sub_dir) if sub_dir else self.load_directory
 
         # Default serialization methods, using class-specific methods if available and no custom function is provided
         self.save_function = save_function if save_function else lambda obj: obj.to_json()
@@ -77,6 +81,11 @@ class ConfigFileManager:
         Returns:
             None
         """
+
+        # Ensure the save directory exists
+        if not os.path.exists(self.save_directory):
+            os.makedirs(self.save_directory)
+
         file_path = os.path.join(self.save_directory, filename or self.default_filename)
         logging.debug(f"Saving configuration to: {file_path}")
 
