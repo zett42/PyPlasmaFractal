@@ -9,8 +9,8 @@ def handle_imgui_controls(params: PlasmaFractalParams):
 
     style = imgui.get_style()
 
-    # Adjust header color
-    imgui.push_style_color(imgui.COLOR_HEADER, *modify_rgba_color_hsv(style.colors[imgui.COLOR_HEADER], -0.05, 1.0, 1.2))
+    # Adjust header (and item selection) color
+    imgui.push_style_color(imgui.COLOR_HEADER, *modify_rgba_color_hsv(style.colors[imgui.COLOR_HEADER], -0.05, 1.0, 1.0))
 
     width = imgui.get_content_region_available_width()
 
@@ -30,6 +30,10 @@ def handle_imgui_controls(params: PlasmaFractalParams):
             with imgui.begin_tab_item("Feedback") as feedback_tab:
                 if feedback_tab.selected:
                     handle_feedback_tab(params)
+
+            with imgui.begin_tab_item("Presets") as presets_tab:
+                if presets_tab.selected:
+                    handle_presets_tab(params)
 
     # Revert to the original color
     imgui.pop_style_color(1)
@@ -119,3 +123,20 @@ def handle_feedback_controls(params: PlasmaFractalParams):
             ih.slider_float(label, warp_params, index=index,
                             min_value=paramInfo.min, max_value=paramInfo.max, 
                             flags=imgui.SLIDER_FLAGS_LOGARITHMIC if paramInfo.logarithmic else 0)
+
+
+selected_item_index = -1  # Initialize with -1 to indicate no selection
+ 
+def handle_presets_tab(params: PlasmaFractalParams):
+
+    global selected_item_index
+    preset_names = ["NebulaCore", "LiquidDream", "VortexWaves", "EtherealMist", "ChaosCascade"]
+
+    with imgui.begin_list_box("Available Presets", 250, 200) as list_box:
+        if list_box.opened:
+            for i, item in enumerate(preset_names):
+                _, is_selected = imgui.selectable(item, selected_item_index == i)
+                if is_selected and selected_item_index != i:
+                    selected_item_index = i
+                    print(f"Selected: {item}")
+                    
