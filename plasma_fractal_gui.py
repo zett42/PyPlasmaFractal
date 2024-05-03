@@ -32,9 +32,9 @@ def handle_imgui_controls(params: PlasmaFractalParams, ui_state: dict[str, Any])
                 if feedback_tab.selected:
                     handle_feedback_tab(params, ui_state)
 
-            with imgui.begin_tab_item("Presets") as presets_tab:
-                if presets_tab.selected:
-                    handle_presets_tab(params, ui_state)
+            # with imgui.begin_tab_item("Presets") as presets_tab:
+            #     if presets_tab.selected:
+            #         handle_presets_tab(params, ui_state)
 
     # Revert to the original color
     imgui.pop_style_color(1)
@@ -130,18 +130,18 @@ def handle_feedback_controls(params: PlasmaFractalParams, ui_state: dict[str, An
                             flags=imgui.SLIDER_FLAGS_LOGARITHMIC if paramInfo.logarithmic else 0)
 
 
-selected_item_index = -1  # Initialize with -1 to indicate no selection
+# selected_preset_index = -1  # -1 indicates no selection
  
-def handle_presets_tab(params: PlasmaFractalParams, ui_state: dict[str, Any]):
+# def handle_presets_tab(params: PlasmaFractalParams, ui_state: dict[str, Any]):
 
-    global selected_item_index
-    preset_names = ["NebulaCore", "LiquidDream", "VortexWaves", "EtherealMist", "ChaosCascade"]
+#     global selected_preset_index
+#     preset_names = ["NebulaCore", "LiquidDream", "VortexWaves", "EtherealMist", "ChaosCascade"]
 
-    with imgui.begin_list_box("Available Presets", 250, 200) as list_box:
-        if list_box.opened:
-            for i, item in enumerate(preset_names):
-                _, is_selected = imgui.selectable(item, selected_item_index == i)
-                if is_selected and selected_item_index != i:
-                    selected_item_index = i
-                    print(f"Selected: {item}")
+#     with imgui.begin_list_box("Available Presets", 250, 200) as list_box:
+#         if list_box.opened:
+#             for i, item in enumerate(preset_names):
+#                 _, is_selected = imgui.selectable(item, selected_preset_index == i)
+#                 if is_selected and selected_preset_index != i:
+#                     selected_preset_index = i
+#                     print(f"Selected: {item}")
                     
