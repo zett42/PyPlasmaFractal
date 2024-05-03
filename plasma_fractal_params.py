@@ -34,14 +34,7 @@ class WarpFunctionInfo:
     Contains information about a warp function, including its parameters and dependency on specific fractal noise variant.
     """
 
-    # Define the maximum allowed number of parameters for any warp function. This needs to be hardcoded, because shader uniforms are fixed-size arrays.
-    MAX_WARP_PARAMS: int = 4
-
     def __init__(self, fractal_noise_variant: FractalNoiseVariant, params: List[WarpFunctionParam] = [], display_name: str = None):
-
-       # Check if the number of provided parameters exceeds the maximum allowed
-        if len(params) > self.MAX_WARP_PARAMS:
-            raise ValueError(f"Too many parameters: {len(params)} provided, but the maximum is {self.MAX_WARP_PARAMS}")
 
         self.display_name = display_name
         self.fractal_noise_variant = fractal_noise_variant
@@ -49,7 +42,6 @@ class WarpFunctionInfo:
 
 
 # Dictionary that maps warp functions to their respective information
-# NOTE: adjust MAX_WARP_PARAMS according to the maximum number of parameters for any warp function
 
 WARP_FUNCTION_INFOS = {
     'Offset': WarpFunctionInfo(
@@ -90,6 +82,7 @@ WARP_FUNCTION_INFOS = {
     ),
 }
 
+MAX_WARP_PARAMS = max(len(info.params) for info in WARP_FUNCTION_INFOS.values())
 
 class PlasmaFractalParams:
     """
@@ -152,6 +145,9 @@ class PlasmaFractalParams:
 
     def get_current_warp_params(self) -> List[float]:
         return self.warpParams[self.warpFunction]
+    
+    def get_max_warp_params(self) -> int:
+        return MAX_WARP_PARAMS
 
     
     #............ Serialization methods ........................................................................

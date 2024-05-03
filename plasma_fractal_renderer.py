@@ -103,7 +103,7 @@ class PlasmaFractalRenderer:
             'FB_WARP_FRACTAL_NOISE_VARIANT': params.get_current_warp_function_info().fractal_noise_variant.name,
             'FB_WARP_NOISE_FUNC': params.warpNoiseAlgorithm.name,
             'FB_WARP_XFORM_FUNC': params.warpFunction,
-            'MAX_WARP_PARAMS': WarpFunctionInfo.MAX_WARP_PARAMS,
+            'MAX_WARP_PARAMS': params.get_max_warp_params(),
         }
         self.program, _ = self.shader_cache.get_or_create_program(fragment_template_params=fragment_template_params)
         self.vao = self.shader_cache.get_or_create_vao(self.program, self.vbo, 'in_pos')
@@ -155,7 +155,7 @@ class PlasmaFractalRenderer:
             feedback_texture.use(location=0)
 
 
-    def _set_warp_params_uniform(self, params, program):
+    def _set_warp_params_uniform(self, params: PlasmaFractalParams, program):
         """
         Prepare and update the shader's warp parameters based on the current warp function.
 
@@ -164,10 +164,11 @@ class PlasmaFractalRenderer:
             program (ShaderProgram): The shader program object which will use the parameters.
 
         """
-        current_warp_params = params.warpParams[params.warpFunction]
 
         # Populate the array with current warp parameters and ensure the shader receives a fixed size array by filling unused params with zero.
-        warpParams_np = np.zeros(WarpFunctionInfo.MAX_WARP_PARAMS, dtype='float32')
+        max_warp_params = params.get_max_warp_params()
+        current_warp_params = params.get_current_warp_params()
+        warpParams_np = np.zeros(max_warp_params, dtype='float32')
         warpParams_np[:len(current_warp_params)] = current_warp_params
 
         # Write the array to the shader's uniform buffer
