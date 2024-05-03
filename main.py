@@ -72,7 +72,7 @@ class PyPlasmaFractalApp:
 
         self.initialize_glfw()
         
-        self.create_context_and_feedback_manager(self.window)
+        self.setup_render_context(self.window)
         
         self.setup_imgui(self.window)
         
@@ -230,7 +230,7 @@ class PyPlasmaFractalApp:
                 self.last_click_time = current_time
 
 
-    def create_context_and_feedback_manager(self, window):
+    def setup_render_context(self, window):
         """
         Creates and configures the ModernGL context and associated feedback texture manager.
         """
