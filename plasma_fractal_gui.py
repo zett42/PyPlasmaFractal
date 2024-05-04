@@ -220,7 +220,7 @@ class PlasmaFractalGUI:
         None
         """
         imgui.spacing()
-        imgui.text("Available Presets:")
+        imgui.text("Available Presets (* marks built-ins):")
         imgui.spacing()
 
         if imgui.begin_list_box("##AvailablePresets", width, 300):
