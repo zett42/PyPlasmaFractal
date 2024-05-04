@@ -262,7 +262,7 @@ class PyPlasmaFractalApp:
         imgui.new_frame()
 
         if not self.is_fullscreen:
-            self.gui.handle_imgui_controls(self.params)
+            self.gui.update(self.params)
 
 
     def finalize_glfw(self):

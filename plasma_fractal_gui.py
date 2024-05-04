@@ -13,7 +13,21 @@ from mylib.presets_manager import Preset, list_presets, load_preset
 #------------------------------------------------------------------------------------------------------------------------------------
 
 class PlasmaFractalGUI:
-
+    """
+    Manages the user interface for PyPlasmaFractal.
+      
+    Attributes:
+        preset_list (List[Preset]): A list of available presets, populated on-demand.
+        selected_preset_index (int): The index of the currently selected preset in the list.
+        animation_paused (bool): Flag to indicate whether the animation is paused.
+        noise_settings_open (bool): Flag to control the visibility of the noise settings.
+        fractal_settings_open (bool): Flag to control the visibility of fractal settings.
+        output_settings_open (bool): Flag to control the visibility of output settings.
+        feedback_general_settings_open (bool): Flag to control the visibility of general feedback settings.
+        feedback_warp_noise_settings_open (bool): Flag to control the visibility of feedback noise settings.
+        feedback_warp_octave_settings_open (bool): Flag to control the visibility of feedback octave settings.
+        feedback_warp_effect_settings_open (bool): Flag to control the visibility of feedback effect settings.
+    """
     def __init__(self):
 
         self.preset_list = []
@@ -28,8 +42,16 @@ class PlasmaFractalGUI:
         self.feedback_warp_effect_settings_open = True
 
     
-    def handle_imgui_controls(self, params: PlasmaFractalParams):
+    def update(self, params: PlasmaFractalParams):
+        """
+        Updates the UI elements in the control panel for managing plasma fractal visualization settings.
 
+        This method handles the layout and interaction logic for the control panel, organizing settings into
+        tabs. It allows users to modify plasma fractal parameters directly through graphical controls like sliders and checkboxes.
+
+        Args:
+            params (PlasmaFractalParams): The current settings of the plasma fractal that can be adjusted via the UI.
+        """
         imgui.begin("Control Panel")
 
         style = imgui.get_style()
@@ -63,7 +85,12 @@ class PlasmaFractalGUI:
     
 
     def handle_noise_tab(self, params: PlasmaFractalParams):
+        """
+        Manages the UI controls for adjusting noise-related settings in the plasma fractal visualization.
 
+        Args:
+            params (PlasmaFractalParams): The current settings of the plasma fractal that can be adjusted via the UI.
+        """
         width = imgui.get_content_region_available_width()
         imgui.push_item_width(width - 140)
 
@@ -86,7 +113,12 @@ class PlasmaFractalGUI:
 
 
     def handle_feedback_tab(self, params: PlasmaFractalParams):
+        """
+        Manages the UI controls for the feedback settings in the plasma fractal visualization.
 
+        Args:
+            params (PlasmaFractalParams): The current settings of the plasma fractal, which include feedback-related parameters.
+        """
         ih.checkbox("Enable Feedback", params, 'enable_feedback')
 
         if params.enable_feedback:
@@ -101,7 +133,12 @@ class PlasmaFractalGUI:
 
 
     def handle_feedback_controls(self, params: PlasmaFractalParams):
+        """
+        Manages detailed UI controls for configuring feedback effects in the plasma fractal visualization.
 
+        Args:
+            params (PlasmaFractalParams): The current settings of the plasma fractal, specifically for configuring feedback effects.
+        """
         width = imgui.get_content_region_available_width()
         imgui.push_item_width(width - 140)
 
@@ -133,7 +170,12 @@ class PlasmaFractalGUI:
 
 
     def handle_presets_tab(self, params: PlasmaFractalParams):
+        """
+        Manages the presets tab in the UI, allowing users to load and apply presets for plasma fractal configurations.
 
+        Args:
+            params (PlasmaFractalParams): The fractal parameters that can be modified by applying a preset.
+        """
         width = imgui.get_content_region_available_width()
 
         if not self.preset_list:
@@ -163,13 +205,22 @@ class PlasmaFractalGUI:
 
 
     def load_presets(self):
-
+        """
+        This method fetches presets from application-specific and user-specific directories, updating
+        the internal list of presets. It ensures that the presets are refreshed and available for user interaction
+        in the presets tab.
+        """
         app_presets_path, user_presets_path = self.get_preset_paths()
         self.preset_list = list_presets(app_presets_path, user_presets_path)
 
 
     def get_preset_paths(self):
+        """
+        Retrieves the file system paths for loading presets.
 
+        Returns:
+            tuple: A tuple containing the path for application presets and user presets.
+        """
         presets_sub_dir = 'presets'
         
         script_dir = os.path.dirname(os.path.realpath(__file__))
@@ -183,6 +234,13 @@ class PlasmaFractalGUI:
 
 
     def apply_preset(self, params: PlasmaFractalParams, selected_preset: Preset):
+        """
+        Loads the preset data from a file and updates the current fractal parameters accordingly.
+
+        Args:
+            params (PlasmaFractalParams): The fractal parameters to be updated.
+            selected_preset (Preset): The preset selected by the user for application.
+        """
         try:
             preset_json = load_preset(selected_preset)
             new_params = PlasmaFractalParams.from_json(preset_json)
