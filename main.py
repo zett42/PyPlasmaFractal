@@ -34,7 +34,7 @@ from mylib.config_file_manager import ConfigFileManager
 
 from plasma_fractal_renderer import PlasmaFractalRenderer
 from plasma_fractal_params import PlasmaFractalParams
-import plasma_fractal_gui
+from plasma_fractal_gui import PlasmaFractalGUI
 
 #---------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -56,7 +56,7 @@ class PyPlasmaFractalApp:
         self.last_click_time = 0
         self.is_fullscreen = False
 
-        self.ui_state = plasma_fractal_gui.UIState()
+        self.gui = PlasmaFractalGUI()
 
 
     def run(self):
@@ -219,7 +219,7 @@ class PyPlasmaFractalApp:
 
             self.handle_gui()
 
-            elapsed_time = timer.update(self.ui_state.animation_paused, self.params.speed)
+            elapsed_time = timer.update(self.gui.animation_paused, self.params.speed)
 
             main_renderer.update_params(self.params, self.feedback_manager.previous_texture, elapsed_time)
 
@@ -262,9 +262,7 @@ class PyPlasmaFractalApp:
         imgui.new_frame()
 
         if not self.is_fullscreen:
-            imgui.begin("Control Panel")
-            plasma_fractal_gui.handle_imgui_controls(self.params, self.ui_state)
-            imgui.end()
+            self.gui.handle_imgui_controls(self.params)
 
 
     def finalize_glfw(self):
