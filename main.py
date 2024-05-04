@@ -89,8 +89,8 @@ class PyPlasmaFractalApp:
         """     
     
         self.fractal_config_manager = ConfigFileManager(
-            self.app_name,
-            self.app_author,
+            app_name=self.app_name,
+            app_author=self.app_author,
             filename='fractal_config.json',
             load_function=lambda json_str: PlasmaFractalParams.from_json(json_str),
             save_function=lambda obj: obj.to_json()

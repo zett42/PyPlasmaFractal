@@ -17,6 +17,27 @@ def config_object():
         'key3': 'value3'
     }
 
+
+def test_default_initialization(mocker):
+    # Mock appdirs to return a specific default path
+    default_dir = "/default/path"
+    mocker.patch('mylib.config_file_manager.user_data_dir', return_value=default_dir)
+    mocker.patch('mylib.config_file_manager.site_data_dir', return_value=default_dir)
+
+    # Initialize without parameters
+    config_manager = ConfigFileManager()
+
+    # Check if it defaults to the mocked directory
+    assert config_manager.directory == default_dir, "Should default to a predefined directory when app details are missing"
+    
+    # Verify default filename is set
+    assert config_manager.default_filename == 'config.json', "Should default to 'config.json' if filename is not provided"
+
+    # Verify default save and load functions are used
+    assert config_manager.save_function.__name__ == '_default_save', "Should use the default save function when none is provided"
+    assert config_manager.load_function.__name__ == '_default_load', "Should use the default load function when none is provided"
+
+
 # Test default serialization
 def test_default_save(config_manager):
 
@@ -123,6 +144,7 @@ def test_save_config_with_custom_filename(config_manager, config_object, mocker)
 
     # Asserting that the file is opened with the correct path and mode
     mock_file_open.assert_called_once_with(expected_file_path, 'w', encoding='utf-8')
+
     # Asserting that the content written to the file is correct
     mock_file_open().write.assert_called_once_with(json.dumps(config_object, indent=4))
 
@@ -144,5 +166,57 @@ def test_load_config_with_custom_filename(config_manager, mocker):
 
     # Asserting that the file is opened with the correct path and mode
     mock_file_open.assert_called_once_with(expected_file_path, 'r', encoding='utf-8')
+
     # Asserting that the loaded configuration matches the expected JSON object
     assert loaded_config == json.loads(config_data), "Loaded config should match the expected JSON object"
+
+
+# Test initialization with an explicit directory
+def test_explicit_directory():
+
+    directory = "/explicit/directory"
+    config_manager = ConfigFileManager(directory=directory)
+
+    assert config_manager.directory == directory, "Should use the explicitly provided directory"
+
+# Test default directory usage
+def test_default_directory_usage(mocker):
+
+    user_dir = "/user/default/dir"
+    site_dir = "/site/default/dir"
+
+    mocker.patch('mylib.config_file_manager.user_data_dir', return_value=user_dir)
+    mocker.patch('mylib.config_file_manager.site_data_dir', return_value=site_dir)
+
+    # Test using user directory
+    config_manager_user = ConfigFileManager(app_name="TestApp", app_author="TestAuthor", use_user_dir=True)
+    assert config_manager_user.directory == user_dir, "Should default to user directory"
+
+    # Test using site directory
+    config_manager_site = ConfigFileManager(app_name="TestApp", app_author="TestAuthor", use_user_dir=False)
+    assert config_manager_site.directory == site_dir, "Should default to site directory"
+
+
+# Test subdirectory handling
+def test_subdirectory_handling():
+
+    directory = "/base/directory"
+    sub_dir = "sub/directory"
+
+    config_manager = ConfigFileManager(directory=directory, sub_dir=sub_dir)
+
+    expected_path = os.path.join(directory, sub_dir)
+
+    assert config_manager.directory == expected_path, "Should correctly append the subdirectory"
+
+
+# Test custom save and load functions
+def test_custom_save_and_load_functions():
+
+    custom_save = lambda x: x
+    custom_load = lambda x: x
+
+    config_manager = ConfigFileManager(save_function=custom_save, load_function=custom_load)
+
+    assert config_manager.save_function is custom_save, "Should use the custom save function"
+    assert config_manager.load_function is custom_load, "Should use the custom load function"

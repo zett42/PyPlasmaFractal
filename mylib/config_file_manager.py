@@ -16,34 +16,34 @@ class ConfigFileManager:
         default_filename (str): The default filename for storing the configuration file.
     """
 
-    def __init__(self, app_name, app_author, 
-                 sub_dir=None,
-                 filename='config.json', 
-                 use_user_dir=True, 
-                 custom_user_dir=None, custom_site_dir=None,
+    def __init__(self, 
+                 filename='config.json',
+                 directory=None, sub_dir=None,
+                 app_name=None, app_author=None, use_user_dir=True, 
                  save_function=None, load_function=None):
         """
-        Initializes the configuration file manager with specified application details and directory preferences.
+        Initialize the ConfigFileManager object.
 
-        Parameters:
-            app_name (str): Name of the application.
-            app_author (str): Author of the application.
-            sub_dir (str, optional): Subdirectory within the main directory to store the configuration file.
-            filename (str, optional): Filename for the configuration file. Defaults to 'config.json'.
-            use_user_dir (bool, optional): Flag to use user directory instead of site directory. Defaults to True.
-            custom_user_dir (str, optional): Custom path for the user directory. Overrides default if provided.
-            custom_site_dir (str, optional): Custom path for the site directory. Used when use_user_dir is False.
-            save_function (callable, optional): Custom function to serialize the configuration object. If None, uses default JSON serialization.
-            load_function (callable, optional): Custom function to deserialize the configuration object. If None, uses default JSON deserialization.
+        Args:
+            filename (str, optional): The name of the configuration file. Defaults to 'config.json'.
+            directory (str, optional): The full directory path where the configuration file will be stored. 
+                If not provided, it defaults to the user data directory or site data directory based on the value of `use_user_dir`.
+            sub_dir (str, optional): The subdirectory within the directory where the configuration file will be stored.
+            app_name (str, optional): The name of the application. Used to determine the default directory path.
+            app_author (str, optional): The author of the application. Used to determine the default directory path.
+            use_user_dir (bool, optional): If True, the user data directory will be used for the default directory path.
+                If False, the site data directory will be used. Defaults to True.
+            save_function (function, optional): A custom save function to be used instead of the default save function.
+            load_function (function, optional): A custom load function to be used instead of the default load function.
         """
         self.app_name = app_name
         self.app_author = app_author
         self.default_filename = filename
 
-        if use_user_dir:
-            self.directory = custom_user_dir or user_data_dir(app_name, app_author)
+        if directory:
+            self.directory = directory
         else:
-            self.directory = custom_site_dir or site_data_dir(app_name, app_author)
+            self.directory = user_data_dir(app_name, app_author) if use_user_dir else site_data_dir(app_name, app_author)
         
         if sub_dir:
             self.directory = os.path.join(self.directory, sub_dir)
