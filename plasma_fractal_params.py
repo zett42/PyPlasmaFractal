@@ -150,6 +150,18 @@ class PlasmaFractalParams:
         return MAX_WARP_PARAMS
 
     
+    def update(self, new_params: 'PlasmaFractalParams'):
+        """
+        Update the instance attributes with another instance's attributes.
+
+        Args:
+        new_params (PlasmaFractalParams): An instance of PlasmaFractalParams with new values.
+        """
+        for key, value in vars(new_params).items():
+            if hasattr(self, key):
+                setattr(self, key, value)
+
+
     #............ Serialization methods ........................................................................
 
     def to_dict(self):

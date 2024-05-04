@@ -7,9 +7,11 @@ from mylib.config_file_manager import ConfigFileManager
 from plasma_fractal_params import PlasmaFractalParams
 import mylib.imgui_helper as ih
 from mylib.adjust_color import modify_rgba_color_hsv
-from mylib.presets_manager import list_presets
+from mylib.presets_manager import Preset, list_presets, load_preset
 
+#------------------------------------------------------------------------------------------------------------------------------------
 # Define the GUI controls for the plasma fractal
+
 def handle_imgui_controls(params: PlasmaFractalParams, ui_state: dict[str, Any]):
 
     style = imgui.get_style()
@@ -37,14 +39,16 @@ def handle_imgui_controls(params: PlasmaFractalParams, ui_state: dict[str, Any])
                     handle_feedback_tab(params, ui_state)
 
             with imgui.begin_tab_item("Presets") as presets_tab:
-                if presets_tab.selected:
-                    handle_presets_tab(params, ui_state)
+                 if presets_tab.selected:
+                     handle_presets_tab(params, ui_state)
 
     # Revert to the original color
     imgui.pop_style_color(1)
 
 
+#------------------------------------------------------------------------------------------------------------------------------------
 # Define the GUI controls for the noise settings
+
 def handle_noise_tab(params: PlasmaFractalParams, ui_state: dict[str, Any]):
 
     width = imgui.get_content_region_available_width()
@@ -70,8 +74,9 @@ def handle_noise_tab(params: PlasmaFractalParams, ui_state: dict[str, Any]):
         ih.slider_float("Contrast", params, 'contrastSteepness', min_value=0.001, max_value=50.0)
         ih.slider_float("Contrast Midpoint", params, 'contrastMidpoint', min_value=0.0, max_value=1.0)
 
-
+#------------------------------------------------------------------------------------------------------------------------------------
 # Define the GUI controls for the feedback settings
+
 def handle_feedback_tab(params: PlasmaFractalParams, ui_state: dict[str, Any]):
 
     ih.checkbox("Enable Feedback", params, 'enable_feedback')
@@ -86,8 +91,9 @@ def handle_feedback_tab(params: PlasmaFractalParams, ui_state: dict[str, Any]):
         imgui.separator()
         imgui.text_wrapped("After enabling feedback, you might want to adjust the noise settings, particularly the contrast for better results.")
 
-
+#------------------------------------------------------------------------------------------------------------------------------------
 # Define the GUI controls for the feedback settings
+
 def handle_feedback_controls(params: PlasmaFractalParams, ui_state: dict[str, Any]):
 
     width = imgui.get_content_region_available_width()
@@ -133,14 +139,20 @@ def handle_feedback_controls(params: PlasmaFractalParams, ui_state: dict[str, An
                             min_value=paramInfo.min, max_value=paramInfo.max, 
                             flags=imgui.SLIDER_FLAGS_LOGARITHMIC if paramInfo.logarithmic else 0)
 
+#------------------------------------------------------------------------------------------------------------------------------------
+# Define the GUI controls for the presets tab
 
 selected_preset_index = -1  # -1 indicates no selection
  
 def handle_presets_tab(params: PlasmaFractalParams, ui_state: dict):
+
     global selected_preset_index
 
-    # Check if presets need to be loaded
+    width = imgui.get_content_region_available_width()
+
+    # Check if presets list needs to be loaded
     if 'preset_list' not in ui_state:
+
         app_presets_path, user_presets_path = get_preset_paths()
 
         logging.debug(f"App presets path: {app_presets_path}")
@@ -149,17 +161,68 @@ def handle_presets_tab(params: PlasmaFractalParams, ui_state: dict):
         # Store Preset objects directly
         ui_state['preset_list'] = list_presets(app_presets_path, user_presets_path)
 
-    # UI display logic
-    with imgui.begin_list_box("Available Presets", 250, 200) as list_box:
-        if list_box.opened:
-            for i, preset in enumerate(ui_state['preset_list']):
-                # Format each preset for display on the fly
-                display_name = f"* {preset.file_path}" if preset.is_predefined else preset.file_path
-                _, is_selected = imgui.selectable(display_name, selected_preset_index == i)
-                if is_selected and selected_preset_index != i:
-                    selected_preset_index = i
-                    print(f"Selected: {display_name}")
+        logging.debug(f"Preset list: {ui_state['preset_list']}")
 
+    # Manually render the label above the list box, instead of the default right position
+    imgui.spacing()
+    imgui.text("Available Presets:")
+    imgui.spacing()
+
+    # UI display logic for presets list
+    # The label is just an ID with no visual label, as we already have a visible label above the list.
+    if imgui.begin_list_box("##Available Presets", width, 200):  
+        
+        for i, preset in enumerate(ui_state['preset_list']):
+
+            display_name = f"* {preset.relative_file_path}" if preset.is_predefined else preset.relative_file_path
+
+            _, is_selected = imgui.selectable(display_name, selected_preset_index == i)
+
+            if is_selected and selected_preset_index != i:
+                selected_preset_index = i
+
+        imgui.end_list_box()
+
+    # UI logic for load button
+    if imgui.button("Load Preset"):
+
+        if selected_preset_index != -1:
+            selected_preset = ui_state['preset_list'][selected_preset_index]
+
+            apply_preset(params, selected_preset)
+
+#------------------------------------------------------------------------------------------------------------------------------------
+
+def apply_preset(params: PlasmaFractalParams, selected_preset: Preset):
+    """
+    Load and apply a preset using the PlasmaFractalParams model.
+
+    Args:
+    selected_preset (Preset): The preset to load and apply.
+    """
+
+    logging.info(f"Loading preset: {selected_preset.relative_file_path}, Predefined: {selected_preset.is_predefined}")
+
+    try:
+        # Load the preset data
+        preset_json = load_preset(selected_preset)
+        
+        # Deserialize and apply the preset data
+        new_params = PlasmaFractalParams.from_json(preset_json)
+
+        # Update the current parameters with the new values        
+        params.update(new_params)
+
+        logging.info("Preset applied successfully.")
+        
+    except Exception as e:
+        # Handle errors related to file operations or JSON parsing
+        # TODO: Show an error message to the user
+        logging.error(f"Error applying preset: {str(e)}")
+
+
+#------------------------------------------------------------------------------------------------------------------------------------
+# Helper functions
 
 def get_preset_paths():
     """
@@ -172,6 +235,8 @@ def get_preset_paths():
     script_dir = os.path.dirname(os.path.realpath(__file__))
     app_presets_path = os.path.join(script_dir, presets_sub_dir)
     
+    # TODO: Don't add a dependency to ConfigFileManager for this. 
+    #       We should factor out the directory logic from ConfigFileManager into a separate function.
     user_presets_path = ConfigFileManager('PlasmaFractal', 'zett42', sub_dir=presets_sub_dir, use_user_dir=True).directory
 
     return (app_presets_path, user_presets_path)
