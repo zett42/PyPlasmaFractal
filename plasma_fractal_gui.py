@@ -195,9 +195,9 @@ class PlasmaFractalGUI:
 
         self.load_initial_presets()
         self.display_available_presets(width)
-        self.load_selected_preset(params)
+        self.preset_load_button_and_logic(params)
         self.preset_name_input(width)
-        self.save_preset_logic(params)
+        self.preset_save_button_and_logic(params)
 
 
     def display_available_presets(self, width):
@@ -228,7 +228,7 @@ class PlasmaFractalGUI:
             imgui.end_list_box()
 
 
-    def load_selected_preset(self, params):
+    def preset_load_button_and_logic(self, params):
         """
         Loads the selected preset and applies it to the given parameters.
 
@@ -262,7 +262,7 @@ class PlasmaFractalGUI:
         imgui.same_line()
 
 
-    def save_preset_logic(self, params: PlasmaFractalParams):
+    def preset_save_button_and_logic(self, params: PlasmaFractalParams):
         """
         Handles the logic for saving a preset.
 
