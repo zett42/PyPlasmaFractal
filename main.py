@@ -31,6 +31,7 @@ from mylib.feedback_texture import FeedbackTextureManager
 from mylib.window_config_manager import WindowConfigManager
 from mylib.animation_timer import AnimationTimer
 from mylib.config_file_manager import ConfigFileManager
+from mylib.icons import Icons
 
 from plasma_fractal_renderer import PlasmaFractalRenderer
 from plasma_fractal_params import PlasmaFractalParams
@@ -196,11 +197,18 @@ class PyPlasmaFractalApp:
 
         self.im_gui_renderer = GlfwRenderer(window)
 
+        fonts_dir = os.path.join(os.path.dirname(__file__), 'fonts')
+
         # Replace default font with custom font
         fonts = imgui.get_io().fonts
         fonts.clear()
-        fontPath = os.path.join(os.path.dirname(__file__), 'fonts/Roboto-Regular.ttf')
-        fonts.add_font_from_file_ttf(fontPath, 20)
+        font_path = os.path.join(fonts_dir, 'Roboto-Regular.ttf')
+        fonts.add_font_from_file_ttf(font_path, 20)
+
+        # Merge icon font
+        Icons.merge_font(fonts_dir, font_file_name='MaterialDesignIconsDesktop.ttf', font_size=28)
+
+        # Update the font texture to apply changes
         self.im_gui_renderer.refresh_font_texture()
 
 

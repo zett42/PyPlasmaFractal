@@ -1,10 +1,11 @@
-import logging
+﻿import logging
 import os
 from typing import *
 import imgui
 from dataclasses import dataclass, field
 
 from mylib.config_file_manager import ConfigFileManager
+from mylib.icons import Icons
 from plasma_fractal_params import PlasmaFractalParams
 import mylib.imgui_helper as ih
 from mylib.adjust_color import modify_rgba_color_hsv
@@ -347,8 +348,8 @@ class PlasmaFractalGUI:
 
         if imgui.begin_popup_modal(title, flags=imgui.WINDOW_ALWAYS_AUTO_RESIZE)[0]:
 
-            #imgui.text(f'⚠️ {message}')
-            imgui.text(message)
+            imgui.spacing()
+            imgui.text(f'{Icons.WARNING} {message}')
             imgui.spacing()
 
             if imgui.button("Yes"):
