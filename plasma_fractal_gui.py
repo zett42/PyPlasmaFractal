@@ -55,6 +55,8 @@ class PlasmaFractalGUI:
         logging.debug(f"User presets directory: {self.user_presets_directory}")
 
 
+    # .......................... UI update methods ...........................................................................
+
     def update(self, params: PlasmaFractalParams):
         """
         Updates the UI elements in the control panel for managing plasma fractal visualization settings.
@@ -199,7 +201,15 @@ class PlasmaFractalGUI:
 
 
     def display_available_presets(self, width):
+        """
+        Displays the available presets in a list box.
 
+        Parameters:
+        - width (int): The width of the list box.
+
+        Returns:
+        None
+        """
         imgui.spacing()
         imgui.text("Available Presets:")
         imgui.spacing()
@@ -219,7 +229,15 @@ class PlasmaFractalGUI:
 
 
     def load_selected_preset(self, params):
+        """
+        Loads the selected preset and applies it to the given parameters.
 
+        Args:
+            params (dict): The parameters to apply the preset to.
+
+        Returns:
+            None
+        """
         if imgui.button("Load"):
             if self.selected_preset_index != -1:
                 selected_preset = self.preset_list[self.selected_preset_index]
@@ -227,7 +245,15 @@ class PlasmaFractalGUI:
 
 
     def preset_name_input(self, width):
+        """
+        Displays an input field for the preset name.
 
+        Args:
+            width (int): The width of the input field.
+
+        Returns:
+            None
+        """
         imgui.push_item_width(width - 80)
         # TODO: write a imgui_helper function for input_text
         changed, new_preset_name = imgui.input_text("##PresetName", self.current_preset_name, 256)
@@ -237,6 +263,17 @@ class PlasmaFractalGUI:
 
 
     def save_preset_logic(self, params: PlasmaFractalParams):
+        """
+        Handles the logic for saving a preset.
+
+        Args:
+            params (PlasmaFractalParams): The parameters of the plasma fractal.
+
+        Returns:
+            None
+        """
+
+        confirm_dlg_title = "Confirm Overwrite"
 
         if imgui.button("Save"):
             
@@ -244,23 +281,35 @@ class PlasmaFractalGUI:
             preset_exists = os.path.exists(full_path)
 
             if preset_exists:
-                imgui.open_popup("Confirm Overwrite")
+                # If the preset already exists, show a confirmation dialog before saving
+                imgui.open_popup(confirm_dlg_title)
             else:
                 logging.info(f"Saving new preset: {self.current_preset_name}")
                 self.save_preset(params)
 
+        # Shows the confirmation dialog if triggered by open_popup().
         # Note: this needs to be on the same level as the button, otherwise the popup won't work
-        if self.handle_confirmation_dialog(f'A preset with this name already exists:\n"{self.current_preset_name}"\n\nDo you want to overwrite it?'):
+        if self.confirm_dialog(f'A preset with this name already exists:\n"{self.current_preset_name}"\n\nDo you want to overwrite it?',
+                               confirm_dlg_title):
 
             logging.info(f"Confirmed to overwrite existing preset: {self.current_preset_name}")
             self.save_preset(params)
   
 
-    def handle_confirmation_dialog(self, message: str, id: str = None, title: str = "Confirm Overwrite") -> bool:
+    def confirm_dialog(self, message: str, title: str) -> bool:
+        """
+        Displays a confirmation dialog with a message and buttons for the user to confirm or cancel.
+
+        Args:
+            message (str): The message to display in the dialog.
+            id (str, optional): An optional identifier for the dialog. Defaults to None.
+            title (str, optional): The title of the dialog. Defaults to "Confirm Overwrite".
+
+        Returns:
+            bool: True if the user confirmed, False otherwise.
+        """
 
         user_confirmed = False  # Default to False unless user confirms
-        
-        title = title if id is None else f"{title}##{id}"
 
         if imgui.begin_popup_modal(title, flags=imgui.WINDOW_ALWAYS_AUTO_RESIZE)[0]:
 
@@ -279,7 +328,7 @@ class PlasmaFractalGUI:
         return user_confirmed
 
 
-    #.......................... Preset file management methods ................................................
+    #.......................... Preset file management methods ...........................................................................
 
     def load_initial_presets(self):
         """
