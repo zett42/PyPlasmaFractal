@@ -49,7 +49,7 @@ class PlasmaFractalGUI:
         self.app_presets_directory = os.path.join(script_dir, 'presets')
 
         # TODO: factor out the common code within ConfigFileManager for getting the user directory
-        self.user_presets_directory = ConfigFileManager(app_name='PlasmaFractal', app_author='zett42', sub_dir='presets', use_user_dir=True).directory
+        self.user_presets_directory = ConfigFileManager(app_name='PyPlasmaFractal', app_author='zett42', sub_dir='presets', use_user_dir=True).directory
 
         logging.debug(f"App presets directory: {self.app_presets_directory}")
         logging.debug(f"User presets directory: {self.user_presets_directory}")
