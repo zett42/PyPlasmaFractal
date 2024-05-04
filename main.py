@@ -86,6 +86,7 @@ class PyPlasmaFractalApp:
         Loads or initializes the application's render configuration.
         """     
     
+        # TODO: factor out the common code within ConfigFileManager for getting the user directory
         self.fractal_config_manager = ConfigFileManager(
             app_name=self.app_name,
             app_author=self.app_author,
