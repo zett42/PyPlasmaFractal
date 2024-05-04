@@ -31,10 +31,11 @@ from mylib.feedback_texture import FeedbackTextureManager
 from mylib.window_config_manager import WindowConfigManager
 from mylib.animation_timer import AnimationTimer
 from mylib.config_file_manager import ConfigFileManager
+from mylib.icons import Icons
 
 from plasma_fractal_renderer import PlasmaFractalRenderer
 from plasma_fractal_params import PlasmaFractalParams
-import plasma_fractal_gui
+from plasma_fractal_gui import PlasmaFractalGUI
 
 #---------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -56,9 +57,7 @@ class PyPlasmaFractalApp:
         self.last_click_time = 0
         self.is_fullscreen = False
 
-        self.ui_state = {
-            'animation_paused': False,
-        }
+        self.gui = PlasmaFractalGUI()
 
 
     def run(self):
@@ -88,9 +87,10 @@ class PyPlasmaFractalApp:
         Loads or initializes the application's render configuration.
         """     
     
+        # TODO: factor out the common code within ConfigFileManager for getting the user directory
         self.fractal_config_manager = ConfigFileManager(
-            self.app_name,
-            self.app_author,
+            app_name=self.app_name,
+            app_author=self.app_author,
             filename='fractal_config.json',
             load_function=lambda json_str: PlasmaFractalParams.from_json(json_str),
             save_function=lambda obj: obj.to_json()
@@ -197,11 +197,18 @@ class PyPlasmaFractalApp:
 
         self.im_gui_renderer = GlfwRenderer(window)
 
+        fonts_dir = os.path.join(os.path.dirname(__file__), 'fonts')
+
         # Replace default font with custom font
         fonts = imgui.get_io().fonts
         fonts.clear()
-        fontPath = os.path.join(os.path.dirname(__file__), 'fonts/Roboto-Regular.ttf')
-        fonts.add_font_from_file_ttf(fontPath, 20)
+        font_path = os.path.join(fonts_dir, 'Roboto-Regular.ttf')
+        fonts.add_font_from_file_ttf(font_path, 20)
+
+        # Merge icon font
+        Icons.merge_font(fonts_dir, font_file_name='MaterialDesignIconsDesktop.ttf', font_size=28)
+
+        # Update the font texture to apply changes
         self.im_gui_renderer.refresh_font_texture()
 
 
@@ -221,7 +228,7 @@ class PyPlasmaFractalApp:
 
             self.handle_gui()
 
-            elapsed_time = timer.update(self.ui_state['animation_paused'], self.params.speed)
+            elapsed_time = timer.update(self.gui.animation_paused, self.params.speed)
 
             main_renderer.update_params(self.params, self.feedback_manager.previous_texture, elapsed_time)
 
@@ -264,9 +271,7 @@ class PyPlasmaFractalApp:
         imgui.new_frame()
 
         if not self.is_fullscreen:
-            imgui.begin("Control Panel")
-            plasma_fractal_gui.handle_imgui_controls(self.params, self.ui_state)
-            imgui.end()
+            self.gui.update(self.params)
 
 
     def finalize_glfw(self):
