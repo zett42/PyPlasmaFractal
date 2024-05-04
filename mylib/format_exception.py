@@ -1,6 +1,16 @@
 import traceback
 
-def format_exception_ansi_colors(e):
+def format_exception_ansi_colors(e: Exception) -> str:
+    """
+    Formats the given exception with ANSI colors for better readability.
+
+    Args:
+        e (Exception): The exception to be formatted.
+
+    Returns:
+        str: The formatted stacktrace with ANSI colors.
+
+    """
     # Define ANSI color codes
     RED = "\033[31m"
     GREEN = "\033[32m"
@@ -19,6 +29,7 @@ def format_exception_ansi_colors(e):
     formatted_lines = []
 
     for line in lines:
+        
         # Check if the line contains file path
         if "File" in line:
             # Color the path and line number in blue
