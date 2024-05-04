@@ -224,7 +224,7 @@ class PlasmaFractalGUI:
         imgui.text("Available Presets (* marks built-ins):")
         imgui.spacing()
 
-        if imgui.begin_list_box("##AvailablePresets", width, 300):
+        if imgui.begin_list_box("##AvailablePresets", width, 450):
 
             for i, preset in enumerate(self.preset_list):
 
