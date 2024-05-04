@@ -40,6 +40,7 @@ class PlasmaFractalGUI:
         self.feedback_warp_noise_settings_open = True
         self.feedback_warp_octave_settings_open = True
         self.feedback_warp_effect_settings_open = True
+        self.current_preset_name = "new_file"
 
     
     def update(self, params: PlasmaFractalParams):
@@ -171,7 +172,7 @@ class PlasmaFractalGUI:
 
     def handle_presets_tab(self, params: PlasmaFractalParams):
         """
-        Manages the presets tab in the UI, allowing users to load and apply presets for plasma fractal configurations.
+        Manages the presets tab in the UI, allowing users to load, apply, and save presets for plasma fractal configurations.
 
         Args:
             params (PlasmaFractalParams): The fractal parameters that can be modified by applying a preset.
@@ -181,13 +182,20 @@ class PlasmaFractalGUI:
         if not self.preset_list:
             self.load_presets()
 
-        # Insert a label manually above the listbox as by default label puts the text on the right side, which wastes space
+        self.display_available_presets(width)
+        self.load_selected_preset(params)
+        self.preset_name_input(width)
+        self.save_preset_logic()
+
+
+    def display_available_presets(self, width):
+
         imgui.spacing()
         imgui.text("Available Presets:")
         imgui.spacing()
 
-        # Label is just an ID, because we already added a label manually above
-        if imgui.begin_list_box("##AvailablePresets", width, 200):
+        if imgui.begin_list_box("##AvailablePresets", width, 300):
+
             for i, preset in enumerate(self.preset_list):
 
                 display_name = f"* {preset.relative_file_path}" if preset.is_predefined else preset.relative_file_path
@@ -195,13 +203,53 @@ class PlasmaFractalGUI:
 
                 if is_selected and self.selected_preset_index != i:
                     self.selected_preset_index = i
+                    self.current_preset_name = preset.relative_file_path
 
             imgui.end_list_box()
 
-        if imgui.button("Load Preset"):
+
+    def load_selected_preset(self, params):
+
+        if imgui.button("Load"):
             if self.selected_preset_index != -1:
                 selected_preset = self.preset_list[self.selected_preset_index]
                 self.apply_preset(params, selected_preset)
+
+
+    def preset_name_input(self, width):
+
+        imgui.push_item_width(width - 80)
+        # TODO: write a imgui_helper function for input_text
+        changed, new_preset_name = imgui.input_text("##PresetName", self.current_preset_name, 256)
+        if changed:
+            self.current_preset_name = new_preset_name
+        imgui.same_line()
+
+
+    def save_preset_logic(self):
+
+        if imgui.button("Save"):
+            logging.info(f"Attempting to save preset: {self.current_preset_name}")
+            imgui.open_popup("Confirm Overwrite")
+
+        self.handle_confirmation_dialog()
+
+
+    def handle_confirmation_dialog(self):
+
+        if imgui.begin_popup_modal("Confirm Overwrite")[0]:
+
+            imgui.text(f'A preset with this name already exists:\n"{self.current_preset_name}"\n\nDo you want to overwrite it?')
+
+            if imgui.button("Yes"):
+                print("Overwrite confirmed")
+                imgui.close_current_popup()
+
+            imgui.same_line()
+            if imgui.button("No"):
+                imgui.close_current_popup()
+
+            imgui.end_popup()
 
 
     def load_presets(self):
