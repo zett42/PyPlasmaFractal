@@ -200,11 +200,10 @@ class PlasmaFractalGUI:
 
         self.preset_display_ui(width)
 
-        if self.selected_preset_index != -1:
-            imgui.spacing()
-            self.preset_load_ui(params)
-            imgui.same_line()
-            self.preset_delete_ui(params)
+        imgui.spacing()
+        self.preset_load_ui(params)
+        imgui.same_line()
+        self.preset_delete_ui(params)
         
         imgui.spacing()
         self.preset_save_ui(params, width)
@@ -248,6 +247,9 @@ class PlasmaFractalGUI:
         Returns:
             None
         """
+        if self.selected_preset_index < 0:
+            return
+
         if imgui.button("Load"):
             if self.selected_preset_index != -1:
                 selected_preset = self.preset_list[self.selected_preset_index]
@@ -301,6 +303,9 @@ class PlasmaFractalGUI:
         """
         Handles the logic for deleting a preset.
         """
+        if self.selected_preset_index < 0:
+            return
+
         current_preset = self.preset_list[self.selected_preset_index]
 
         # Make sure we don't delete predefined presets, only user-defined ones
