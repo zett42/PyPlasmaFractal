@@ -1,3 +1,4 @@
+import tempfile
 from typing import *
 import re
 import logging
@@ -8,7 +9,8 @@ def resolve_shader_template(
     filename: str, 
     get_file_content: Callable[[str], str], 
     template_args: Optional[Dict[str, str]] = {},
-    max_include_depth: int = 10
+    max_include_depth: int = 10,
+    extra_debug_info: bool = False
 ) -> str:
     """
     Resolve and integrate shader includes and apply template arguments within the shader source code, starting 
@@ -30,6 +32,7 @@ def resolve_shader_template(
             shader source. Defaults to empty, which applies no template arguments initially.
         max_include_depth (int, optional): The maximum recursion depth allowed for resolving includes. This prevents 
             infinite recursion due to deeply nested or circular includes. Defaults to 10.
+        extra_debug_info (bool, optional): Whether to include additional debug information in the resolved shader code.
 
     Returns:
         str: The fully resolved shader source code with all includes processed and placeholders replaced as specified.
@@ -46,12 +49,23 @@ def resolve_shader_template(
     include_pattern = re.compile(r'^\s*(#include|#apply_template)\s+"([^"]+)"(?:,\s*(.+))?', re.IGNORECASE | re.MULTILINE)
     argument_pattern = re.compile(r'(\w+)\s*=\s*(\w+)')
 
-    included_files = set()     # Tracks files with their template arguments to prevent duplicate instances
-    current_path = []  # Stack to track current file inclusion path to detect circular dependencies
+    included_files = set()   # Tracks files with their template arguments to prevent duplicate instances
+    current_path = []        # Stack to track current file inclusion path to detect circular dependencies
 
-    return _include_file(filename, get_file_content, 1, max_include_depth,
-                         included_files, current_path, 
-                         include_pattern, argument_pattern, template_args)
+    resolved_source = _include_file(filename, get_file_content, 1, max_include_depth,
+                                    included_files, current_path, 
+                                    include_pattern, argument_pattern, template_args,
+                                    extra_debug_info)
+    
+    if extra_debug_info:
+        # Write resolved fragment shader source to a temporary file to aid debugging
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.glsl') as temp_file:
+            temp_file.write(resolved_source)
+            temp_file_path = temp_file.name
+            logging.debug(f'RESOLVED TEMPLATE "filename": {temp_file_path}')
+
+    return resolved_source
+
 
 #------------------------------------------------------------------------------------------------------------------------------
 
@@ -64,7 +78,8 @@ def _include_file(
     current_path: List[str], 
     include_pattern: re.Pattern,
     argument_pattern: re.Pattern,
-    template_args: Dict[str, object]
+    template_args: Dict[str, object],
+    extra_debug_info: bool = False
 ) -> str:
     """
     Process the inclusion of a shader file, managing nested includes and template arguments.
@@ -84,6 +99,7 @@ def _include_file(
         include_pattern (re.Pattern): Compiled regex pattern to identify include directives in the shader code.
         argument_pattern (re.Pattern): Compiled regex pattern to parse template arguments from include directives.
         template_args (Dict[str, str]): Template arguments to apply to the shader code.
+        extra_debug_info (bool, optional): Whether to include additional debug information in the resolved shader code.
 
     Returns:
         str: The shader code with all includes processed and template arguments applied, if applicable.
@@ -138,7 +154,8 @@ def _include_file(
         template_args = {m.group(1): m.group(2) for m in re.finditer(argument_pattern, template_args_str)}
 
         result = _include_file(include_name, get_file_content, depth + 1, max_include_depth, 
-                               included_files, current_path, include_pattern, argument_pattern, template_args)
+                               included_files, current_path, include_pattern, argument_pattern, template_args,
+                               extra_debug_info)
 
         return result
 
@@ -148,11 +165,13 @@ def _include_file(
 
     logging.debug(f'Finished processing file: "{filename}"')
 
-    comment = '//////////'
-    content_header = f'\n{comment} FILE: "{filename}"' + (f'\n{comment} {template_args}' if template_args else '') + '\n\n'
-    content_footer = f'\n{comment} END FILE: "{filename}"\n'
-
-    return content_header + result + content_footer
+    if extra_debug_info:
+        comment = '//////////'
+        content_header = f'\n{comment} FILE: "{filename}"' + (f'\n{comment} {template_args}' if template_args else '') + '\n\n'
+        content_footer = f'\n{comment} END FILE: "{filename}"\n'
+        return content_header + result + content_footer
+    
+    return result
 
 #------------------------------------------------------------------------------------------------------------------------------
 

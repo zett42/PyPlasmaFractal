@@ -57,15 +57,10 @@ class VariantShaderCache:
 
         logging.debug(f"Creating shaders for new variant with template params hash: {hash(params_key)}")
 
-        vertex_shader_source = resolve_shader_template(self.vertex_shader_name, self.get_shader_source, vertex_template_params)
-        fragment_shader_source = resolve_shader_template(self.fragment_shader_name, self.get_shader_source, fragment_template_params)
+        is_debug = logging.getLogger().isEnabledFor(logging.DEBUG)
 
-        # Write fragment shader source to a temporary file
-        if logging.getLogger().isEnabledFor(logging.DEBUG):
-            with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.glsl') as temp_file:
-                temp_file.write(fragment_shader_source)
-                temp_file_path = temp_file.name
-                logging.debug(f"Fragment shader source: {temp_file_path}")
+        vertex_shader_source = resolve_shader_template(self.vertex_shader_name, self.get_shader_source, vertex_template_params, extra_debug_info=is_debug)
+        fragment_shader_source = resolve_shader_template(self.fragment_shader_name, self.get_shader_source, fragment_template_params, extra_debug_info=is_debug)
 
         program = self.ctx.program(vertex_shader=vertex_shader_source, fragment_shader=fragment_shader_source)
         self.program_cache[params_key] = program
