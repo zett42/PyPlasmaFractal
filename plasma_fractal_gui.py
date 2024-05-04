@@ -193,14 +193,23 @@ class PlasmaFractalGUI:
         """
         width = imgui.get_content_region_available_width()
 
-        self.load_initial_presets()
-        self.display_available_presets(width)
-        self.preset_load_button_and_logic(params)
-        self.preset_name_input(width)
-        self.preset_save_button_and_logic(params)
+        # Fetch the initial list of presets if it hasn't been done yet
+        if not self.preset_list:
+            self.update_presets_list()
+
+        self.preset_display_ui(width)
+
+        if self.selected_preset_index != -1:
+            imgui.spacing()
+            self.preset_load_ui(params)
+            imgui.same_line()
+            self.preset_delete_ui(params)
+        
+        imgui.spacing()
+        self.preset_save_ui(params, width)
 
 
-    def display_available_presets(self, width):
+    def preset_display_ui(self, width):
         """
         Displays the available presets in a list box.
 
@@ -228,7 +237,7 @@ class PlasmaFractalGUI:
             imgui.end_list_box()
 
 
-    def preset_load_button_and_logic(self, params):
+    def preset_load_ui(self, params):
         """
         Loads the selected preset and applies it to the given parameters.
 
@@ -244,25 +253,7 @@ class PlasmaFractalGUI:
                 self.apply_preset(params, selected_preset)
 
 
-    def preset_name_input(self, width):
-        """
-        Displays an input field for the preset name.
-
-        Args:
-            width (int): The width of the input field.
-
-        Returns:
-            None
-        """
-        imgui.push_item_width(width - 80)
-        # TODO: write a imgui_helper function for input_text
-        changed, new_preset_name = imgui.input_text("##PresetName", self.current_preset_name, 256)
-        if changed:
-            self.current_preset_name = new_preset_name
-        imgui.same_line()
-
-
-    def preset_save_button_and_logic(self, params: PlasmaFractalParams):
+    def preset_save_ui(self, params: PlasmaFractalParams, width: int):
         """
         Handles the logic for saving a preset.
 
@@ -274,6 +265,15 @@ class PlasmaFractalGUI:
         """
 
         confirm_dlg_title = "Confirm Overwrite"
+
+        imgui.push_item_width(width - 80)
+        # TODO: write a imgui_helper function for input_text
+        # As we don't need a label, just specify an ID for the title.
+        changed, new_preset_name = imgui.input_text("##PresetName", self.current_preset_name, 256)
+        if changed:
+            self.current_preset_name = new_preset_name
+
+        imgui.same_line()
 
         if imgui.button("Save"):
             
@@ -294,6 +294,40 @@ class PlasmaFractalGUI:
 
             logging.info(f"Confirmed to overwrite existing preset: {self.current_preset_name}")
             self.save_preset(params)
+
+
+    def preset_delete_ui(self, params: PlasmaFractalParams):
+        """
+        Handles the logic for deleting a preset.
+        """
+        current_preset = self.preset_list[self.selected_preset_index]
+
+        # Make sure we don't delete predefined presets, only user-defined ones
+        if not current_preset.is_predefined:
+
+            if imgui.button("Delete"):
+                imgui.open_popup("Confirm Deletion")
+
+            # Confirmation popup logic
+            if self.confirm_dialog(f'Are you sure you want to delete the preset "{self.current_preset_name}" ?', "Confirm Deletion"):
+                self.delete_selected_preset()
+
+
+    def delete_selected_preset(self):
+        """
+        Deletes the selected preset from the filesystem and updates the UI.
+        """
+        assert( self.selected_preset_index != -1, "No preset is selected." )
+
+        full_path = self.get_full_preset_path(self.current_preset_name)
+
+        try:
+            presets_manager.delete_preset(full_path)
+        except Exception as e:
+            logging.error(f"Failed to delete preset: {e}")
+
+        # Update the list of presets to reflect the deletion
+        self.update_presets_list()
   
 
     def confirm_dialog(self, message: str, title: str) -> bool:
@@ -313,7 +347,9 @@ class PlasmaFractalGUI:
 
         if imgui.begin_popup_modal(title, flags=imgui.WINDOW_ALWAYS_AUTO_RESIZE)[0]:
 
+            #imgui.text(f'⚠️ {message}')
             imgui.text(message)
+            imgui.spacing()
 
             if imgui.button("Yes"):
                 user_confirmed = True
@@ -330,13 +366,14 @@ class PlasmaFractalGUI:
 
     #.......................... Preset file management methods ...........................................................................
 
-    def load_initial_presets(self):
+    def update_presets_list(self):
         """
         If necessary, this method fetches presets from application-specific and user-specific directories, updating
         the internal list of presets that will show in the UI.
         """
-        if not self.preset_list:
-            self.preset_list = presets_manager.list_presets(self.app_presets_directory, self.user_presets_directory)
+        self.preset_list = presets_manager.list_presets(self.app_presets_directory, self.user_presets_directory)
+
+        self.selected_preset_index = -1  # Reset selection
 
 
     def apply_preset(self, params: PlasmaFractalParams, selected_preset: Preset):
@@ -372,7 +409,7 @@ class PlasmaFractalGUI:
             presets_manager.save_preset(full_path, json)
 
             # Update the list of presets to reflect the new file
-            self.preset_list = presets_manager.list_presets(self.app_presets_directory, self.user_presets_directory)
+            self.update_presets_list()
 
         except Exception as e:
             # TODO: Show an error message to the user

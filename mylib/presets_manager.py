@@ -89,3 +89,17 @@ def save_preset(file_path: str, data: str):
         file.write(data)
     
     logging.info(f"Preset saved successfully to {file_path}")
+
+
+def delete_preset(file_path: str):
+    """
+    Delete a preset file based on the provided file path.
+    
+    Args:
+    file_path (str): The full path to the preset file to be deleted.
+    """
+    
+    os.remove(file_path)
+
+    logging.info(f"Preset deleted successfully from {file_path}")
+    
