@@ -1,9 +1,13 @@
+import logging
+import os
 from typing import *
 import imgui
 
-from mylib.adjust_color import modify_rgba_color_hsv
+from mylib.config_file_manager import ConfigFileManager
 from plasma_fractal_params import PlasmaFractalParams
 import mylib.imgui_helper as ih
+from mylib.adjust_color import modify_rgba_color_hsv
+from mylib.presets_manager import list_presets
 
 # Define the GUI controls for the plasma fractal
 def handle_imgui_controls(params: PlasmaFractalParams, ui_state: dict[str, Any]):
@@ -32,9 +36,9 @@ def handle_imgui_controls(params: PlasmaFractalParams, ui_state: dict[str, Any])
                 if feedback_tab.selected:
                     handle_feedback_tab(params, ui_state)
 
-            # with imgui.begin_tab_item("Presets") as presets_tab:
-            #     if presets_tab.selected:
-            #         handle_presets_tab(params, ui_state)
+            with imgui.begin_tab_item("Presets") as presets_tab:
+                if presets_tab.selected:
+                    handle_presets_tab(params, ui_state)
 
     # Revert to the original color
     imgui.pop_style_color(1)
@@ -130,18 +134,44 @@ def handle_feedback_controls(params: PlasmaFractalParams, ui_state: dict[str, An
                             flags=imgui.SLIDER_FLAGS_LOGARITHMIC if paramInfo.logarithmic else 0)
 
 
-# selected_preset_index = -1  # -1 indicates no selection
+selected_preset_index = -1  # -1 indicates no selection
  
-# def handle_presets_tab(params: PlasmaFractalParams, ui_state: dict[str, Any]):
+def handle_presets_tab(params: PlasmaFractalParams, ui_state: dict):
+    global selected_preset_index
 
-#     global selected_preset_index
-#     preset_names = ["NebulaCore", "LiquidDream", "VortexWaves", "EtherealMist", "ChaosCascade"]
+    # Check if presets need to be loaded
+    if 'preset_list' not in ui_state:
+        app_presets_path, user_presets_path = get_preset_paths()
 
-#     with imgui.begin_list_box("Available Presets", 250, 200) as list_box:
-#         if list_box.opened:
-#             for i, item in enumerate(preset_names):
-#                 _, is_selected = imgui.selectable(item, selected_preset_index == i)
-#                 if is_selected and selected_preset_index != i:
-#                     selected_preset_index = i
-#                     print(f"Selected: {item}")
-                    
+        logging.debug(f"App presets path: {app_presets_path}")
+        logging.debug(f"User presets path: {user_presets_path}")
+
+        # Store Preset objects directly
+        ui_state['preset_list'] = list_presets(app_presets_path, user_presets_path)
+
+    # UI display logic
+    with imgui.begin_list_box("Available Presets", 250, 200) as list_box:
+        if list_box.opened:
+            for i, preset in enumerate(ui_state['preset_list']):
+                # Format each preset for display on the fly
+                display_name = f"* {preset.file_path}" if preset.is_predefined else preset.file_path
+                _, is_selected = imgui.selectable(display_name, selected_preset_index == i)
+                if is_selected and selected_preset_index != i:
+                    selected_preset_index = i
+                    print(f"Selected: {display_name}")
+
+
+def get_preset_paths():
+    """
+    Determines the paths for the application and user-specific preset directories.
+
+    Returns:
+    tuple: A tuple containing the application presets path and user presets path.
+    """
+    presets_sub_dir = 'presets'
+    script_dir = os.path.dirname(os.path.realpath(__file__))
+    app_presets_path = os.path.join(script_dir, presets_sub_dir)
+    
+    user_presets_path = ConfigFileManager('PlasmaFractal', 'zett42', sub_dir=presets_sub_dir, use_user_dir=True).directory
+
+    return (app_presets_path, user_presets_path)
