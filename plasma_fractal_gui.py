@@ -199,7 +199,7 @@ class PlasmaFractalGUI:
         if not self.preset_list:
             self.update_presets_list()
 
-        self.preset_list_ui(width)
+        self.preset_selection_ui(params, width)
 
         if self.selected_preset_index >= 0:
             # Controls that depend on a selected preset
@@ -214,7 +214,7 @@ class PlasmaFractalGUI:
         self.preset_save_ui(params, width)
 
 
-    def preset_list_ui(self, width):
+    def preset_selection_ui(self, params: PlasmaFractalParams, width: int):
         """
         Displays the available presets in a list box.
 
@@ -236,11 +236,14 @@ class PlasmaFractalGUI:
                 base_name, _ = os.path.splitext(preset.relative_file_path)
                 display_name = f"* {base_name}" if preset.is_predefined else base_name
 
-                _, is_selected = imgui.selectable(display_name, self.selected_preset_index == i)
+                opened, _ = imgui.selectable(display_name, self.selected_preset_index == i, flags=imgui.SELECTABLE_ALLOW_DOUBLE_CLICK)
 
-                if is_selected and self.selected_preset_index != i:
+                if opened:
                     self.selected_preset_index = i
-                    self.current_preset_name = preset.relative_file_path
+                    self.current_preset_name = base_name
+
+                    if imgui.is_mouse_double_clicked(0):
+                        self.apply_preset(params, preset)
 
             imgui.end_list_box()
 
@@ -277,12 +280,12 @@ class PlasmaFractalGUI:
         imgui.push_item_width(width - 80)
 
         # TODO: write a imgui_helper function for input_text
-        # Remove the extension from the file name
-        base_name, _ = os.path.splitext(self.current_preset_name)  
         # As we don't need a label, just specify an ID for the title.
-        changed, new_preset_name = imgui.input_text("##PresetName", base_name, 256)
+        changed, new_preset_name = imgui.input_text("##PresetName", self.current_preset_name, 256)
         if changed:
-            self.current_preset_name = new_preset_name
+            # Remove the extension from the file name
+            base_name, _ = os.path.splitext(new_preset_name)  
+            self.current_preset_name = base_name
 
         imgui.same_line()
 
@@ -342,8 +345,7 @@ class PlasmaFractalGUI:
     def presets_open_folder_ui(self, params: PlasmaFractalParams):
         """
         Opens the folder where the user presets are stored.
-        """
-            
+        """            
         if imgui.button("Open Folder"):
 
             current_preset = self.get_current_preset()
