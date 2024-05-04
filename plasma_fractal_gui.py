@@ -1,5 +1,6 @@
 ﻿import logging
 import os
+import platform
 from typing import *
 import imgui
 from dataclasses import dataclass, field
@@ -198,18 +199,22 @@ class PlasmaFractalGUI:
         if not self.preset_list:
             self.update_presets_list()
 
-        self.preset_display_ui(width)
+        self.preset_list_ui(width)
 
-        imgui.spacing()
-        self.preset_load_ui(params)
-        imgui.same_line()
-        self.preset_delete_ui(params)
+        if self.selected_preset_index >= 0:
+            # Controls that depend on a selected preset
+            imgui.spacing()
+            self.preset_load_ui(params)
+            imgui.same_line()
+            self.preset_delete_ui(params)
+            imgui.same_line()
+            self.presets_open_folder_ui(params)
         
         imgui.spacing()
         self.preset_save_ui(params, width)
 
 
-    def preset_display_ui(self, width):
+    def preset_list_ui(self, width):
         """
         Displays the available presets in a list box.
 
@@ -250,13 +255,10 @@ class PlasmaFractalGUI:
         Returns:
             None
         """
-        if self.selected_preset_index < 0:
-            return
-
         if imgui.button("Load"):
-            if self.selected_preset_index != -1:
-                selected_preset = self.preset_list[self.selected_preset_index]
-                self.apply_preset(params, selected_preset)
+            current_preset = self.get_current_preset()
+            if current_preset:
+                self.apply_preset(params, current_preset)
 
 
     def preset_save_ui(self, params: PlasmaFractalParams, width: int):
@@ -308,13 +310,9 @@ class PlasmaFractalGUI:
         """
         Handles the logic for deleting a preset.
         """
-        if self.selected_preset_index < 0:
-            return
-
-        current_preset = self.preset_list[self.selected_preset_index]
 
         # Make sure we don't delete predefined presets, only user-defined ones
-        if not current_preset.is_predefined:
+        if not self.get_current_preset().is_predefined:
 
             if imgui.button("Delete"):
                 imgui.open_popup("Confirm Deletion")
@@ -340,6 +338,38 @@ class PlasmaFractalGUI:
         # Update the list of presets to reflect the deletion
         self.update_presets_list()
   
+
+    def presets_open_folder_ui(self, params: PlasmaFractalParams):
+        """
+        Opens the folder where the user presets are stored.
+        """
+            
+        if imgui.button("Open Folder"):
+
+            current_preset = self.get_current_preset()
+
+            # Get current preset's directory path
+            directory = self.app_presets_directory if current_preset.is_predefined else self.user_presets_directory
+            preset_subdir = os.path.dirname(current_preset.relative_file_path)
+            preset_dir = os.path.join(directory, preset_subdir)
+
+            self.open_folder(preset_dir)
+
+
+    def open_folder(self, directory: str):
+        """
+        Opens the presets directory in the system's default file explorer.
+        """
+        try:
+            if platform.system() == "Windows":
+                os.startfile(directory)
+            elif platform.system() == "Darwin":  # macOS
+                os.system(f'open "{directory}"')
+            else:  # Assume Linux
+                os.system(f'xdg-open "{directory}"')
+        except Exception as e:
+            logging.error(f"Failed to open directory: {e}")
+            
 
     def confirm_dialog(self, message: str, title: str) -> bool:
         """
@@ -376,6 +406,16 @@ class PlasmaFractalGUI:
 
 
     #.......................... Preset file management methods ...........................................................................
+
+    def get_current_preset(self) -> Preset:
+        """
+        Returns the currently selected preset, or None if no preset is selected.
+        """
+        if self.selected_preset_index >= 0:
+            return self.preset_list[self.selected_preset_index]
+
+        return None
+
 
     def update_presets_list(self):
         """
