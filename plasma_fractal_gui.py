@@ -227,7 +227,10 @@ class PlasmaFractalGUI:
 
             for i, preset in enumerate(self.preset_list):
 
-                display_name = f"* {preset.relative_file_path}" if preset.is_predefined else preset.relative_file_path
+                # Remove the file extension from the display name
+                base_name, _ = os.path.splitext(preset.relative_file_path)
+                display_name = f"* {base_name}" if preset.is_predefined else base_name
+
                 _, is_selected = imgui.selectable(display_name, self.selected_preset_index == i)
 
                 if is_selected and self.selected_preset_index != i:
@@ -270,9 +273,12 @@ class PlasmaFractalGUI:
         confirm_dlg_title = "Confirm Overwrite"
 
         imgui.push_item_width(width - 80)
+
         # TODO: write a imgui_helper function for input_text
+        # Remove the extension from the file name
+        base_name, _ = os.path.splitext(self.current_preset_name)  
         # As we don't need a label, just specify an ID for the title.
-        changed, new_preset_name = imgui.input_text("##PresetName", self.current_preset_name, 256)
+        changed, new_preset_name = imgui.input_text("##PresetName", base_name, 256)
         if changed:
             self.current_preset_name = new_preset_name
 
@@ -287,7 +293,6 @@ class PlasmaFractalGUI:
                 # If the preset already exists, show a confirmation dialog before saving
                 imgui.open_popup(confirm_dlg_title)
             else:
-                logging.info(f"Saving new preset: {self.current_preset_name}")
                 self.save_preset(params)
 
         # Shows the confirmation dialog if triggered by open_popup().
@@ -411,7 +416,7 @@ class PlasmaFractalGUI:
         try:
             json = params.to_json()
             full_path = self.get_full_preset_path(self.current_preset_name)
-            
+                        
             presets_manager.save_preset(full_path, json)
 
             # Update the list of presets to reflect the new file

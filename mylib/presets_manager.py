@@ -31,6 +31,8 @@ def list_presets(app_dir: str, user_dir: str):
     Returns:
     list: A list of Preset objects representing all preset files found in both directories.
     """
+
+    # TODO: check if this returns a sorted list
     def create_presets_list(directory: str, is_predefined: bool):
         presets = []
         try:
