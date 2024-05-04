@@ -8,7 +8,8 @@ from mylib.config_file_manager import ConfigFileManager
 from plasma_fractal_params import PlasmaFractalParams
 import mylib.imgui_helper as ih
 from mylib.adjust_color import modify_rgba_color_hsv
-from mylib.presets_manager import Preset, list_presets, load_preset
+from mylib.presets_manager import Preset
+import mylib.presets_manager as presets_manager
 
 #------------------------------------------------------------------------------------------------------------------------------------
 
@@ -29,10 +30,9 @@ class PlasmaFractalGUI:
         feedback_warp_effect_settings_open (bool): Flag to control the visibility of feedback effect settings.
     """
     def __init__(self):
-
-        self.preset_list = []
-        self.selected_preset_index = -1
+      
         self.animation_paused = False
+        
         self.noise_settings_open = True
         self.fractal_settings_open = True
         self.output_settings_open = True
@@ -40,9 +40,18 @@ class PlasmaFractalGUI:
         self.feedback_warp_noise_settings_open = True
         self.feedback_warp_octave_settings_open = True
         self.feedback_warp_effect_settings_open = True
+
+        self.preset_list = []
+        self.selected_preset_index = -1
         self.current_preset_name = "new_file"
 
-    
+        script_dir = os.path.dirname(os.path.realpath(__file__))
+        self.app_presets_directory = os.path.join(script_dir, 'presets')
+
+        # TODO: factor out the common code within ConfigFileManager for getting the user directory
+        self.user_presets_directory = ConfigFileManager('PlasmaFractal', 'zett42', sub_dir='presets', use_user_dir=True).directory
+
+
     def update(self, params: PlasmaFractalParams):
         """
         Updates the UI elements in the control panel for managing plasma fractal visualization settings.
@@ -179,13 +188,11 @@ class PlasmaFractalGUI:
         """
         width = imgui.get_content_region_available_width()
 
-        if not self.preset_list:
-            self.load_presets()
-
+        self.load_initial_presets()
         self.display_available_presets(width)
         self.load_selected_preset(params)
         self.preset_name_input(width)
-        self.save_preset_logic()
+        self.save_preset_logic(params)
 
 
     def display_available_presets(self, width):
@@ -226,23 +233,38 @@ class PlasmaFractalGUI:
         imgui.same_line()
 
 
-    def save_preset_logic(self):
+    def save_preset_logic(self, params: PlasmaFractalParams):
 
         if imgui.button("Save"):
-            logging.info(f"Attempting to save preset: {self.current_preset_name}")
-            imgui.open_popup("Confirm Overwrite")
+            
+            full_path = self.get_full_preset_path(self.current_preset_name)
+            preset_exists = os.path.exists(full_path)
 
-        self.handle_confirmation_dialog()
+            if preset_exists:
+                imgui.open_popup("Confirm Overwrite")
+            else:
+                logging.info(f"Saving new preset: {self.current_preset_name}")
+                self.save_preset(params)
 
+        # Note: this needs to be on the same level as the button, otherwise the popup won't work
+        if self.handle_confirmation_dialog(f'A preset with this name already exists:\n"{self.current_preset_name}"\n\nDo you want to overwrite it?'):
 
-    def handle_confirmation_dialog(self):
+            logging.info(f"Confirmed to overwrite existing preset: {self.current_preset_name}")
+            self.save_preset(params)
+  
 
-        if imgui.begin_popup_modal("Confirm Overwrite")[0]:
+    def handle_confirmation_dialog(self, message: str, id: str = None, title: str = "Confirm Overwrite") -> bool:
 
-            imgui.text(f'A preset with this name already exists:\n"{self.current_preset_name}"\n\nDo you want to overwrite it?')
+        user_confirmed = False  # Default to False unless user confirms
+        
+        title = title if id is None else f"{title}##{id}"
+
+        if imgui.begin_popup_modal(title, flags=imgui.WINDOW_ALWAYS_AUTO_RESIZE)[0]:
+
+            imgui.text(message)
 
             if imgui.button("Yes"):
-                print("Overwrite confirmed")
+                user_confirmed = True
                 imgui.close_current_popup()
 
             imgui.same_line()
@@ -251,34 +273,18 @@ class PlasmaFractalGUI:
 
             imgui.end_popup()
 
-
-    def load_presets(self):
-        """
-        This method fetches presets from application-specific and user-specific directories, updating
-        the internal list of presets. It ensures that the presets are refreshed and available for user interaction
-        in the presets tab.
-        """
-        app_presets_path, user_presets_path = self.get_preset_paths()
-        self.preset_list = list_presets(app_presets_path, user_presets_path)
+        return user_confirmed
 
 
-    def get_preset_paths(self):
-        """
-        Retrieves the file system paths for loading presets.
+    #.......................... Preset file management methods ................................................
 
-        Returns:
-            tuple: A tuple containing the path for application presets and user presets.
+    def load_initial_presets(self):
         """
-        presets_sub_dir = 'presets'
-        
-        script_dir = os.path.dirname(os.path.realpath(__file__))
-        app_presets_path = os.path.join(script_dir, presets_sub_dir)
-        
-        # TODO: Instead of adding a dependency to ConfigFileManager for this, we 
-        #       we should factor out the directory logic from ConfigFileManager into a separate function.
-        user_presets_path = ConfigFileManager('PlasmaFractal', 'zett42', sub_dir=presets_sub_dir, use_user_dir=True).directory
-        
-        return app_presets_path, user_presets_path
+        If necessary, this method fetches presets from application-specific and user-specific directories, updating
+        the internal list of presets that will show in the UI.
+        """
+        if not self.preset_list:
+            self.preset_list = presets_manager.list_presets(self.app_presets_directory, self.user_presets_directory)
 
 
     def apply_preset(self, params: PlasmaFractalParams, selected_preset: Preset):
@@ -290,11 +296,40 @@ class PlasmaFractalGUI:
             selected_preset (Preset): The preset selected by the user for application.
         """
         try:
-            preset_json = load_preset(selected_preset)
+            preset_json = presets_manager.load_preset(selected_preset)
             new_params = PlasmaFractalParams.from_json(preset_json)
+            
             params.update(new_params)
+
             logging.info("Preset applied successfully.")
 
         except Exception as e:
             # TODO: Show an error message to the user
             logging.error(f"Error applying preset: {str(e)}")
+
+
+    def save_preset(self, params: PlasmaFractalParams):
+        """
+        Saves the current plasma fractal settings as a preset file in the user-specific directory, under the current preset name, 
+        overwriting an existing file if necessary.
+        """
+        try:
+            json = params.to_json()
+            full_path = self.get_full_preset_path(self.current_preset_name)
+            
+            presets_manager.save_preset(full_path, json)
+
+            # Update the list of presets to reflect the new file
+            self.preset_list = presets_manager.list_presets(self.app_presets_directory, self.user_presets_directory)
+
+        except Exception as e:
+            # TODO: Show an error message to the user
+            logging.error(f"Error saving preset: {str(e)}")
+
+
+    def get_full_preset_path(self, preset_name: str) -> str:
+        """
+        Returns the full path to a preset file given its name.
+        """
+        file_name = preset_name + '.json' if not preset_name.lower().endswith('.json') else preset_name
+        return os.path.join(self.user_presets_directory, file_name)

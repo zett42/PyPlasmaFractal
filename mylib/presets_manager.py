@@ -70,3 +70,22 @@ def load_preset(preset: Preset) -> str:
     logging.info(f"Preset loaded successfully from {full_path}")
 
     return preset_data
+
+
+def save_preset(file_path: str, data: str):
+    """
+    Save the configuration data to a preset file based on the provided Preset object.
+    
+    Args:
+    file_path (str): The full path to the preset file.
+    data (str): The configuration data to be saved to the preset file.
+    """
+
+    # Create the directory if it does not exist
+    directory = os.path.dirname(file_path)
+    os.makedirs(directory, exist_ok=True)
+
+    with open(file_path, 'w') as file:
+        file.write(data)
+    
+    logging.info(f"Preset saved successfully to {file_path}")
