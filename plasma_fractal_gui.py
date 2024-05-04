@@ -2,6 +2,7 @@ import logging
 import os
 from typing import *
 import imgui
+from dataclasses import dataclass, field
 
 from mylib.config_file_manager import ConfigFileManager
 from plasma_fractal_params import PlasmaFractalParams
@@ -10,9 +11,25 @@ from mylib.adjust_color import modify_rgba_color_hsv
 from mylib.presets_manager import Preset, list_presets, load_preset
 
 #------------------------------------------------------------------------------------------------------------------------------------
+# The UIState class is used to store the state of the GUI controls that are not directly related to PlasmaFractalParams.
+
+@dataclass
+class UIState:
+    preset_list: List[Preset] = field(default_factory=list)  # Ensure each instance has its own unique list to prevent shared state across instances.
+    selected_preset_index: int = -1
+    animation_paused: bool = False
+    noise_settings_open: bool = True
+    fractal_settings_open: bool = True
+    output_settings_open: bool = True
+    feedback_general_settings_open: bool = True
+    feedback_warp_noise_settings_open: bool = True
+    feedback_warp_octave_settings_open: bool = True
+    feedback_warp_effect_settings_open: bool = True
+
+#------------------------------------------------------------------------------------------------------------------------------------
 # Define the GUI controls for the plasma fractal
 
-def handle_imgui_controls(params: PlasmaFractalParams, ui_state: dict[str, Any]):
+def handle_imgui_controls(params: PlasmaFractalParams, ui_state: UIState):
 
     style = imgui.get_style()
 
@@ -24,7 +41,7 @@ def handle_imgui_controls(params: PlasmaFractalParams, ui_state: dict[str, Any])
     imgui.set_next_item_width(width - 160)
     ih.slider_float("Speed", params, 'speed', min_value=0.1, max_value=10.0, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)
     imgui.same_line()
-    ih.checkbox("Paused", ui_state, index='animation_paused')
+    ih.checkbox("Paused", ui_state, attr='animation_paused')
     imgui.spacing()
 
     with imgui.begin_tab_bar("Control Tabs") as tab_bar:
@@ -49,18 +66,18 @@ def handle_imgui_controls(params: PlasmaFractalParams, ui_state: dict[str, Any])
 #------------------------------------------------------------------------------------------------------------------------------------
 # Define the GUI controls for the noise settings
 
-def handle_noise_tab(params: PlasmaFractalParams, ui_state: dict[str, Any]):
+def handle_noise_tab(params: PlasmaFractalParams, ui_state: UIState):
 
     width = imgui.get_content_region_available_width()
     imgui.push_item_width(width - 140) 
 
     # Noise Settings
-    if ih.collapsing_header("Noise Settings", ui_state, index='noise_settings_open'):
+    if ih.collapsing_header("Noise Settings", ui_state, attr='noise_settings_open'):
         ih.slider_float("Scale", params, 'scale', min_value=0.1, max_value=100.0, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)
         ih.enum_combo("Noise Algorithm", params, 'noise_algorithm')
 
     # Octave Settings
-    if ih.collapsing_header("Fractal Settings", ui_state, index='fractal_settings_open'):
+    if ih.collapsing_header("Fractal Settings", ui_state, attr='fractal_settings_open'):
         ih.slider_int("Num. Octaves", params, 'octaves', min_value=1, max_value=12)
         ih.slider_float("Gain", params, 'gain', min_value=0.1, max_value=1.0)
         ih.slider_float("Time Scale", params, 'timeScaleFactor', min_value=0.1, max_value=2.0)
@@ -69,7 +86,7 @@ def handle_noise_tab(params: PlasmaFractalParams, ui_state: dict[str, Any]):
         ih.slider_float("Time Offset", params, 'timeOffsetIncrement', min_value=0.0, max_value=20.0)
 
     # Contrast Settings
-    if ih.collapsing_header("Output Settings", ui_state, index='output_settings_open'):
+    if ih.collapsing_header("Output Settings", ui_state, attr='output_settings_open'):
         ih.slider_float("Brightness", params, 'brightness', min_value=0.0, max_value=2.0)
         ih.slider_float("Contrast", params, 'contrastSteepness', min_value=0.001, max_value=50.0)
         ih.slider_float("Contrast Midpoint", params, 'contrastMidpoint', min_value=0.0, max_value=1.0)
@@ -77,7 +94,7 @@ def handle_noise_tab(params: PlasmaFractalParams, ui_state: dict[str, Any]):
 #------------------------------------------------------------------------------------------------------------------------------------
 # Define the GUI controls for the feedback settings
 
-def handle_feedback_tab(params: PlasmaFractalParams, ui_state: dict[str, Any]):
+def handle_feedback_tab(params: PlasmaFractalParams, ui_state: UIState):
 
     ih.checkbox("Enable Feedback", params, 'enable_feedback')
 
@@ -94,25 +111,25 @@ def handle_feedback_tab(params: PlasmaFractalParams, ui_state: dict[str, Any]):
 #------------------------------------------------------------------------------------------------------------------------------------
 # Define the GUI controls for the feedback settings
 
-def handle_feedback_controls(params: PlasmaFractalParams, ui_state: dict[str, Any]):
+def handle_feedback_controls(params: PlasmaFractalParams, ui_state: UIState):
 
     width = imgui.get_content_region_available_width()
     imgui.push_item_width(width - 140)    
 
     # Feedback General Settings
-    if ih.collapsing_header("Feedback Mix Settings", ui_state, index='feedback_general_settings_open'):
+    if ih.collapsing_header("Feedback Mix Settings", ui_state, attr='feedback_general_settings_open'):
 
         ih.slider_float("Feedback Decay", params, 'feedback_decay', min_value=0, max_value=1.0, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)
 
     # Feedback Noise Settings
-    if ih.collapsing_header("Feedback Noise Settings", ui_state, index='feedback_warp_noise_settings_open'):
+    if ih.collapsing_header("Feedback Noise Settings", ui_state, attr='feedback_warp_noise_settings_open'):
 
         ih.slider_float("Speed", params, 'warpSpeed', min_value=0.1, max_value=10.0)
         ih.slider_float("Scale", params, 'warpScale', min_value=0.1, max_value=20.0)
         ih.enum_combo("Noise Algorithm", params, 'warpNoiseAlgorithm')
 
     # Feedback Octave Settings
-    if ih.collapsing_header("Feedback Fractal Settings", ui_state, index='feedback_warp_octave_settings_open'):
+    if ih.collapsing_header("Feedback Fractal Settings", ui_state, attr='feedback_warp_octave_settings_open'):
 
         ih.slider_int("Num. Octaves", params, 'warpOctaves', min_value=1, max_value=12)
         ih.slider_float("Gain", params, 'warpGain', min_value=0.1, max_value=1.0)
@@ -122,7 +139,7 @@ def handle_feedback_controls(params: PlasmaFractalParams, ui_state: dict[str, An
         ih.slider_float("Time Offset", params, 'warpTimeOffsetIncrement', min_value=0.0, max_value=20.0)
 
     # Feedback Effect Settings
-    if ih.collapsing_header("Feedback Effect Settings", ui_state, index='feedback_warp_effect_settings_open'):
+    if ih.collapsing_header("Feedback Effect Settings", ui_state, attr='feedback_warp_effect_settings_open'):
 
         ih.list_combo("Warp Function", params, 'warpFunction', items=params.get_warp_function_names())
 
@@ -142,27 +159,13 @@ def handle_feedback_controls(params: PlasmaFractalParams, ui_state: dict[str, An
 #------------------------------------------------------------------------------------------------------------------------------------
 # Define the GUI controls for the presets tab
 
-selected_preset_index = -1  # -1 indicates no selection
- 
-def handle_presets_tab(params: PlasmaFractalParams, ui_state: dict):
-
-    global selected_preset_index
+def handle_presets_tab(params: PlasmaFractalParams, ui_state: UIState):
 
     width = imgui.get_content_region_available_width()
 
-    # Check if presets list needs to be loaded
-    if 'preset_list' not in ui_state:
-
-        app_presets_path, user_presets_path = get_preset_paths()
-
-        logging.debug(f"App presets path: {app_presets_path}")
-        logging.debug(f"User presets path: {user_presets_path}")
-
-        # Store Preset objects directly
-        ui_state['preset_list'] = list_presets(app_presets_path, user_presets_path)
-
-        logging.debug(f"Preset list: {ui_state['preset_list']}")
-
+    if not ui_state.preset_list:
+        load_presets(ui_state)
+    
     # Manually render the label above the list box, instead of the default right position
     imgui.spacing()
     imgui.text("Available Presets:")
@@ -170,25 +173,22 @@ def handle_presets_tab(params: PlasmaFractalParams, ui_state: dict):
 
     # UI display logic for presets list
     # The label is just an ID with no visual label, as we already have a visible label above the list.
-    if imgui.begin_list_box("##Available Presets", width, 200):  
-        
-        for i, preset in enumerate(ui_state['preset_list']):
+    if imgui.begin_list_box("##Available Presets", width, 200):
+
+        for i, preset in enumerate(ui_state.preset_list):
 
             display_name = f"* {preset.relative_file_path}" if preset.is_predefined else preset.relative_file_path
-
-            _, is_selected = imgui.selectable(display_name, selected_preset_index == i)
-
-            if is_selected and selected_preset_index != i:
-                selected_preset_index = i
+            _, is_selected = imgui.selectable(display_name, ui_state.selected_preset_index == i)
+            if is_selected and ui_state.selected_preset_index != i:
+                ui_state.selected_preset_index = i
 
         imgui.end_list_box()
 
-    # UI logic for load button
+
     if imgui.button("Load Preset"):
 
-        if selected_preset_index != -1:
-            selected_preset = ui_state['preset_list'][selected_preset_index]
-
+        if ui_state.selected_preset_index != -1:
+            selected_preset = ui_state.preset_list[ui_state.selected_preset_index]
             apply_preset(params, selected_preset)
 
 #------------------------------------------------------------------------------------------------------------------------------------
@@ -220,6 +220,17 @@ def apply_preset(params: PlasmaFractalParams, selected_preset: Preset):
         # TODO: Show an error message to the user
         logging.error(f"Error applying preset: {str(e)}")
 
+
+#------------------------------------------------------------------------------------------------------------------------------------
+
+def load_presets(ui_state: UIState):
+
+    app_presets_path, user_presets_path = get_preset_paths()
+
+    logging.debug(f"App presets path: {app_presets_path}")
+    logging.debug(f"User presets path: {user_presets_path}")
+
+    ui_state.preset_list = list_presets(app_presets_path, user_presets_path)
 
 #------------------------------------------------------------------------------------------------------------------------------------
 # Helper functions
