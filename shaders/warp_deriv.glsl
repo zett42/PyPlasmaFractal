@@ -70,6 +70,57 @@ vec2 warpSwirl(vec2 pos, vec4 noiseWithDerivatives, float time, float params[MAX
     return newST;
 }
 
+// Applies a duplication effect to texture coordinates based on noise and its derivatives to support fractal-like patterns in feedback effects.
+//
+// This function modifies texture coordinates by strategically duplicating texture elements around dynamically 
+// calculated centers derived from noise values. By adjusting the noise derivatives and the original position, 
+// the function positions multiple instances of texture patterns, which can lead to complex, fractal-like visual 
+// effects when used in a feedback loop. This technique is particularly effective for generating intricate 
+// patterns that evolve over time, reducing uniformity and avoiding repetitive grid-like effects commonly 
+// associated with direct noise applications.
+//
+// Parameters:
+// - pos: The original texture coordinates.
+// - noiseWithDerivatives: A vec4 containing the noise value and its derivatives. The x component 
+//   influences the scale and intensity of the duplication, while the yz components are crucial in 
+//   determining the dynamic centers for duplication.
+// - params: An array of parameters where:
+//     * params[0] (duplicationScale) - A scalar that adjusts the scale of duplication, influencing 
+//       the spatial distribution of the duplicates.
+//     * params[1] (influenceRadius) - Defines the radius within which the duplication effect is 
+//       concentrated, aiding in the smooth integration of duplicated textures with the original.
+//
+// Returns:
+// - vec2: The new texture coordinates after applying the duplication effect, which when used in feedback loops,
+//   can contribute to the generation of fractal patterns.
+
+vec2 warpInfiniteMirror(vec2 pos, vec4 noiseWithDerivatives, float time, float params[MAX_WARP_PARAMS]) {
+    
+    // Parameters for transformation
+    float duplicationScale = params[0];
+    float influenceRadius = params[1];
+
+    // Extract noise and derivatives
+    float noiseValue = noiseWithDerivatives.x;
+    vec2 derivatives = noiseWithDerivatives.yz;
+
+    // Calculate dynamic center for texture duplication
+    vec2 center = pos + duplicationScale * noiseValue * normalize(derivatives);
+
+    // Compute distance from the original position to the new center
+    vec2 displacement = pos - center;
+    float distance = length(displacement);
+
+    // Influence calculation to limit effect based on distance
+    float influence = smoothstep(influenceRadius, 0.0, distance);
+
+    // Calculate final texture coordinates by blending original and duplicated
+    vec2 newST = mix(pos, 2.0 * pos - center, influence);
+
+    return newST;
+}
+
+// This is just a playground function for developing new effects. It can be used to test new ideas and techniques.
 // NOTE: pos is the texture coordinates, noiseWithDerivatives is a vec4 containing the noise value and its derivatives,
 // and param1, param2, param3, and param4 are user-controllable parameters that can be used in the function, with a range of [0, 1].
 vec2 warpTest(vec2 pos, vec4 noiseWithDerivatives, float time, float params[MAX_WARP_PARAMS]) {

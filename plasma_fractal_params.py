@@ -56,7 +56,7 @@ WARP_FUNCTION_INFOS = {
             WarpFunctionParam('Radial Strength', logarithmic=True, default=0.02),
             WarpFunctionParam('Rotation Factor', logarithmic=True, default=0.1),
         ]
-    ),
+    ),    
     'Swirl': WarpFunctionInfo(
         FractalNoiseVariant.Deriv, 
         params=[
@@ -69,6 +69,13 @@ WARP_FUNCTION_INFOS = {
         FractalNoiseVariant.Deriv, 
         params=[
             WarpFunctionParam('Amplitude', logarithmic=True, default=0.02),
+        ]
+    ),
+    'InfiniteMirror': WarpFunctionInfo(
+        FractalNoiseVariant.Deriv, 
+        params=[
+            WarpFunctionParam('Duplication Scale', logarithmic=True, default=0.5),
+            WarpFunctionParam('Influence Radius', logarithmic=True, default=0.5),
         ]
     ),
     'Test': WarpFunctionInfo(
@@ -170,11 +177,19 @@ class PlasmaFractalParams:
 
     @classmethod
     def from_dict(cls, data):
-        """Initialize the class from a dictionary, setting only attributes that already exist after default construction."""
+        """Initialize the class from a dictionary, setting only attributes that already exist after default construction, 
+        with special handling for dictionary attributes (like the warpParams attribute)."""
         obj = cls()
         for key, value in data.items():
             if hasattr(obj, key):
-                setattr(obj, key, value)
+                current_attribute = getattr(obj, key)
+                # Check if both are dictionaries and then merge them based on existing keys
+                if isinstance(current_attribute, dict) and isinstance(value, dict):
+                    for sub_key in current_attribute:
+                        if sub_key in value:
+                            current_attribute[sub_key] = value[sub_key]
+                else:
+                    setattr(obj, key, value)
         return obj
 
     def to_json(self):
