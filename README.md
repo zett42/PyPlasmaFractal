@@ -1,4 +1,4 @@
-![PyPlasmaFractal Header](images/header.png)
+![PyPlasmaFractal Header](images/screenshot.png)
 
 # PyPlasmaFractal
 
