@@ -18,6 +18,13 @@ class FractalNoiseVariant(Enum):
     Double = auto()
     Deriv = auto()
 
+class FeedbackBlendMode(Enum):
+    """
+    Enumeration of feedback blend modes.
+    """
+    Linear = auto()
+    Additive = auto()
+
 class WarpFunctionParam:
     """
     Information about a parameter used in warp functions and how to represent it in the UI.
@@ -127,6 +134,7 @@ class PlasmaFractalParams:
         # FEEDBACK
         # General Feedback Settings
         self.enable_feedback = False
+        self.feedback_blend_mode = FeedbackBlendMode.Linear
         self.feedback_decay = 0.01
         
         # Warp settings for feedback

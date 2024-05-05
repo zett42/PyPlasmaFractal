@@ -159,6 +159,8 @@ class PlasmaFractalGUI:
         imgui.push_item_width(width - 160)
 
         if ih.collapsing_header("Feedback Mix Settings", self, attr='feedback_general_settings_open'):
+            #Slider for feedback blend mode
+            ih.enum_combo("Blend Mode", params, 'feedback_blend_mode')
             ih.slider_float("Feedback Decay", params, 'feedback_decay', min_value=0, max_value=1.0, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)
 
         if ih.collapsing_header("Feedback Noise Settings", self, attr='feedback_warp_noise_settings_open'):

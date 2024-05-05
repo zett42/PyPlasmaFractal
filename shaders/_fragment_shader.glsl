@@ -71,6 +71,7 @@ out vec4 f_color;            // Fragment shader output color
 
 #include "color_adjustment.glsl"
 #include "transforms.glsl"
+#include "feedback_blend.glsl"
 
 // Function to apply feedback to the noise color, if enabled
 vec4 applyFeedback_Enabled(vec4 noise_color) {
@@ -88,7 +89,7 @@ vec4 applyFeedback_Enabled(vec4 noise_color) {
     
     vec4 tex_color = texture(u_texture, transformedTexCoords);
 
-    return tex_color * (1.0 - u_feedback_decay) + noise_color;    
+    return blend<FB_BLEND_MODE>(tex_color, noise_color, u_feedback_decay);
 }
 
 // Function to do nothing with the noise color, if feedback is disabled

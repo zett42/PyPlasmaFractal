@@ -100,6 +100,7 @@ class PlasmaFractalRenderer:
         fragment_template_params = {
             'NOISE_FUNC': params.noise_algorithm.name,
             'FB_ENABLED': 'Enabled' if params.enable_feedback else 'Disabled',
+            'FB_BLEND_MODE': params.feedback_blend_mode.name,
             'FB_WARP_FRACTAL_NOISE_VARIANT': params.get_current_warp_function_info().fractal_noise_variant.name,
             'FB_WARP_NOISE_FUNC': params.warpNoiseAlgorithm.name,
             'FB_WARP_XFORM_FUNC': params.warpFunction,
