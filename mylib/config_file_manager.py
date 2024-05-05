@@ -1,7 +1,6 @@
 import os
 import json
 import logging
-from appdirs import user_data_dir, site_data_dir
 
 class ConfigFileManager:
     """
@@ -16,37 +15,18 @@ class ConfigFileManager:
         default_filename (str): The default filename for storing the configuration file.
     """
 
-    def __init__(self, 
-                 filename='config.json',
-                 directory=None, sub_dir=None,
-                 app_name=None, app_author=None, use_user_dir=True, 
-                 save_function=None, load_function=None):
+    def __init__(self, directory: str, filename='config.json', save_function=None, load_function=None):
         """
         Initialize the ConfigFileManager object.
 
         Args:
             filename (str, optional): The name of the configuration file. Defaults to 'config.json'.
             directory (str, optional): The full directory path where the configuration file will be stored. 
-                If not provided, it defaults to the user data directory or site data directory based on the value of `use_user_dir`.
-            sub_dir (str, optional): The subdirectory within the directory where the configuration file will be stored.
-            app_name (str, optional): The name of the application. Used to determine the default directory path.
-            app_author (str, optional): The author of the application. Used to determine the default directory path.
-            use_user_dir (bool, optional): If True, the user data directory will be used for the default directory path.
-                If False, the site data directory will be used. Defaults to True.
             save_function (function, optional): A custom save function to be used instead of the default save function.
             load_function (function, optional): A custom load function to be used instead of the default load function.
         """
-        self.app_name = app_name
-        self.app_author = app_author
+        self.directory = directory
         self.default_filename = filename
-
-        if directory:
-            self.directory = directory
-        else:
-            self.directory = user_data_dir(app_name, app_author) if use_user_dir else site_data_dir(app_name, app_author)
-        
-        if sub_dir:
-            self.directory = os.path.join(self.directory, sub_dir)
         
         self.save_function = save_function or self._default_save
         self.load_function = load_function or self._default_load

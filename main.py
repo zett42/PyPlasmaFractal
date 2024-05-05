@@ -25,6 +25,7 @@ import os
 import imgui
 from imgui.integrations.glfw import GlfwRenderer
 
+from mylib.config_path_manager import ConfigPathManager
 from mylib.format_exception import format_exception_ansi_colors
 from mylib.texture_renderer import TextureRenderer
 from mylib.feedback_texture import FeedbackTextureManager
@@ -57,7 +58,10 @@ class PyPlasmaFractalApp:
         self.last_click_time = 0
         self.is_fullscreen = False
 
-        self.gui = PlasmaFractalGUI()
+        script_dir = os.path.dirname(os.path.realpath(__file__))
+        self.path_manager = ConfigPathManager(self.app_name, self.app_author, app_specific_path=script_dir)
+
+        self.gui = PlasmaFractalGUI(self.path_manager)
 
 
     def run(self):
@@ -85,12 +89,10 @@ class PyPlasmaFractalApp:
     def load_config(self):
         """
         Loads or initializes the application's render configuration.
-        """     
+        """
     
-        # TODO: factor out the common code within ConfigFileManager for getting the user directory
         self.fractal_config_manager = ConfigFileManager(
-            app_name=self.app_name,
-            app_author=self.app_author,
+            directory=self.path_manager.user_specific_path,
             filename='fractal_config.json',
             load_function=lambda json_str: PlasmaFractalParams.from_json(json_str),
             save_function=lambda obj: obj.to_json()

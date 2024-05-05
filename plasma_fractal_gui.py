@@ -6,6 +6,7 @@ import imgui
 from dataclasses import dataclass, field
 
 from mylib.config_file_manager import ConfigFileManager
+from mylib.config_path_manager import ConfigPathManager
 from mylib.icons import Icons
 from plasma_fractal_params import PlasmaFractalParams
 import mylib.imgui_helper as ih
@@ -31,8 +32,8 @@ class PlasmaFractalGUI:
         feedback_warp_octave_settings_open (bool): Flag to control the visibility of feedback octave settings.
         feedback_warp_effect_settings_open (bool): Flag to control the visibility of feedback effect settings.
     """
-    def __init__(self):
-      
+    def __init__(self, path_manager: ConfigPathManager):
+     
         self.animation_paused = False
         
         self.noise_settings_open = True
@@ -47,11 +48,8 @@ class PlasmaFractalGUI:
         self.selected_preset_index = -1
         self.current_preset_name = "new_file"
 
-        script_dir = os.path.dirname(os.path.realpath(__file__))
-        self.app_presets_directory = os.path.join(script_dir, 'presets')
-
-        # TODO: factor out the common code within ConfigFileManager for getting the user directory
-        self.user_presets_directory = ConfigFileManager(app_name='PyPlasmaFractal', app_author='zett42', sub_dir='presets', use_user_dir=True).directory
+        self.app_presets_directory = os.path.join(path_manager.app_specific_path, 'presets')
+        self.user_presets_directory = os.path.join(path_manager.user_specific_path, 'presets')
 
         logging.debug(f"App presets directory: {self.app_presets_directory}")
         logging.debug(f"User presets directory: {self.user_presets_directory}")
