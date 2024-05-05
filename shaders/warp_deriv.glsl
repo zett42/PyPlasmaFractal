@@ -70,29 +70,27 @@ vec2 warpSwirl(vec2 pos, vec4 noiseWithDerivatives, float time, float params[MAX
     return newST;
 }
 
-// Applies a duplication effect to texture coordinates based on noise and its derivatives to support fractal-like patterns in feedback effects.
+// Modifies texture coordinates using noise and derivatives to create fractal-like patterns in feedback effects.
 //
-// This function modifies texture coordinates by strategically duplicating texture elements around dynamically 
-// calculated centers derived from noise values. By adjusting the noise derivatives and the original position, 
-// the function positions multiple instances of texture patterns, which can lead to complex, fractal-like visual 
-// effects when used in a feedback loop. This technique is particularly effective for generating intricate 
-// patterns that evolve over time, reducing uniformity and avoiding repetitive grid-like effects commonly 
-// associated with direct noise applications.
+// This function duplicates texture elements around centers calculated from noise values and their derivatives,
+// facilitating the generation of complex, evolving patterns. These transformations are enhanced through parameters
+// controlling duplication scale, influence radius, non-linearity of transformations, and dynamic rotation effects,
+// both static and time-modulated. 
 //
 // Parameters:
-// - pos: The original texture coordinates.
-// - noiseWithDerivatives: A vec4 containing the noise value and its derivatives. The x component 
-//   influences the scale and intensity of the duplication, while the yz components are crucial in 
-//   determining the dynamic centers for duplication.
-// - params: An array of parameters where:
-//     * params[0] (duplicationScale) - A scalar that adjusts the scale of duplication, influencing 
-//       the spatial distribution of the duplicates.
-//     * params[1] (influenceRadius) - Defines the radius within which the duplication effect is 
-//       concentrated, aiding in the smooth integration of duplicated textures with the original.
+// - pos: Original texture coordinates.
+// - noiseWithDerivatives: A vec4 containing the noise value (x) and its derivatives (yz), influencing the duplication scale
+//   and the dynamic centers.
+// - params: Array of parameters:
+//     * params[0] (duplicationScale) - Scales duplication, affecting spatial distribution.
+//     * params[1] (influenceRadius) - Defines the focus area of the effect.
+//     * params[2] (nonLinearity) - Adjusts the progression of the influence curve.
+//     * params[3] (baseRotationIntensity) - Base rotation intensity around dynamic centers.
+//     * params[4] (timeModulationIntensity) - Modulates rotation intensity over time.
+//     * params[5] (frequency) - Controls the oscillation speed of time-based rotation.
 //
 // Returns:
-// - vec2: The new texture coordinates after applying the duplication effect, which when used in feedback loops,
-//   can contribute to the generation of fractal patterns.
+// - vec2: New texture coordinates after applying duplication and dynamic transformations.
 
 vec2 warpInfiniteMirror(vec2 pos, vec4 noiseWithDerivatives, float time, float params[MAX_WARP_PARAMS]) {
     
