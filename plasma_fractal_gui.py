@@ -1,4 +1,5 @@
 ﻿import logging
+import math
 import os
 import platform
 from typing import *
@@ -107,7 +108,7 @@ class PlasmaFractalGUI:
             params (PlasmaFractalParams): The current settings of the plasma fractal that can be adjusted via the UI.
         """
         width = imgui.get_content_region_available_width()
-        imgui.push_item_width(width - 140)
+        imgui.push_item_width(width - 160)
 
         if ih.collapsing_header("Noise Settings", self, attr='noise_settings_open'):
             ih.slider_float("Scale", params, 'scale', min_value=0.1, max_value=100.0, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)
@@ -115,11 +116,11 @@ class PlasmaFractalGUI:
 
         if ih.collapsing_header("Fractal Settings", self, attr='fractal_settings_open'):
             ih.slider_int("Num. Octaves", params, 'octaves', min_value=1, max_value=12)
-            ih.slider_float("Gain", params, 'gain', min_value=0.1, max_value=1.0)
-            ih.slider_float("Time Scale", params, 'timeScaleFactor', min_value=0.1, max_value=2.0)
-            ih.slider_float("Position Scale", params, 'positionScaleFactor', min_value=0.1, max_value=10.0)
-            ih.slider_float("Angle Offset", params, 'rotationAngleIncrement', min_value=0.0, max_value=0.5)
-            ih.slider_float("Time Offset", params, 'timeOffsetIncrement', min_value=0.0, max_value=20.0)
+            ih.slider_float("Gain/Octave", params, 'gain', min_value=0.1, max_value=1.0)
+            ih.slider_float("Pos. Scale/Octave", params, 'positionScaleFactor', min_value=0.1, max_value=10.0)
+            ih.slider_float("Rotation/Octave", params, 'rotationAngleIncrement', min_value=0.0, max_value=math.pi * 2, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)
+            ih.slider_float("Time Scale/Octave", params, 'timeScaleFactor', min_value=0.1, max_value=2.0)
+            ih.slider_float("Time Offset/Octave", params, 'timeOffsetIncrement', min_value=0.0, max_value=20.0)
 
         if ih.collapsing_header("Output Settings", self, attr='output_settings_open'):
             ih.slider_float("Brightness", params, 'brightness', min_value=0.0, max_value=2.0)
@@ -155,7 +156,7 @@ class PlasmaFractalGUI:
             params (PlasmaFractalParams): The current settings of the plasma fractal, specifically for configuring feedback effects.
         """
         width = imgui.get_content_region_available_width()
-        imgui.push_item_width(width - 140)
+        imgui.push_item_width(width - 160)
 
         if ih.collapsing_header("Feedback Mix Settings", self, attr='feedback_general_settings_open'):
             ih.slider_float("Feedback Decay", params, 'feedback_decay', min_value=0, max_value=1.0, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)
@@ -167,11 +168,11 @@ class PlasmaFractalGUI:
 
         if ih.collapsing_header("Feedback Fractal Settings", self, attr='feedback_warp_octave_settings_open'):
             ih.slider_int("Num. Octaves", params, 'warpOctaves', min_value=1, max_value=12)
-            ih.slider_float("Gain", params, 'warpGain', min_value=0.1, max_value=1.0)
-            ih.slider_float("Time Scale", params, 'warpTimeScaleFactor', min_value=0.1, max_value=2.0)
-            ih.slider_float("Position Scale", params, 'warpPositionScaleFactor', min_value=0.1, max_value=10.0)
-            ih.slider_float("Rotation", params, 'warpRotationAngleIncrement', min_value=0.0, max_value=0.5)
-            ih.slider_float("Time Offset", params, 'warpTimeOffsetIncrement', min_value=0.0, max_value=20.0)
+            ih.slider_float("Gain/Octave", params, 'warpGain', min_value=0.1, max_value=1.0)
+            ih.slider_float("Pos. Scale/Octave", params, 'warpPositionScaleFactor', min_value=0.1, max_value=10.0)
+            ih.slider_float("Rotation/Octave", params, 'warpRotationAngleIncrement', min_value=0.0, max_value=math.pi * 2, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)
+            ih.slider_float("Time Scale/Octave", params, 'warpTimeScaleFactor', min_value=0.1, max_value=2.0)
+            ih.slider_float("Time Offset/Octave", params, 'warpTimeOffsetIncrement', min_value=0.0, max_value=20.0)
 
         if ih.collapsing_header("Feedback Effect Settings", self, attr='feedback_warp_effect_settings_open'):
             ih.list_combo("Warp Function", params, 'warpFunction', items=params.get_warp_function_names())
