@@ -30,8 +30,6 @@ To start the application, run the following command:
 python main.py
 ```
 
-Ensure that all necessary modules and resources (e.g., shaders, fonts) are correctly set up in your project directory.
-
 ## Contributing
 
 Contributions to PyPlasmaFractal are welcome. Please feel free to fork the repository, make changes, and submit pull requests.
