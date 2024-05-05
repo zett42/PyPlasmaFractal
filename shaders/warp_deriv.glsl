@@ -96,26 +96,35 @@ vec2 warpSwirl(vec2 pos, vec4 noiseWithDerivatives, float time, float params[MAX
 
 vec2 warpInfiniteMirror(vec2 pos, vec4 noiseWithDerivatives, float time, float params[MAX_WARP_PARAMS]) {
     
-    // Parameters for transformation
-    float duplicationScale = params[0];
+    float duplicationScale = params[0] * 4.0; // Scaled duplication scale
     float influenceRadius = params[1];
+    float nonLinearity = params[2] * 10.0; // Scaled non-linearity
+    float baseRotationIntensity = params[3] * 2.0; // Base intensity of the rotation
+    float timeModulationIntensity = params[4]; // Time-dependent modulation intensity
+    float frequency = params[5] * 10.0; // Scaled frequency of the time-based modulation
 
-    // Extract noise and derivatives
     float noiseValue = noiseWithDerivatives.x;
     vec2 derivatives = noiseWithDerivatives.yz;
 
-    // Calculate dynamic center for texture duplication
     vec2 center = pos + duplicationScale * noiseValue * normalize(derivatives);
-
-    // Compute distance from the original position to the new center
     vec2 displacement = pos - center;
-    float distance = length(displacement);
 
-    // Influence calculation to limit effect based on distance
-    float influence = smoothstep(influenceRadius, 0.0, distance);
+    // Calculate normalized distance and influence
+    float normalizedDistance = length(displacement) / influenceRadius;
+    float falloffPower = mix(0.1, 2.0, nonLinearity);
+    float influence = 1.0 - pow(clamp(normalizedDistance, 0.0, 1.0), falloffPower);
 
-    // Calculate final texture coordinates by blending original and duplicated
-    vec2 newST = mix(pos, 2.0 * pos - center, influence);
+    // Calculate rotation with time modulation
+    float timeModulation = sin(time * frequency) * timeModulationIntensity * M_PI * 2;
+    float rotationAngle = timeModulation + baseRotationIntensity;
+    mat2 rotationMatrix = mat2(cos(rotationAngle), -sin(rotationAngle),
+                               sin(rotationAngle), cos(rotationAngle));
+
+    // Apply rotation around the center
+    vec2 rotatedPos = center + rotationMatrix * (pos - center);
+
+    // Calculate new texture coordinates
+    vec2 newST = mix(pos, 2.0 * rotatedPos - center, influence);
 
     return newST;
 }

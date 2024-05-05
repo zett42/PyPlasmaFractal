@@ -76,6 +76,10 @@ WARP_FUNCTION_INFOS = {
         params=[
             WarpFunctionParam('Duplication Scale', logarithmic=True, default=0.5),
             WarpFunctionParam('Influence Radius', logarithmic=True, default=0.5),
+            WarpFunctionParam('Non-Linearity', logarithmic=True, default=0.0),
+            WarpFunctionParam('Base Rotation', logarithmic=True, default=0.0),
+            WarpFunctionParam('Time Modulation', logarithmic=True, default=0.0),
+            WarpFunctionParam('Frequency', logarithmic=True, default=2.0),
         ]
     ),
     'Test': WarpFunctionInfo(
