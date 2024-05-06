@@ -133,14 +133,18 @@ vec2 warpInfiniteMirror(vec2 pos, vec4 noiseWithDerivatives, float time, float p
 vec2 warpTest(vec2 pos, vec4 noiseWithDerivatives, float time, float params[MAX_WARP_PARAMS]) {
 
     float displacementScale = params[0] * 0.05;
+    float falloffRate = params[1] * 10.;  // New parameter to control the falloff rate
     float noiseValue = noiseWithDerivatives.x;
     vec2 derivatives = noiseWithDerivatives.yz;
 
-    // Smoothing the derivatives to avoid sharp changes
+    // Smooth the derivatives to avoid sharp changes
     vec2 smoothedDerivatives = normalize(derivatives) * smoothstep(0.0, 1.0, length(derivatives));
 
-    // Calculate displacement with moderated influence of derivatives
-    vec2 displacement = displacementScale * noiseValue * smoothedDerivatives;
+    // Implementing falloff based on the noise value
+    float falloff = exp(-falloffRate * abs(noiseValue));
+
+    // Calculate displacement with moderated influence of derivatives and apply falloff
+    vec2 displacement = displacementScale * noiseValue * smoothedDerivatives * falloff;
 
     vec2 newPos = pos + displacement;
 
