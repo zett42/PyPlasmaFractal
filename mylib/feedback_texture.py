@@ -34,6 +34,14 @@ class FeedbackTextureManager:
         self.current_render_index = 0
 
 
+    @property
+    def aspect_ratio(self):
+        """
+        Returns the aspect ratio of the texture.
+        """
+        return self.width / self.height
+
+
     def render_to_texture(self, vao):
         """
         Renders to the current destination texture using the other texture as a source.

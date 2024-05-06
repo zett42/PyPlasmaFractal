@@ -75,7 +75,7 @@ class PlasmaFractalRenderer:
         return self.ctx.buffer(vertices.tobytes())
 
 
-    def update_params(self, params: PlasmaFractalParams, feedback_texture: moderngl.Texture, time: float):
+    def update_params(self, params: PlasmaFractalParams, feedback_texture: moderngl.Texture, time: float, aspect_ratio: float):
         """
         Applies the rendering parameters to generate the final shader programs from templates and configures them.
 
@@ -89,11 +89,10 @@ class PlasmaFractalRenderer:
         """
         #logging.debug("Updating params:" + '\n'.join(f"    {key}={value}" for key, value in vars(params).items()))
 
-        aspect_ratio = feedback_texture.width / feedback_texture.height
         if aspect_ratio > 1.0:
             view_scale = Vec2(aspect_ratio, 1.0)
         else:
-            view_scale = Vec2(1.0, aspect_ratio)  
+            view_scale = Vec2(1.0, 1.0 / aspect_ratio)  
 
         # Parameters that define how the fragment shader is generated from templates
         fragment_template_params = {

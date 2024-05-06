@@ -243,7 +243,7 @@ class PyPlasmaFractalApp:
 
             elapsed_time = timer.update(self.gui.animation_paused, self.params.speed)
 
-            main_renderer.update_params(self.params, self.feedback_manager.previous_texture, elapsed_time)
+            main_renderer.update_params(self.params, self.feedback_manager.previous_texture, elapsed_time, self.feedback_manager.aspect_ratio)
 
             self.feedback_manager.render_to_texture(main_renderer.current_vao)
 
