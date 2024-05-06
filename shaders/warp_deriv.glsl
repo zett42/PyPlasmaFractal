@@ -131,31 +131,17 @@ vec2 warpInfiniteMirror(vec2 pos, vec4 noiseWithDerivatives, float time, float p
 // NOTE: pos is the texture coordinates, noiseWithDerivatives is a vec4 containing the noise value and its derivatives,
 // and param1, param2, param3, and param4 are user-controllable parameters that can be used in the function, with a range of [0, 1].
 vec2 warpTest(vec2 pos, vec4 noiseWithDerivatives, float time, float params[MAX_WARP_PARAMS]) {
-    
-    float param1 = params[0];
-    float param2 = params[1];
-    float param3 = params[2];
-    float param4 = params[3];
 
-    // Extract noise value and derivatives from the input
+    float displacementScale = params[0] * 0.05;
     float noiseValue = noiseWithDerivatives.x;
     vec2 derivatives = noiseWithDerivatives.yz;
 
-    // Adjust parameters for more subtle effects
-    float amplitude = mix(0.001, 0.005, param1);  // Lowered amplitude
-    float frequency = mix(1.0, 5.0, param2);      // Reduced frequency for smoother transitions
-    float noiseMix = mix(0.5, 1.0, param3);       // Focus on stronger influence of derivatives
-    float directionalStrength = mix(0.01, 0.1, param4);  // Reduced directional strength
+    // Smoothing the derivatives to avoid sharp changes
+    vec2 smoothedDerivatives = normalize(derivatives) * smoothstep(0.0, 1.0, length(derivatives));
 
-    // Dynamic center based on derivatives
-    vec2 center = pos + derivatives * noiseMix;
+    // Calculate displacement with moderated influence of derivatives
+    vec2 displacement = displacementScale * noiseValue * smoothedDerivatives;
 
-    // Calculate displacement around the dynamic center
-    vec2 displacement;
-    displacement.x = amplitude * sin(frequency * (pos.x - center.x) + noiseValue);
-    displacement.y = amplitude * cos(frequency * (pos.y - center.y) + noiseValue);
-
-    // Apply displacement to position
     vec2 newPos = pos + displacement;
 
     return newPos;
