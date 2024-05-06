@@ -56,9 +56,9 @@ def slider_int(label: str, obj: object, attr: str = None, index: Optional[int] =
         multiple (int): The value to which the slider's output will be rounded. Default is 1, which means no rounding.
 
     Returns:
-        None: This function performs in-place modification and does not return a value.
+        True if the value has changed, False otherwise.
     """
-    _manage_attribute_interaction(
+    return _manage_attribute_interaction(
         obj,
         attr=attr,
         index=index,
@@ -82,9 +82,9 @@ def slider_float(label: str, obj: object, attr: str = None, index: Optional[Inde
         flags (int, optional): ImGui-specific flags to customize the slider behavior.
 
     Returns:
-        None: This function performs in-place modification and does not return a value.
+        True if the value has changed, False otherwise.
     """
-    _manage_attribute_interaction(
+    return _manage_attribute_interaction(
         obj, 
         attr=attr,
         index=index,
@@ -103,9 +103,9 @@ def checkbox(label: str, obj: object, attr: str = None, index: Optional[IndexTyp
         index (int, optional): The index within a collection attribute to update, used when `attr` points to a collection.
 
     Returns:
-        None: This function performs in-place modification and does not return a value.
+        True if the value has changed, False otherwise.
     """
-    _manage_attribute_interaction(
+    return _manage_attribute_interaction(
         obj, 
         attr=attr, 
         index=index,
@@ -125,7 +125,7 @@ def list_combo(label: str, obj: object, attr: str = None, index: int = None, ite
         index (int, optional): The index within the collection attribute to update, applicable if `attr` points to a collection.
 
     Returns:
-        None: This function performs in-place modification and does not return a value.
+        True if the value has changed, False otherwise.
     """
 
     # Convert items to strings for display purposes
@@ -147,7 +147,7 @@ def list_combo(label: str, obj: object, attr: str = None, index: int = None, ite
         # Convert the selected index back to the item from the original items list
         return items[index]
 
-    _manage_attribute_interaction(
+    return _manage_attribute_interaction(
         obj,
         interaction_func=interaction,
         attr=attr,
@@ -168,7 +168,7 @@ def enum_combo(label: str, obj: object, attr: str = None, index: Optional[IndexT
         index (int, optional): The index within the collection attribute to update, applicable if `attr` points to a collection.
 
     Returns:
-        None: This function performs in-place modification and does not return a value.
+        True if the value has changed, False otherwise.
 
     Note:
         The enum type is inferred from the current value of the attribute. This function is designed to be used with enum attributes.
@@ -187,13 +187,58 @@ def enum_combo(label: str, obj: object, attr: str = None, index: Optional[IndexT
         options = [e.name for e in enum_type]
         return enum_type[options[index]]
 
-    _manage_attribute_interaction( 
+    return _manage_attribute_interaction( 
         obj, 
         attr=attr, 
         index=index,
         interaction_func=interaction,
         convert_to_display=convert_to_display, 
         convert_from_display=convert_from_display
+    )
+
+
+def input_text(label: str, obj: object, attr: str = None, index: Optional[IndexType] = None, buffer_size: int = 256) -> None:
+    """
+    Creates and manages an ImGui text input for modifying a string property of an object or a specific index within a collection.
+
+    Args:
+        label (str): The label for the text input in the ImGui interface.
+        obj (object): The object or collection containing the property to update.
+        attr (str, optional): The name of the attribute within the object to modify. If None, `obj` should be a collection, and `index` must be specified.
+        index (IndexType, optional): The index within the collection attribute to modify. Relevant when `attr` points to a collection or `obj` itself is a collection.
+        buffer_size (int): The maximum size of the input buffer, limiting the number of characters that can be entered.
+
+    Returns:
+        True if the value has changed, False otherwise.
+    """
+    return _manage_attribute_interaction(
+        obj=obj,
+        interaction_func=lambda display_value, _: imgui.input_text(label, display_value, buffer_size),
+        attr=attr,
+        index=index
+    )
+
+
+def input_int(label: str, obj: object, attr: str = None, index: Optional[IndexType] = None, step: int = 1, step_fast: int = 100) -> None:
+    """
+    Creates and manages an ImGui integer input for modifying an integer property of an object or a specific index within a collection.
+
+    Args:
+        label (str): The label for the integer input in the ImGui interface.
+        obj (object): The object or collection containing the property to update.
+        attr (str, optional): The name of the attribute within the object to modify. If None, `obj` should be a collection, and `index` must be specified.
+        index (IndexType, optional): The index within the collection attribute to modify. Relevant when `attr` points to a collection or `obj` itself is a collection.
+        step (int): The step size for each increment or decrement of the value.
+        step_fast (int): A larger step size for faster adjustments.
+
+    Returns:
+        True if the value has changed, False otherwise.
+    """
+    return _manage_attribute_interaction(
+        obj=obj,
+        interaction_func=lambda display_value, _: imgui.input_int(label, display_value, step, step_fast),
+        attr=attr,
+        index=index
     )
 
 
@@ -224,7 +269,7 @@ def _manage_attribute_interaction(obj: Any,
         TypeError: If indexing is attempted on a non-subscriptable object.
 
     Returns:
-        None: Updates are performed in-place; nothing is returned.
+        True if the value has changed, False otherwise.
 
     Details:
         This function facilitates dynamic interaction by updating an object's attribute or directly modifying an 
@@ -272,3 +317,7 @@ def _manage_attribute_interaction(obj: Any,
             else:
                 assert attr, "Attribute name must be non-empty when no index is provided."
                 setattr(obj, attr, new_value)
+
+            return True  # Return True to indicate a change
+    
+    return False  # Return False if no change occurred

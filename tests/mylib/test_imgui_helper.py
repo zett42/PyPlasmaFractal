@@ -22,6 +22,7 @@ class TestObject:
         self.float_dict = {'value1': 1.0, 'value2': 2.0, 'value3': 3.0}
         self.active = False
         self.active_values = [False, False, False]
+        self.text = "initial"
 
 # Test setup
 @pytest.fixture
@@ -213,3 +214,33 @@ def test_enum_combo_with_list(test_obj, mocker):
 
     # Optionally, assert that the combo was called correctly with indexed handling
     mocked_combo.assert_called_once_with('Choose Color', 0, ['RED', 'GREEN', 'BLUE'])
+
+#------------------------------------------------------------------------------------------------------------------------------------------
+
+def test_input_text(test_obj, mocker):
+
+    new_text = "updated text"
+
+    # Mock the imgui.input_text function to simulate user input
+    mocker.patch('mylib.imgui_helper.imgui.input_text', return_value=(True, new_text))
+    
+    # Invoke the input_text function
+    ih.input_text("String Input", test_obj, "text", buffer_size=256)
+    
+    # Assert the text was updated correctly
+    assert test_obj.text == new_text, f"The text attribute should be updated to '{new_text}'"
+
+#------------------------------------------------------------------------------------------------------------------------------------------
+
+def test_input_int(test_obj, mocker):
+    
+    new_value = 20  # New value after interaction
+
+    # Mock the imgui.input_int function to simulate user input
+    mocker.patch('mylib.imgui_helper.imgui.input_int', return_value=(True, new_value))
+    
+    # Invoke the input_int function
+    ih.input_int("Integer Input", test_obj, "int_attr", step=1, step_fast=10)
+    
+    # Assert the integer attribute was updated correctly
+    assert test_obj.int_attr == new_value, f"The int_attr should be updated to {new_value}"

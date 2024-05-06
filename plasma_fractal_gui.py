@@ -60,8 +60,9 @@ class PlasmaFractalGUI:
         self.is_recording = False
         self.recording_directory = None
         self.recording_file_name = f"Capture_{datetime.datetime.now().strftime('%y%m%d_%H%M')}.mp4"
-        self.recording_width = 1280
-        self.recording_height = 720
+        self.recording_resolution = 'HD 720p'
+        self.recording_width = None
+        self.recording_height = None
         self.recording_fps = 30
         self.recording_duration = 0.0
         self.recording_time = None
@@ -296,11 +297,9 @@ class PlasmaFractalGUI:
 
         # TODO: write a imgui_helper function for input_text
         # As we don't need a label, just specify an ID for the title.
-        changed, new_preset_name = imgui.input_text("##PresetName", self.current_preset_name, 256)
-        if changed:
+        if ih.input_text("##PresetName", self, 'current_preset_name'):
             # Remove the extension from the file name
-            base_name, _ = os.path.splitext(new_preset_name)  
-            self.current_preset_name = base_name
+            self.current_preset_name, _ = os.path.splitext(self.current_preset_name)  
 
         imgui.same_line()
 
@@ -500,24 +499,20 @@ class PlasmaFractalGUI:
 
         # Filename input
         # TODO: provide helper function for input_text
-        _, self.recording_file_name = imgui.input_text("Filename", self.recording_file_name, 256)
+        ih.input_text("Filename", self, 'recording_file_name', buffer_size=256)
 
         # Common video resolutions
         common_resolutions = {
-            'HD 720p': (1280, 720),
+            'HD 720p'      : (1280,  720),
             'Full HD 1080p': (1920, 1080),
-            '2K': (2560, 1440),
-            '4K UHD': (3840, 2160)
+            '2K'           : (2560, 1440),
+            '4K UHD'       : (3840, 2160)
         }
         resolution_names = list(common_resolutions.keys())
-        current_resolution_index = resolution_names.index(f"{self.recording_width}x{self.recording_height}") \
-            if f"{self.recording_width}x{self.recording_height}" in resolution_names else 0
 
-        # Resolution combo box
-        changed, current_resolution_index = imgui.combo("Resolution", current_resolution_index, resolution_names)
-        if changed:
-            selected_resolution = resolution_names[current_resolution_index]
-            self.recording_width, self.recording_height = common_resolutions[selected_resolution]
+        # Resolution combo box refactored to use list_combo helper
+        ih.list_combo("Resolution", self, 'recording_resolution', items=resolution_names)
+        self.recording_width, self.recording_height = common_resolutions[self.recording_resolution]
 
         # Frame rates combo box
         common_frame_rates = [24, 30, 60, 120]
@@ -525,7 +520,7 @@ class PlasmaFractalGUI:
 
         # Recording Duration input
         imgui.spacing()
-        _, self.recording_duration = imgui.input_int("Recording Duration (sec)", self.recording_duration)
+        ih.input_int("Duration (sec)", self, 'recording_duration', step=1, step_fast=10)
         if self.recording_duration < 0:
             self.recording_duration = 0
 
