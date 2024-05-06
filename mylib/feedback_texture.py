@@ -92,6 +92,10 @@ class FeedbackTextureManager:
             texture.repeat_y = repeat_y
             texture.filter = filter
 
+        # Clear each new texture to ensure it starts from a clean state
+        for fbo in self.framebuffers:
+            with self.ctx.scope(fbo):
+                self.ctx.clear(0.0, 0.0, 0.0, 1.0)
 
     @property
     def current_texture(self):
