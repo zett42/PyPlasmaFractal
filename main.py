@@ -27,6 +27,7 @@ from imgui.integrations.glfw import GlfwRenderer
 
 from mylib.config_path_manager import ConfigPathManager
 from mylib.format_exception import format_exception_ansi_colors
+from mylib.named_tuples import Size
 from mylib.texture_renderer import TextureRenderer
 from mylib.feedback_texture import FeedbackTextureManager
 from mylib.video_recorder import VideoRecorder
@@ -55,7 +56,7 @@ class PyPlasmaFractalApp:
         # Initialize variables for window management and resizing
         self.last_resize_time = 0
         self.resize_requested = False
-        self.requested_framebuffer_size = (0, 0)
+        self.requested_framebuffer_size = Size(0, 0)
         self.resize_delay = 0.25  # Delay in seconds before applying resize changes
 
         # Initialize variables for double-click detection and fullscreen toggling
@@ -151,7 +152,7 @@ class PyPlasmaFractalApp:
         Mark that a resize has been requested and store the new dimensions.
         """
         self.resize_requested = True
-        self.requested_framebuffer_size = (width, height)
+        self.requested_framebuffer_size = Size(width, height)
         self.last_resize_time = time.time()
 
 

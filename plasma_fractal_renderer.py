@@ -3,15 +3,14 @@ from typing import *
 import os
 import moderngl
 import numpy as np
-import copy
 from collections import namedtuple
 
+from mylib.named_tuples import Vec2
 from mylib.shader_cache import VariantShaderCache
 from mylib.shader_template_system import make_dict_source_resolver
 from mylib.files_to_dict import read_directory_files_to_dict
-from plasma_fractal_params import PlasmaFractalParams, WarpFunctionInfo
+from plasma_fractal_params import PlasmaFractalParams
 
-Vec2 = namedtuple('Vec2', ['x', 'y'])
 
 class PlasmaFractalRenderer:
     """
