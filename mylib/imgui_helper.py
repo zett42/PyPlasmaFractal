@@ -41,9 +41,10 @@ def collapsing_header(title: str, obj: Any, attr: str = None, index: Optional[In
     return current_state[0]
 
 
-def slider_int(label: str, obj: object, attr: str = None, index: Optional[IndexType] = None, min_value: int = 0, max_value: int = 1) -> None:
+def slider_int(label: str, obj: object, attr: str = None, index: Optional[int] = None, min_value: int = 0, max_value: int = 1, multiple: int = 1) -> None:
     """
     Creates and manages an ImGui integer slider for modifying a property of an object or a specific index within a collection.
+    Optionally rounds the slider value to the nearest multiple of a specified number.
 
     Args:
         label (str): The label for the slider in the ImGui interface.
@@ -52,15 +53,18 @@ def slider_int(label: str, obj: object, attr: str = None, index: Optional[IndexT
         index (int, optional): The index within the collection attribute to modify. Relevant when `attr` points to a collection or `obj` itself is a collection.
         min_value (int): The minimum value of the slider.
         max_value (int): The maximum value of the slider.
+        multiple (int): The value to which the slider's output will be rounded. Default is 1, which means no rounding.
 
     Returns:
         None: This function performs in-place modification and does not return a value.
     """
     _manage_attribute_interaction(
-        obj, 
-        attr=attr, 
+        obj,
+        attr=attr,
         index=index,
-        interaction_func=lambda display_value, current_value: imgui.slider_int(label, display_value, min_value, max_value)
+        interaction_func=lambda display_value, _: imgui.slider_int(label, display_value, min_value, max_value),
+        convert_to_display=lambda x: (x // multiple) * multiple if multiple > 1 else x,
+        convert_from_display=lambda x, _: (x // multiple) * multiple if multiple > 1 else x
     )
 
 
@@ -124,8 +128,12 @@ def list_combo(label: str, obj: object, attr: str = None, index: int = None, ite
         None: This function performs in-place modification and does not return a value.
     """
 
+    # Convert items to strings for display purposes
+    display_items = [str(item) for item in items]
+
     def interaction(current_index, current_value):
-        changed, new_index = imgui.combo(label, current_index, items)
+        # Use display_items for imgui combo
+        changed, new_index = imgui.combo(label, current_index, display_items)
         return changed, new_index
 
     def convert_to_display(current_value):
@@ -136,7 +144,7 @@ def list_combo(label: str, obj: object, attr: str = None, index: int = None, ite
             return -1  # If current value is not in items
 
     def convert_from_display(index, _):
-        # Convert the selected index back to the item
+        # Convert the selected index back to the item from the original items list
         return items[index]
 
     _manage_attribute_interaction(

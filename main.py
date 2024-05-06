@@ -29,6 +29,7 @@ from mylib.config_path_manager import ConfigPathManager
 from mylib.format_exception import format_exception_ansi_colors
 from mylib.texture_renderer import TextureRenderer
 from mylib.feedback_texture import FeedbackTextureManager
+from mylib.video_recorder import VideoRecorder
 from mylib.window_config_manager import WindowConfigManager
 from mylib.animation_timer import AnimationTimer
 from mylib.config_file_manager import ConfigFileManager
@@ -51,18 +52,29 @@ class PyPlasmaFractalApp:
         self.app_name = 'PyPlasmaFractal'
         self.app_author = 'zett42'
 
+        # Initialize variables for window management and resizing
         self.last_resize_time = 0
         self.resize_requested = False
+        self.requested_framebuffer_size = (0, 0)
         self.resize_delay = 0.25  # Delay in seconds before applying resize changes
 
+        # Initialize variables for double-click detection and fullscreen toggling
         self.last_click_time = 0
         self.is_fullscreen = False
 
+        # Setup paths
         script_dir = os.path.dirname(os.path.realpath(__file__))
         self.path_manager = ConfigPathManager(self.app_name, self.app_author, app_specific_path=script_dir)
 
-        self.gui = PlasmaFractalGUI(self.path_manager)
+        # Setup video recording
+        self.user_videos_directory = os.path.join(self.path_manager.user_specific_path, 'videos')
+        os.makedirs(self.user_videos_directory, exist_ok=True)
+        self.recorder = VideoRecorder()
+        self.is_recording = False
 
+        # Setup GUI
+        self.gui = PlasmaFractalGUI(self.path_manager)
+        self.gui.recording_directory = self.user_videos_directory
 
     def run(self):
         """
@@ -80,10 +92,8 @@ class PyPlasmaFractalApp:
         self.setup_imgui(self.window)
         
         self.main_loop()
-        
-        self.finalize_glfw()
-        
-        self.fractal_config_manager.save_config(self.params)
+
+        self.finalize()       
 
 
     def load_config(self):
@@ -141,8 +151,7 @@ class PyPlasmaFractalApp:
         Mark that a resize has been requested and store the new dimensions.
         """
         self.resize_requested = True
-        self.pending_width = width
-        self.pending_height = height
+        self.requested_framebuffer_size = (width, height)
         self.last_resize_time = time.time()
 
 
@@ -186,9 +195,10 @@ class PyPlasmaFractalApp:
         """
         self.ctx = moderngl.create_context()
 
-        window_width, window_height = glfw.get_framebuffer_size(window)
+        width, height = glfw.get_framebuffer_size(window)
 
-        self.feedback_manager = FeedbackTextureManager(self.ctx, width=window_width, height=window_height, dtype='f4', filter_x=moderngl.LINEAR, filter_y=moderngl.LINEAR, repeat_x=True, repeat_y=True)
+        # TODO: Check if dtype='f2' (16-bit float instead of 32-bit) is sufficient
+        self.feedback_manager = FeedbackTextureManager(self.ctx, width=width, height=height, dtype='f4', filter_x=moderngl.LINEAR, filter_y=moderngl.LINEAR, repeat_x=True, repeat_y=True)
 
 
     def setup_imgui(self, window):
@@ -238,6 +248,8 @@ class PyPlasmaFractalApp:
 
             texture_to_screen.render(self.feedback_manager.current_texture)
 
+            self.handle_recording()
+
             imgui.render()
             self.im_gui_renderer.render(imgui.get_draw_data())
 
@@ -254,10 +266,13 @@ class PyPlasmaFractalApp:
     
             if time.time() - self.last_resize_time >= self.resize_delay:
               
-                logging.info(f"Handling window resize to {self.pending_width}x{self.pending_height}")
+                logging.debug(f"Handling framebuffer resize to {self.requested_framebuffer_size}")
 
-                self.ctx.viewport = (0, 0, self.pending_width, self.pending_height)
-                self.feedback_manager.resize(self.pending_width, self.pending_height)
+                self.ctx.viewport = (0, 0, self.requested_framebuffer_size.width, self.requested_framebuffer_size.height)
+
+                # During recording, the feedback manager should not be resized directly, since the video size is fixed
+                if not self.is_recording:
+                    self.feedback_manager.resize(self.requested_framebuffer_size.width, self.requested_framebuffer_size.height)
                 
                 self.resize_requested = False
 
@@ -276,15 +291,58 @@ class PyPlasmaFractalApp:
             self.gui.update(self.params)
 
 
-    def finalize_glfw(self):
+    def handle_recording(self):
+        """
+        Handles the recording of video frames based on the current recording state.
+        """
+
+        # If GUI recording state has changed, start or stop recording accordingly
+        if self.is_recording != self.gui.is_recording:
+
+            self.is_recording = self.gui.is_recording
+
+            if self.is_recording:
+
+                video_path = os.path.join(self.user_videos_directory, self.gui.recording_file_name)
+
+                # Temporarily resize feedback texture to recording size
+                self.feedback_manager.resize(self.gui.recording_width, self.gui.recording_height)
+
+                self.recorder.start_recording(video_path, self.gui.recording_width, self.gui.recording_height, fps=self.gui.recording_fps)
+
+            else:
+                self.recorder.stop_recording()
+                self.gui.recording_time = 0
+
+                # Restore feedback texture size
+                width, height = glfw.get_framebuffer_size(self.window)
+                self.feedback_manager.resize(width, height)    
+
+        if self.is_recording:
+            self.recorder.capture_frame(self.feedback_manager.current_texture)  
+            self.gui.recording_time = self.recorder.recording_time
+
+
+    def save_current_window_size_pos(self):
         """
         Cleans up GLFW resources and saves the window configuration before exiting.
         """
-        width, height = glfw.get_framebuffer_size(self.window)
+        width, height = glfw.get_window_size(self.window)  # Gets the client area size
         pos_x, pos_y = glfw.get_window_pos(self.window)
 
         self.window_config_manager.save_config(width, height, pos_x, pos_y)
 
+
+    def finalize(self):
+        """
+        Finalizes the application by releasing resources and saving the fractal configuration.
+        """
+        # Save fractal configuration first to ensure it is saved even if an exception occurs during cleanup
+        self.fractal_config_manager.save_config(self.params)
+
+        self.save_current_window_size_pos()       
+
+        self.ctx.release()
         glfw.terminate()
 
 

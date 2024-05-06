@@ -6,7 +6,7 @@ class FeedbackTextureManager:
     Class to handle a feedback effect using two textures and framebuffers.
     """
     def __init__(self, ctx, width=800, height=600, 
-                 dtype='f1', 
+                 dtype='f4', 
                  repeat_x=False, repeat_y=False, 
                  filter_x: int = moderngl.NEAREST, filter_y: int = moderngl.NEAREST):
         """

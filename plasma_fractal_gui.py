@@ -1,4 +1,5 @@
-﻿import logging
+﻿import datetime
+import logging
 import math
 import os
 import platform
@@ -55,6 +56,15 @@ class PlasmaFractalGUI:
         logging.debug(f"App presets directory: {self.app_presets_directory}")
         logging.debug(f"User presets directory: {self.user_presets_directory}")
 
+        # Initialize recording state
+        self.is_recording = False
+        self.recording_directory = None
+        self.recording_file_name = f"Capture_{datetime.datetime.now().strftime('%y%m%d_%H%M')}.mp4"
+        self.recording_width = 1280
+        self.recording_height = 720
+        self.recording_fps = 30
+        self.recording_duration = 0.0
+        self.recording_time = None
 
     # .......................... UI update methods ...........................................................................
 
@@ -95,6 +105,10 @@ class PlasmaFractalGUI:
                 with imgui.begin_tab_item("Presets") as presets_tab:
                     if presets_tab.selected:
                         self.handle_presets_tab(params)
+
+                with imgui.begin_tab_item("Recording") as recording_tab:
+                    if recording_tab.selected:
+                        self.handle_recording_tab(params)
 
         imgui.pop_style_color(1)
         imgui.end()
@@ -476,3 +490,70 @@ class PlasmaFractalGUI:
         """
         file_name = preset_name + '.json' if not preset_name.lower().endswith('.json') else preset_name
         return os.path.join(self.user_presets_directory, file_name)
+
+
+    #.......................... Recording methods ...........................................................................
+
+    def handle_recording_tab(self, params: PlasmaFractalParams):
+
+        imgui.spacing()
+
+        # Filename input
+        # TODO: provide helper function for input_text
+        _, self.recording_file_name = imgui.input_text("Filename", self.recording_file_name, 256)
+
+        # Common video resolutions
+        common_resolutions = {
+            'HD 720p': (1280, 720),
+            'Full HD 1080p': (1920, 1080),
+            '2K': (2560, 1440),
+            '4K UHD': (3840, 2160)
+        }
+        resolution_names = list(common_resolutions.keys())
+        current_resolution_index = resolution_names.index(f"{self.recording_width}x{self.recording_height}") \
+            if f"{self.recording_width}x{self.recording_height}" in resolution_names else 0
+
+        # Resolution combo box
+        changed, current_resolution_index = imgui.combo("Resolution", current_resolution_index, resolution_names)
+        if changed:
+            selected_resolution = resolution_names[current_resolution_index]
+            self.recording_width, self.recording_height = common_resolutions[selected_resolution]
+
+        # Frame rates combo box
+        common_frame_rates = [24, 30, 60, 120]
+        ih.list_combo("Frame Rate", obj=self, attr='recording_fps', items=common_frame_rates)
+
+        # Recording Duration input
+        imgui.spacing()
+        _, self.recording_duration = imgui.input_int("Recording Duration (sec)", self.recording_duration)
+        if self.recording_duration < 0:
+            self.recording_duration = 0
+
+        # Start/Stop recording toggle button
+        imgui.spacing()
+        if imgui.button("Start Recording" if not self.is_recording else "Stop Recording"):
+            self.is_recording = not self.is_recording
+
+        # Check to automatically stop the recording if the duration exceeds the set limit
+        if self.is_recording and self.recording_time is not None and self.recording_duration > 0:
+            if self.recording_time >= self.recording_duration:
+                self.is_recording = False
+
+        # Display recording time if recording
+        if self.is_recording and self.recording_time is not None:
+            imgui.spacing()
+            recording_time_str = self.convert_seconds_to_hms(self.recording_time)
+            imgui.text(f"Recording time: {recording_time_str}")
+
+        # Add a button to open the video folder
+        if not self.is_recording:
+            imgui.spacing()
+            if imgui.button("Open Folder"):
+                self.open_folder(self.recording_directory)
+
+    @staticmethod
+    def convert_seconds_to_hms(seconds: Union[int, float]) -> str:
+        seconds = int(seconds)  # Ensure seconds are whole numbers
+        hours, remainder = divmod(seconds, 3600)
+        minutes, seconds = divmod(remainder, 60)
+        return f"{hours:02d}:{minutes:02d}:{seconds:02d}"
