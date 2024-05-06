@@ -67,9 +67,11 @@ class TextureRenderer:
         Parameters:
         - texture: The texture to render.
         """
-        self.ctx.clear(0.0, 0.0, 0.0)
+        with self.ctx.scope(self.ctx.screen):    # Use the screen framebuffer
 
-        texture.use(location=0)               # Assign texture to texture unit 0
-        self.program['texture0'].value = 0    # Using texture unit 0 in shader
+            self.ctx.clear(0.0, 0.0, 0.0)
 
-        self.vao.render(moderngl.TRIANGLES)   # Draw using the shaders associated with the VAO
+            texture.use(location=0)               # Assign texture to texture unit 0
+            self.program['texture0'].value = 0    # Using texture unit 0 in shader
+
+            self.vao.render(moderngl.TRIANGLES)   # Draw using the shaders associated with the VAO

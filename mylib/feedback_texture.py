@@ -42,17 +42,16 @@ class FeedbackTextureManager:
         - vao: The vertex array object to render.
         """
         # Bind the framebuffer for rendering
-        self.framebuffers[self.current_render_index].use()
-        self.ctx.clear(0.0, 0.0, 0.0, 1.0)  # Clear with black color
+        # Using the 'with' statement avoids manual restoration of the previous framebuffer
+        with self.ctx.scope(self.framebuffers[self.current_render_index]):
 
-        # Render the object
-        vao.render(moderngl.TRIANGLES)  
+            self.ctx.clear(0.0, 0.0, 0.0, 1.0)  # Clear with black color
+
+            # Render the object
+            vao.render(moderngl.TRIANGLES)
         
         # Swap index for next render call
         self.current_render_index = 1 - self.current_render_index
-        
-        # Revert to default framebuffer
-        self.ctx.screen.use()
 
 
     def resize(self, new_width, new_height):
