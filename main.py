@@ -57,7 +57,7 @@ class PyPlasmaFractalApp:
         self.last_resize_time = 0
         self.resize_requested = False
         self.requested_framebuffer_size = Size(0, 0)
-        self.resize_delay = 0.25  # Delay in seconds before applying resize changes
+        self.resize_delay = 0.5  # Delay in seconds before applying resize changes
 
         # Initialize variables for double-click detection and fullscreen toggling
         self.last_click_time = 0
