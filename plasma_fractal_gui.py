@@ -64,7 +64,7 @@ class PlasmaFractalGUI:
         self.recording_width = None
         self.recording_height = None
         self.recording_fps = 30
-        self.recording_duration = 0.0
+        self.recording_duration = 30
         self.recording_time = None
 
     # .......................... UI update methods ...........................................................................
