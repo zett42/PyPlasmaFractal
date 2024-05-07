@@ -63,7 +63,7 @@ class PlasmaFractalGUI:
         self.recording_resolution = 'HD 720p'
         self.recording_width = None
         self.recording_height = None
-        self.recording_fps = 30
+        self.recording_fps = 60
         self.recording_duration = 30
         self.recording_time = None
 
