@@ -1,5 +1,7 @@
 ![PyPlasmaFractal Header](images/screenshot.png)
 
+[![PyPlasmaFractal Video](https://img.youtube.com/vi/rrV0QysRSAc/0.jpg)](https://www.youtube.com/watch?v=rrV0QysRSAc "PyPlasmaFractal")
+
 # PyPlasmaFractal
 
 PyPlasmaFractal is a Python based real-time application for rendering and exploring fractal noise visuals. It uses ModernGL for OpenGL rendering, GLFW for window management, and ImGui for an interactive user interface. This application specifically focuses on fractal noise combined with feedback effects, which employ fractal noise-based warping effects to enhance the complexity and continuity of visuals. It allows for the generation of a wide range of effects such as clouds, smoke, or fluid-like visuals.
