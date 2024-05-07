@@ -67,6 +67,10 @@ class PlasmaFractalGUI:
         self.recording_duration = 30
         self.recording_time = None
 
+        # FPS display
+        self.actual_fps = 0.0
+        self.desired_fps = 0.0
+
     # .......................... UI update methods ...........................................................................
 
     def update(self, params: PlasmaFractalParams):
@@ -83,6 +87,19 @@ class PlasmaFractalGUI:
 
         style = imgui.get_style()
         imgui.push_style_color(imgui.COLOR_HEADER, *modify_rgba_color_hsv(style.colors[imgui.COLOR_HEADER], -0.05, 1.0, 1.0))
+
+        # Display the current FPS value
+        if self.actual_fps:
+            
+            tolerance = 0.05 * self.desired_fps
+            if abs(self.actual_fps - self.desired_fps) <= tolerance:
+                imgui.push_style_color(imgui.COLOR_TEXT, 0.2, 1.0, 0.2)
+            else:
+                imgui.push_style_color(imgui.COLOR_TEXT, 1.0, 0.9, 0.2)
+
+            imgui.text(f"FPS: {self.actual_fps:.0f}")
+            imgui.pop_style_color(1)
+            imgui.spacing()
 
         width = imgui.get_content_region_available_width()
 

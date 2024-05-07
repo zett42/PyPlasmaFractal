@@ -1,22 +1,43 @@
-# mylib/fps.py
-
-from time import perf_counter
+import time
 
 class FpsCalculator:
-    def __init__(self, smoothing_factor=10):
-        self.fps_smoothing_factor = 2 / (smoothing_factor + 1)
-        self.average_fps = 0.0
-        self.last_time = perf_counter()
-        self.frame_count = 0
+    def __init__(self, smoothing=0.1):
+        """
+        Initializes the FPS calculator with a specified smoothing factor and sets up the timer.
+
+        Args:
+        smoothing (float): Smoothing factor for the exponential moving average calculation.
+                           It should be between 0 and 1. A smaller value smoothens more but reacts slower.
+        """
+        self.ema_fps = 0.0
+        self.smoothing = smoothing
+        self.is_first_frame = True
+        self.last_time = time.perf_counter()
 
     def update(self):
-        current_time = perf_counter()
-        frame_time = current_time - self.last_time
+        """
+        Update the FPS based on the elapsed time since the last frame using an internal high-resolution timer.
+        """
+        current_time = time.perf_counter()
+        time_elapsed = current_time - self.last_time
         self.last_time = current_time
-
-        current_fps = 1.0 / frame_time if frame_time > 0 else 0
-        self.average_fps = (current_fps * self.fps_smoothing_factor) + (self.average_fps * (1 - self.fps_smoothing_factor))
-        self.frame_count += 1
+        
+        if time_elapsed <= 0:
+            return  # To prevent nonsensical updates
+        
+        current_fps = 1.0 / time_elapsed
+        
+        if self.is_first_frame:
+            self.ema_fps = current_fps
+            self.is_first_frame = False
+        else:
+            self.ema_fps = (current_fps * self.smoothing) + (self.ema_fps * (1 - self.smoothing))
 
     def get_fps(self):
-        return self.average_fps if self.frame_count > 1 else 0
+        """
+        Get the current smoothed FPS value.
+        
+        Returns:
+        float: The current smoothed FPS.
+        """
+        return self.ema_fps

@@ -18,6 +18,7 @@ Major dependencies:
 """
 
 import logging
+import math
 import time
 import moderngl
 import glfw
@@ -27,6 +28,8 @@ from imgui.integrations.glfw import GlfwRenderer
 
 from mylib.config_path_manager import ConfigPathManager
 from mylib.format_exception import format_exception_ansi_colors
+from mylib.frame_rate_limiter import FrameRateLimiter
+from mylib.fps import FpsCalculator
 from mylib.named_tuples import Size
 from mylib.texture_renderer import TextureRenderer
 from mylib.feedback_texture import FeedbackTextureManager
@@ -76,6 +79,10 @@ class PyPlasmaFractalApp:
         # Setup GUI
         self.gui = PlasmaFractalGUI(self.path_manager)
         self.gui.recording_directory = self.user_videos_directory
+
+        # Initialize variables related to frame rate
+        self.fps_calculator = None
+        self.desired_fps = 60.0
 
     def run(self):
         """
@@ -232,21 +239,22 @@ class PyPlasmaFractalApp:
         main_renderer = PlasmaFractalRenderer(self.ctx)
         texture_to_screen = TextureRenderer(self.ctx)
         timer = AnimationTimer()
+        fps_limiter = FrameRateLimiter(self.desired_fps)
+        self.fps_calculator = FpsCalculator()                
 
         while not glfw.window_should_close(self.window):
 
-            glfw.poll_events()
+            fps_limiter.start_frame()
 
+            glfw.poll_events()
             self.handle_window_resize()
 
             self.handle_gui()
 
             elapsed_time = self.handle_time(timer)
-
             main_renderer.update_params(self.params, self.feedback_manager.previous_texture, elapsed_time, self.feedback_manager.aspect_ratio)
 
             self.feedback_manager.render_to_texture(main_renderer.current_vao)
-
             texture_to_screen.render(self.feedback_manager.current_texture)
 
             self.handle_recording()
@@ -255,6 +263,11 @@ class PyPlasmaFractalApp:
             self.im_gui_renderer.render(imgui.get_draw_data())
 
             glfw.swap_buffers(self.window)
+
+            if not self.is_recording:
+                fps_limiter.end_frame()
+                
+            self.fps_calculator.update()
 
 
     def handle_window_resize(self):
@@ -289,6 +302,8 @@ class PyPlasmaFractalApp:
         imgui.new_frame()
 
         if not self.is_fullscreen:
+            self.gui.actual_fps = self.fps_calculator.get_fps()
+            self.gui.desired_fps = self.desired_fps
             self.gui.update(self.params)
 
 
@@ -300,8 +315,8 @@ class PyPlasmaFractalApp:
             # For consistent results during recording, use the recording time, starting at the accumulated time from the timer, 
             # otherwise the time could depend on CPU load.
             return timer.accumulated_time + self.recorder.recording_time * self.params.speed
-        else:
-            return timer.update(self.gui.animation_paused, self.params.speed)
+        
+        return timer.update(self.gui.animation_paused, self.params.speed)
 
 
     def handle_recording(self):
