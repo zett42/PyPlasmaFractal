@@ -241,7 +241,7 @@ class PyPlasmaFractalApp:
 
             self.handle_gui()
 
-            elapsed_time = timer.update(self.gui.animation_paused, self.params.speed)
+            elapsed_time = self.handle_time(timer)
 
             main_renderer.update_params(self.params, self.feedback_manager.previous_texture, elapsed_time, self.feedback_manager.aspect_ratio)
 
@@ -290,6 +290,18 @@ class PyPlasmaFractalApp:
 
         if not self.is_fullscreen:
             self.gui.update(self.params)
+
+
+    def handle_time(self, timer: AnimationTimer) -> float:
+        
+        timer.paused = self.is_recording or self.gui.animation_paused
+
+        if self.is_recording:
+            # For consistent results during recording, use the recording time, starting at the accumulated time from the timer, 
+            # otherwise the time could depend on CPU load.
+            return timer.accumulated_time + self.recorder.recording_time * self.params.speed
+        else:
+            return timer.update(self.gui.animation_paused, self.params.speed)
 
 
     def handle_recording(self):
