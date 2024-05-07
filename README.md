@@ -1,6 +1,9 @@
 ![PyPlasmaFractal Header](images/screenshot.png)
+Screenshot
 
 [![PyPlasmaFractal Video](https://img.youtube.com/vi/rrV0QysRSAc/0.jpg)](https://www.youtube.com/watch?v=rrV0QysRSAc "PyPlasmaFractal")
+<br>
+Captured Video (30 sec)
 
 # PyPlasmaFractal
 
