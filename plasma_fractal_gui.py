@@ -8,6 +8,7 @@ import imgui
 
 from mylib.config_path_manager import ConfigPathManager
 from mylib.icons import Icons
+from mylib.window_fade_manager import WindowFadeManager
 from plasma_fractal_params import PlasmaFractalParams
 import mylib.imgui_helper as ih
 from mylib.adjust_color import modify_rgba_color_hsv
@@ -69,6 +70,10 @@ class PlasmaFractalGUI:
         self.actual_fps = 0.0
         self.desired_fps = 0.0
 
+        # Initialize the fade manager for the control panel
+        self.fade_manager = WindowFadeManager()
+
+
     # .......................... UI update methods ...........................................................................
 
     def update(self, params: PlasmaFractalParams):
@@ -81,9 +86,15 @@ class PlasmaFractalGUI:
         Args:
             params (PlasmaFractalParams): The current settings of the plasma fractal that can be adjusted via the UI.
         """
+        style = imgui.get_style()
+
+        imgui.push_style_var(imgui.STYLE_ALPHA, self.fade_manager.alpha)  # Apply to the control panel
+
         imgui.begin("Control Panel")
 
-        style = imgui.get_style()
+        # Fade the control panel in or out based on mouse activity
+        self.fade_manager.update(imgui.get_mouse_pos(), imgui.get_window_position(), imgui.get_window_size())
+
         imgui.push_style_color(imgui.COLOR_HEADER, *modify_rgba_color_hsv(style.colors[imgui.COLOR_HEADER], -0.05, 1.0, 1.0))
 
         # Display the current FPS value
@@ -128,6 +139,8 @@ class PlasmaFractalGUI:
 
         imgui.pop_style_color(1)
         imgui.end()
+
+        imgui.pop_style_var(1)
     
 
     def handle_noise_tab(self, params: PlasmaFractalParams):
