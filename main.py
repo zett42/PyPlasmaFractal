@@ -166,7 +166,7 @@ class PyPlasmaFractalApp:
 
     def mouse_button_callback(self, window, button, action, mods):
         """
-        Handles mouse button events to detect double-clicks and toggle fullscreen.
+        Handles mouse button events outside of the IMGUI window to detect double-clicks and toggle fullscreen.
         """
         io = imgui.get_io()
         if not io.want_capture_mouse:
@@ -303,8 +303,12 @@ class PyPlasmaFractalApp:
         imgui.new_frame()
 
         if not self.is_fullscreen:
+
+            # Update GUI attributes that are independent of the render params
             self.gui.actual_fps = self.fps_calculator.get_fps()
             self.gui.desired_fps = self.desired_fps
+
+            # Render GUI elements
             self.gui.update(self.params)
 
 
