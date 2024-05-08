@@ -5,9 +5,7 @@ import os
 import platform
 from typing import *
 import imgui
-from dataclasses import dataclass, field
 
-from mylib.config_file_manager import ConfigFileManager
 from mylib.config_path_manager import ConfigPathManager
 from mylib.icons import Icons
 from plasma_fractal_params import PlasmaFractalParams
