@@ -17,7 +17,7 @@ PyPlasmaFractal is a Python based real-time application for rendering and explor
 - Interactive controls for adjusting fractal parameters on-the-fly.
 - Persistent user settings for fractal parameters to facilitate experimentation.
 - High-performance graphics rendering using ModernGL and GLFW.
-- A user-friendly GUI powered by ImGui.
+- Video recording.
 
 ## Installation
 
