@@ -302,14 +302,12 @@ class PyPlasmaFractalApp:
         self.im_gui_renderer.process_inputs()
         imgui.new_frame()
 
-        if not self.is_fullscreen:
+        # Update GUI attributes that are independent of the render params
+        self.gui.actual_fps = self.fps_calculator.get_fps()
+        self.gui.desired_fps = self.desired_fps
 
-            # Update GUI attributes that are independent of the render params
-            self.gui.actual_fps = self.fps_calculator.get_fps()
-            self.gui.desired_fps = self.desired_fps
-
-            # Render GUI elements
-            self.gui.update(self.params)
+        # Render GUI elements
+        self.gui.update(self.params)
 
 
     def handle_time(self, timer: AnimationTimer) -> float:
