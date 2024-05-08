@@ -37,10 +37,10 @@ class WindowFadeManager:
         self.fade_delay = fade_delay
         self.fade_out_duration = fade_out_duration
         self.fade_in_duration = fade_in_duration
-        self._alpha = alpha_active
         self.alpha_active = alpha_active
         self.alpha_inactive = alpha_inactive
         self.start_alpha = alpha_active  # Initial alpha for any fade operation
+        self._alpha = alpha_active
         self.state = FadeState.Active
 
 
@@ -63,34 +63,54 @@ class WindowFadeManager:
         """
         current_time = time.time()
         
-        mouse_state = self.get_mouse_state(current_time, mouse_pos, window_pos, window_size)
+        mouse_state = self._get_mouse_state(current_time, mouse_pos, window_pos, window_size)
 
-        if self.state == FadeState.Active and mouse_state == MouseState.Idle:
-            self.state = FadeState.FadingOut
-            self.start_time = current_time
-            self.start_alpha = self._alpha
-
+        if self.state == FadeState.Active:
+            self._handle_active(mouse_state, current_time)
         elif self.state == FadeState.FadingIn:
-            if self.process_fade(current_time, self.start_alpha, self.alpha_active, self.start_time, self.fade_in_duration):
-                self.state = FadeState.Active
-
+            self._handle_fading_in(current_time)
         elif self.state == FadeState.FadingOut:
-            if mouse_state == MouseState.Active:
-                self.state = FadeState.FadingIn
-                self.start_alpha = self._alpha
-                self.start_time = current_time
-            elif self.process_fade(current_time, self.start_alpha, self.alpha_inactive, self.start_time, self.fade_out_duration):
-                self.state = FadeState.Inactive
-
-        elif self.state == FadeState.Inactive and mouse_state == MouseState.Active:
-            self.state = FadeState.FadingIn
-            self.start_alpha = self.alpha_inactive
-            self.start_time = current_time
+            self._handle_fading_out(mouse_state, current_time)
+        elif self.state == FadeState.Inactive:
+            self._handle_inactive(mouse_state, current_time)
 
         return self.alpha
 
 
-    def get_mouse_state(self, current_time: float, 
+    def _handle_active(self, mouse_state, current_time):
+        """Handle the Active state of the window based on mouse activity."""
+        if mouse_state == MouseState.Idle:
+            self._start_fade(FadeState.FadingOut, current_time)
+
+
+    def _handle_fading_in(self, current_time):
+        """Handle the FadingIn state of the window based on time elapsed."""
+        if self._process_fade(current_time, self.start_alpha, self.alpha_active, self.start_time, self.fade_in_duration):
+            self.state = FadeState.Active
+
+
+    def _handle_fading_out(self, mouse_state, current_time):
+        """Handle the FadingOut state of the window based on mouse activity."""
+        if mouse_state == MouseState.Active:
+            self._start_fade(FadeState.FadingIn, current_time)
+        elif self._process_fade(current_time, self.start_alpha, self.alpha_inactive, self.start_time, self.fade_out_duration):
+            self.state = FadeState.Inactive
+
+
+    def _handle_inactive(self, mouse_state, current_time):
+        """Handle the Inactive state of the window based on mouse activity."""
+        if mouse_state == MouseState.Active:
+            self._start_fade(FadeState.FadingIn, current_time)
+
+
+    def _start_fade(self, new_state, current_time):
+        """Set new state and start a fade transition."""
+        self.state = new_state
+        self.start_time = current_time
+        self.start_alpha = self._alpha
+
+
+    def _get_mouse_state(self, current_time: float, 
                         mouse_pos: tuple[float, float], 
                         window_pos: tuple[float, float] = None, 
                         window_size: tuple[float, float] = None) -> MouseState:
@@ -122,7 +142,7 @@ class WindowFadeManager:
             return MouseState.Inactive
 
 
-    def process_fade(self, current_time: float, start_alpha: float, end_alpha: float, start_time: float, duration: float) -> bool:
+    def _process_fade(self, current_time: float, start_alpha: float, end_alpha: float, start_time: float, duration: float) -> bool:
         """Process the fading transition over the specified duration.
 
         Parameters:
