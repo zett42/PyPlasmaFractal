@@ -24,6 +24,9 @@
 //  - filter kernel changed to fix discontinuities at tetrahedron boundaries
 //
 
+// Includes a correction to the derivatives calculation from this issue (multiply by SIMPLEX_TETRAHADRON_HEIGHT "because you scaled space earlier"):
+// https://github.com/BrianSharpe/Wombat/issues/2#issue-427319091
+
 //
 //  Simplex Perlin Noise 3D Deriv
 //  Return value range of -1.0->1.0, with format vec4( value, xderiv, yderiv, zderiv )
@@ -93,9 +96,9 @@ vec4 SimplexPerlin3D_Deriv(vec3 P)
 
     //  calc the derivatives
     vec4 temp = -6.0 * m2 * grad_results;
-    float xderiv = dot( temp, v1234_x ) + dot( m3, hash_0 );
-    float yderiv = dot( temp, v1234_y ) + dot( m3, hash_1 );
-    float zderiv = dot( temp, v1234_z ) + dot( m3, hash_2 );
+    float xderiv = (dot( temp, v1234_x ) + dot( m3, hash_0 )) * SIMPLEX_TETRAHADRON_HEIGHT;
+    float yderiv = (dot( temp, v1234_y ) + dot( m3, hash_1 )) * SIMPLEX_TETRAHADRON_HEIGHT;
+    float zderiv = (dot( temp, v1234_z ) + dot( m3, hash_2 )) * SIMPLEX_TETRAHADRON_HEIGHT;
 
     //	Normalization factor to scale the final result to a strict 1.0->-1.0 range
     //	http://briansharpe.wordpress.com/2012/01/13/simplex-noise/#comment-36
