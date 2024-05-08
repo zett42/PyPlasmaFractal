@@ -83,6 +83,7 @@ class PyPlasmaFractalApp:
         # Initialize variables related to frame rate
         self.fps_calculator = None
         self.desired_fps = 60.0
+        self.gui.recording_fps = self.desired_fps
 
     def run(self):
         """
