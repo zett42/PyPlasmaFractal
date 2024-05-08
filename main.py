@@ -76,13 +76,13 @@ class PyPlasmaFractalApp:
         self.recorder = VideoRecorder()
         self.is_recording = False
 
-        # Setup GUI
-        self.gui = PlasmaFractalGUI(self.path_manager)
-        self.gui.recording_directory = self.user_videos_directory
-
         # Initialize variables related to frame rate
         self.fps_calculator = None
         self.desired_fps = 60.0
+
+        # Setup GUI
+        self.gui = PlasmaFractalGUI(self.path_manager)
+        self.gui.recording_directory = self.user_videos_directory
         self.gui.recording_fps = self.desired_fps
 
     def run(self):
