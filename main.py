@@ -264,9 +264,11 @@ class PyPlasmaFractalApp:
             self.handle_gui()
 
             elapsed_time = self.handle_time(timer)
-            main_renderer.update_params(self.params, self.feedback_manager.previous_texture, elapsed_time, self.feedback_manager.aspect_ratio)
 
-            self.feedback_manager.render_to_texture(main_renderer.current_vao)
+            if not timer.paused:
+                main_renderer.update_params(self.params, self.feedback_manager.previous_texture, elapsed_time, self.feedback_manager.aspect_ratio)
+                self.feedback_manager.render_to_texture(main_renderer.current_vao)
+
             texture_to_screen.render(self.feedback_manager.current_texture)
 
             self.handle_recording()
