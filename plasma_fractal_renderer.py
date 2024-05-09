@@ -6,6 +6,7 @@ import numpy as np
 from collections import namedtuple
 
 from mylib.named_tuples import Vec2
+from mylib.resources import resource_path
 from mylib.shader_cache import VariantShaderCache
 from mylib.shader_template_system import make_dict_source_resolver
 from mylib.files_to_dict import read_directory_files_to_dict
@@ -43,7 +44,7 @@ class PlasmaFractalRenderer:
         self.warp_scale = Vec2( 1.0, 1.0 )
 
         # Get the shaders directory relative to the current script's directory
-        shader_base_directory = os.path.join(os.path.dirname(__file__), 'shaders')
+        shader_base_directory = resource_path('shaders')
 
         # Load the shader sources into a dictionary to avoid repeated file system access, when a different shader variant is choosen
         shader_dict = read_directory_files_to_dict(shader_base_directory, recursive=True)

@@ -1,0 +1,35 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build Executable",
+            "type": "shell",
+            "command": "pyinstaller",
+            "args": [
+                //"--onefile",
+                "--noupx",
+                "--noconfirm",
+                "--windowed",
+                "--add-data", "fonts:fonts",
+                "--add-data", "presets:presets",
+                "--add-data", "shaders:shaders",
+                "--add-binary", "${env:APPDATA}\\Python\\Python312\\site-packages\\glfw\\glfw3.dll:.",
+                "--hidden-import", "glcontext",
+                "main.py"
+
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        }
+    ]
+}

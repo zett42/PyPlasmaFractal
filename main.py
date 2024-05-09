@@ -18,10 +18,9 @@ Major dependencies:
 """
 
 import logging
-import math
+import sys
 import time
 import moderngl
-import glfw
 import os
 import imgui
 from imgui.integrations.glfw import GlfwRenderer
@@ -31,6 +30,7 @@ from mylib.format_exception import format_exception_ansi_colors
 from mylib.frame_rate_limiter import FrameRateLimiter
 from mylib.fps import FpsCalculator
 from mylib.named_tuples import Size
+from mylib.resources import resource_path
 from mylib.texture_renderer import TextureRenderer
 from mylib.feedback_texture import FeedbackTextureManager
 from mylib.video_recorder import VideoRecorder
@@ -42,6 +42,8 @@ from mylib.icons import Icons
 from plasma_fractal_renderer import PlasmaFractalRenderer
 from plasma_fractal_params import PlasmaFractalParams
 from plasma_fractal_gui import PlasmaFractalGUI
+
+glfw = None  # Global variable to store the GLFW module reference, which is imported later in the code
 
 #---------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -67,7 +69,7 @@ class PyPlasmaFractalApp:
         self.is_fullscreen = False
 
         # Setup paths
-        script_dir = os.path.dirname(os.path.realpath(__file__))
+        script_dir = resource_path('')
         self.path_manager = ConfigPathManager(self.app_name, self.app_author, app_specific_path=script_dir)
 
         # Setup video recording
@@ -126,6 +128,14 @@ class PyPlasmaFractalApp:
         """
         Initializes GLFW for window and context management, loading configurations from WindowConfigManager.
         """
+        if getattr(sys, 'frozen', False):
+            # If the application is run as a bundle, add the location of the glfw DLLs to the search path to avoid errors.
+            os.add_dll_directory(resource_path(''))
+
+        # Import glfw here after setting the DLL search path to avoid issues with the DLLs not being found
+        global glfw
+        import glfw
+
         if not glfw.init():
             raise Exception("Failed to initialize GLFW")
         
@@ -218,12 +228,13 @@ class PyPlasmaFractalApp:
 
         self.im_gui_renderer = GlfwRenderer(window)
 
-        fonts_dir = os.path.join(os.path.dirname(__file__), 'fonts')
+        fonts_dir = resource_path('fonts')
 
         # Replace default font with custom font
         fonts = imgui.get_io().fonts
         fonts.clear()
         font_path = os.path.join(fonts_dir, 'Roboto-Regular.ttf')
+        logging.debug(f"Loading font from: {font_path}")
         fonts.add_font_from_file_ttf(font_path, 20)
 
         # Merge icon font

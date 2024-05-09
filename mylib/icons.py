@@ -1,3 +1,4 @@
+import logging
 import os
 from typing import *
 import imgui
@@ -44,6 +45,7 @@ class Icons:
         config = imgui.core.FontConfig(merge_mode=True)
         
         # Add the font to imgui
+        logging.debug(f"Loading font from: {font_path}")
         fonts.add_font_from_file_ttf(font_path, font_size, font_config=config, glyph_ranges=glyph_range_object)
 
 
