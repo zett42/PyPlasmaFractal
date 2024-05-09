@@ -10,7 +10,7 @@
             "command": "pyinstaller",
             "args": [
                 //"--onefile",
-                "--noupx",
+                //"--noupx",
                 "--noconfirm",
                 "--windowed",
                 "--add-data", "fonts:fonts",
