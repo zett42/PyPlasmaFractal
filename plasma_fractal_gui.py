@@ -91,6 +91,7 @@ class PlasmaFractalGUI:
 
         with imgui.styled(imgui.STYLE_ALPHA, self.fade_manager.alpha), imgui.colored(imgui.COLOR_HEADER, *new_hdr_color):
 
+            imgui.set_next_window_size(400, 800, imgui.FIRST_USE_EVER)
             with imgui.begin("Control Panel"):
 
                 # Fade the control panel in or out based on mouse activity
