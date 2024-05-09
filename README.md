@@ -1,7 +1,7 @@
 ![PyPlasmaFractal Header](images/screenshot.png)
 Screenshot
 
-[![PyPlasmaFractal Video](https://img.youtube.com/vi/rrV0QysRSAc/0.jpg)](https://www.youtube.com/watch?v=rrV0QysRSAc "PyPlasmaFractal")
+[![PyPlasmaFractal Video](https://img.youtube.com/vi/nlJ_fTiE-dk/0.jpg)](https://www.youtube.com/watch?v=nlJ_fTiE-dk "PyPlasmaFractal")
 <br>
 Captured Video (30 sec)
 
