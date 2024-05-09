@@ -87,60 +87,49 @@ class PlasmaFractalGUI:
             params (PlasmaFractalParams): The current settings of the plasma fractal that can be adjusted via the UI.
         """
         style = imgui.get_style()
+        new_hdr_color = modify_rgba_color_hsv(style.colors[imgui.COLOR_HEADER], -0.05, 1.0, 1.0)
 
-        imgui.push_style_var(imgui.STYLE_ALPHA, self.fade_manager.alpha)  # Apply to the control panel
+        with imgui.styled(imgui.STYLE_ALPHA, self.fade_manager.alpha), imgui.colored(imgui.COLOR_HEADER, *new_hdr_color):
 
-        imgui.begin("Control Panel")
+            with imgui.begin("Control Panel"):
 
-        # Fade the control panel in or out based on mouse activity
-        self.fade_manager.update(imgui.get_mouse_pos(), imgui.get_window_position(), imgui.get_window_size())
+                # Fade the control panel in or out based on mouse activity
+                self.fade_manager.update(imgui.get_mouse_pos(), imgui.get_window_position(), imgui.get_window_size())
 
-        imgui.push_style_color(imgui.COLOR_HEADER, *modify_rgba_color_hsv(style.colors[imgui.COLOR_HEADER], -0.05, 1.0, 1.0))
+                # Display the current FPS value
+                if self.actual_fps:
+                    # Set color according to the difference between actual and desired FPS                   
+                    tolerance = 0.05 * self.desired_fps
+                    color = (0.2, 1.0, 0.2) if abs(self.actual_fps - self.desired_fps) <= tolerance else (1.0, 0.9, 0.2)
+                    imgui.text_colored(f"FPS: {self.actual_fps:.0f}", *color)
+                    imgui.spacing()
 
-        # Display the current FPS value
-        if self.actual_fps:
-            
-            tolerance = 0.05 * self.desired_fps
-            if abs(self.actual_fps - self.desired_fps) <= tolerance:
-                imgui.push_style_color(imgui.COLOR_TEXT, 0.2, 1.0, 0.2)
-            else:
-                imgui.push_style_color(imgui.COLOR_TEXT, 1.0, 0.9, 0.2)
+                width = imgui.get_content_region_available_width()
 
-            imgui.text(f"FPS: {self.actual_fps:.0f}")
-            imgui.pop_style_color(1)
-            imgui.spacing()
+                imgui.set_next_item_width(width - 160)
+                ih.slider_float("Speed", params, 'speed', min_value=0.1, max_value=10.0, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)
 
-        width = imgui.get_content_region_available_width()
+                imgui.same_line()
+                ih.checkbox("Paused", self, attr='animation_paused')
+                imgui.spacing()
 
-        imgui.set_next_item_width(width - 160)
-        ih.slider_float("Speed", params, 'speed', min_value=0.1, max_value=10.0, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)
+                with imgui.begin_tab_bar("Control Tabs") as tab_bar:
+                    if tab_bar.opened:
+                        with imgui.begin_tab_item("Noise") as noise_tab:
+                            if noise_tab.selected:
+                                self.handle_noise_tab(params)
 
-        imgui.same_line()
-        ih.checkbox("Paused", self, attr='animation_paused')
-        imgui.spacing()
+                        with imgui.begin_tab_item("Feedback") as feedback_tab:
+                            if feedback_tab.selected:
+                                self.handle_feedback_tab(params)
 
-        with imgui.begin_tab_bar("Control Tabs") as tab_bar:
-            if tab_bar.opened:
-                with imgui.begin_tab_item("Noise") as noise_tab:
-                    if noise_tab.selected:
-                        self.handle_noise_tab(params)
+                        with imgui.begin_tab_item("Presets") as presets_tab:
+                            if presets_tab.selected:
+                                self.handle_presets_tab(params)
 
-                with imgui.begin_tab_item("Feedback") as feedback_tab:
-                    if feedback_tab.selected:
-                        self.handle_feedback_tab(params)
-
-                with imgui.begin_tab_item("Presets") as presets_tab:
-                    if presets_tab.selected:
-                        self.handle_presets_tab(params)
-
-                with imgui.begin_tab_item("Recording") as recording_tab:
-                    if recording_tab.selected:
-                        self.handle_recording_tab(params)
-
-        imgui.pop_style_color(1)
-        imgui.end()
-
-        imgui.pop_style_var(1)
+                        with imgui.begin_tab_item("Recording") as recording_tab:
+                            if recording_tab.selected:
+                                self.handle_recording_tab(params)
     
 
     def handle_noise_tab(self, params: PlasmaFractalParams):
@@ -150,25 +139,24 @@ class PlasmaFractalGUI:
         Args:
             params (PlasmaFractalParams): The current settings of the plasma fractal that can be adjusted via the UI.
         """
-        width = imgui.get_content_region_available_width()
-        imgui.push_item_width(width - 160)
+        with ih.resized_items(-160):
 
-        if ih.collapsing_header("Noise Settings", self, attr='noise_settings_open'):
-            ih.slider_float("Scale", params, 'scale', min_value=0.1, max_value=100.0, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)
-            ih.enum_combo("Noise Algorithm", params, 'noise_algorithm')
+            if ih.collapsing_header("Noise Settings", self, attr='noise_settings_open'):
+                ih.slider_float("Scale", params, 'scale', min_value=0.1, max_value=100.0, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)
+                ih.enum_combo("Noise Algorithm", params, 'noise_algorithm')
 
-        if ih.collapsing_header("Fractal Settings", self, attr='fractal_settings_open'):
-            ih.slider_int("Num. Octaves", params, 'octaves', min_value=1, max_value=12)
-            ih.slider_float("Gain/Octave", params, 'gain', min_value=0.1, max_value=1.0)
-            ih.slider_float("Pos. Scale/Octave", params, 'positionScaleFactor', min_value=0.1, max_value=10.0)
-            ih.slider_float("Rotation/Octave", params, 'rotationAngleIncrement', min_value=0.0, max_value=math.pi * 2, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)
-            ih.slider_float("Time Scale/Octave", params, 'timeScaleFactor', min_value=0.1, max_value=2.0)
-            ih.slider_float("Time Offset/Octave", params, 'timeOffsetIncrement', min_value=0.0, max_value=20.0)
+            if ih.collapsing_header("Fractal Settings", self, attr='fractal_settings_open'):
+                ih.slider_int("Num. Octaves", params, 'octaves', min_value=1, max_value=12)
+                ih.slider_float("Gain/Octave", params, 'gain', min_value=0.1, max_value=1.0)
+                ih.slider_float("Pos. Scale/Octave", params, 'positionScaleFactor', min_value=0.1, max_value=10.0)
+                ih.slider_float("Rotation/Octave", params, 'rotationAngleIncrement', min_value=0.0, max_value=math.pi * 2, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)
+                ih.slider_float("Time Scale/Octave", params, 'timeScaleFactor', min_value=0.1, max_value=2.0)
+                ih.slider_float("Time Offset/Octave", params, 'timeOffsetIncrement', min_value=0.0, max_value=20.0)
 
-        if ih.collapsing_header("Output Settings", self, attr='output_settings_open'):
-            ih.slider_float("Brightness", params, 'brightness', min_value=0.0, max_value=2.0)
-            ih.slider_float("Contrast", params, 'contrastSteepness', min_value=0.001, max_value=50.0)
-            ih.slider_float("Contrast Midpoint", params, 'contrastMidpoint', min_value=0.0, max_value=1.0)
+            if ih.collapsing_header("Output Settings", self, attr='output_settings_open'):
+                ih.slider_float("Brightness", params, 'brightness', min_value=0.0, max_value=2.0)
+                ih.slider_float("Contrast", params, 'contrastSteepness', min_value=0.001, max_value=50.0)
+                ih.slider_float("Contrast Midpoint", params, 'contrastMidpoint', min_value=0.0, max_value=1.0)
 
 
     def handle_feedback_tab(self, params: PlasmaFractalParams):
@@ -198,36 +186,35 @@ class PlasmaFractalGUI:
         Args:
             params (PlasmaFractalParams): The current settings of the plasma fractal, specifically for configuring feedback effects.
         """
-        width = imgui.get_content_region_available_width()
-        imgui.push_item_width(width - 160)
+        with ih.resized_items(-160):
 
-        if ih.collapsing_header("Feedback Mix Settings", self, attr='feedback_general_settings_open'):
-            #Slider for feedback blend mode
-            ih.enum_combo("Blend Mode", params, 'feedback_blend_mode')
-            ih.slider_float("Feedback Decay", params, 'feedback_decay', min_value=0, max_value=1.0, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)
+            if ih.collapsing_header("Feedback Mix Settings", self, attr='feedback_general_settings_open'):
+                #Slider for feedback blend mode
+                ih.enum_combo("Blend Mode", params, 'feedback_blend_mode')
+                ih.slider_float("Feedback Decay", params, 'feedback_decay', min_value=0, max_value=1.0, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)
 
-        if ih.collapsing_header("Feedback Noise Settings", self, attr='feedback_warp_noise_settings_open'):
-            ih.slider_float("Speed", params, 'warpSpeed', min_value=0.1, max_value=10.0)
-            ih.slider_float("Scale", params, 'warpScale', min_value=0.1, max_value=20.0)
-            ih.enum_combo("Noise Algorithm", params, 'warpNoiseAlgorithm')
+            if ih.collapsing_header("Feedback Noise Settings", self, attr='feedback_warp_noise_settings_open'):
+                ih.slider_float("Speed", params, 'warpSpeed', min_value=0.1, max_value=10.0)
+                ih.slider_float("Scale", params, 'warpScale', min_value=0.1, max_value=20.0)
+                ih.enum_combo("Noise Algorithm", params, 'warpNoiseAlgorithm')
 
-        if ih.collapsing_header("Feedback Fractal Settings", self, attr='feedback_warp_octave_settings_open'):
-            ih.slider_int("Num. Octaves", params, 'warpOctaves', min_value=1, max_value=12)
-            ih.slider_float("Gain/Octave", params, 'warpGain', min_value=0.1, max_value=1.0)
-            ih.slider_float("Pos. Scale/Octave", params, 'warpPositionScaleFactor', min_value=0.1, max_value=10.0)
-            ih.slider_float("Rotation/Octave", params, 'warpRotationAngleIncrement', min_value=0.0, max_value=math.pi * 2, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)
-            ih.slider_float("Time Scale/Octave", params, 'warpTimeScaleFactor', min_value=0.1, max_value=2.0)
-            ih.slider_float("Time Offset/Octave", params, 'warpTimeOffsetIncrement', min_value=0.0, max_value=20.0)
+            if ih.collapsing_header("Feedback Fractal Settings", self, attr='feedback_warp_octave_settings_open'):
+                ih.slider_int("Num. Octaves", params, 'warpOctaves', min_value=1, max_value=12)
+                ih.slider_float("Gain/Octave", params, 'warpGain', min_value=0.1, max_value=1.0)
+                ih.slider_float("Pos. Scale/Octave", params, 'warpPositionScaleFactor', min_value=0.1, max_value=10.0)
+                ih.slider_float("Rotation/Octave", params, 'warpRotationAngleIncrement', min_value=0.0, max_value=math.pi * 2, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)
+                ih.slider_float("Time Scale/Octave", params, 'warpTimeScaleFactor', min_value=0.1, max_value=2.0)
+                ih.slider_float("Time Offset/Octave", params, 'warpTimeOffsetIncrement', min_value=0.0, max_value=20.0)
 
-        if ih.collapsing_header("Feedback Effect Settings", self, attr='feedback_warp_effect_settings_open'):
-            ih.list_combo("Warp Function", params, 'warpFunction', items=params.get_warp_function_names())
+            if ih.collapsing_header("Feedback Effect Settings", self, attr='feedback_warp_effect_settings_open'):
+                ih.list_combo("Warp Function", params, 'warpFunction', items=params.get_warp_function_names())
 
-            for index, paramInfo in enumerate(params.get_current_warp_function_info().params):
+                for index, paramInfo in enumerate(params.get_current_warp_function_info().params):
 
-                label = f"{paramInfo.displayName}##{params.warpFunction}"
-                ih.slider_float(label, params.get_current_warp_params(), index=index,
-                                min_value=paramInfo.min, max_value=paramInfo.max, 
-                                flags=imgui.SLIDER_FLAGS_LOGARITHMIC if paramInfo.logarithmic else 0)
+                    label = f"{paramInfo.displayName}##{params.warpFunction}"
+                    ih.slider_float(label, params.get_current_warp_params(), index=index,
+                                    min_value=paramInfo.min, max_value=paramInfo.max, 
+                                    flags=imgui.SLIDER_FLAGS_LOGARITHMIC if paramInfo.logarithmic else 0)
 
 
     def handle_presets_tab(self, params: PlasmaFractalParams):
@@ -237,13 +224,12 @@ class PlasmaFractalGUI:
         Args:
             params (PlasmaFractalParams): The fractal parameters that can be modified by applying a preset.
         """
-        width = imgui.get_content_region_available_width()
 
         # Fetch the initial list of presets if it hasn't been done yet
         if not self.preset_list:
             self.update_presets_list()
 
-        self.preset_selection_ui(params, width)
+        self.preset_selection_ui(params)
 
         if self.selected_preset_index >= 0:
             # Controls that depend on a selected preset
@@ -255,10 +241,10 @@ class PlasmaFractalGUI:
             self.presets_open_folder_ui(params)
         
         imgui.spacing()
-        self.preset_save_ui(params, width)
+        self.preset_save_ui(params)
 
 
-    def preset_selection_ui(self, params: PlasmaFractalParams, width: int):
+    def preset_selection_ui(self, params: PlasmaFractalParams):
         """
         Displays the available presets in a list box.
 
@@ -268,6 +254,8 @@ class PlasmaFractalGUI:
         Returns:
         None
         """
+        width = imgui.get_content_region_available_width()
+
         imgui.spacing()
         imgui.text("Available Presets (* marks built-ins):")
         imgui.spacing()
@@ -308,7 +296,7 @@ class PlasmaFractalGUI:
                 self.apply_preset(params, current_preset)
 
 
-    def preset_save_ui(self, params: PlasmaFractalParams, width: int):
+    def preset_save_ui(self, params: PlasmaFractalParams):
         """
         Handles the logic for saving a preset.
 
@@ -318,12 +306,8 @@ class PlasmaFractalGUI:
         Returns:
             None
         """
-
         confirm_dlg_title = "Confirm Overwrite"
 
-        imgui.push_item_width(width - 80)
-
-        # TODO: write a imgui_helper function for input_text
         # As we don't need a label, just specify an ID for the title.
         if ih.input_text("##PresetName", self, 'current_preset_name'):
             # Remove the extension from the file name
@@ -345,7 +329,7 @@ class PlasmaFractalGUI:
         # Shows the confirmation dialog if triggered by open_popup().
         # Note: this needs to be on the same level as the button, otherwise the popup won't work
         if self.confirm_dialog(f'A preset with this name already exists:\n"{self.current_preset_name}"\n\nDo you want to overwrite it?',
-                               confirm_dlg_title):
+                            confirm_dlg_title):
 
             logging.info(f"Confirmed to overwrite existing preset: {self.current_preset_name}")
             self.save_preset(params)
@@ -525,54 +509,55 @@ class PlasmaFractalGUI:
 
         imgui.spacing()
 
-        # Filename input
-        # TODO: provide helper function for input_text
-        ih.input_text("Filename", self, 'recording_file_name', buffer_size=256)
+        with ih.resized_items(-120):
 
-        # Common video resolutions
-        common_resolutions = {
-            'HD 720p'      : (1280,  720),
-            'Full HD 1080p': (1920, 1080),
-            '2K'           : (2560, 1440),
-            '4K UHD'       : (3840, 2160)
-        }
-        resolution_names = list(common_resolutions.keys())
+            # Filename input
+            ih.input_text("Filename", self, 'recording_file_name', buffer_size=256)
 
-        # Resolution combo box refactored to use list_combo helper
-        ih.list_combo("Resolution", self, 'recording_resolution', items=resolution_names)
-        self.recording_width, self.recording_height = common_resolutions[self.recording_resolution]
+            # Common video resolutions
+            common_resolutions = {
+                'HD 720p'      : (1280,  720),
+                'Full HD 1080p': (1920, 1080),
+                '2K'           : (2560, 1440),
+                '4K UHD'       : (3840, 2160)
+            }
+            resolution_names = list(common_resolutions.keys())
 
-        # Frame rates combo box
-        common_frame_rates = [24, 30, 60, 120]
-        ih.list_combo("Frame Rate", obj=self, attr='recording_fps', items=common_frame_rates)
+            # Resolution combo box refactored to use list_combo helper
+            ih.list_combo("Resolution", self, 'recording_resolution', items=resolution_names)
+            self.recording_width, self.recording_height = common_resolutions[self.recording_resolution]
 
-        # Recording Duration input
-        imgui.spacing()
-        ih.input_int("Duration (sec)", self, 'recording_duration', step=1, step_fast=10)
-        if self.recording_duration < 0:
-            self.recording_duration = 0
+            # Frame rates combo box
+            common_frame_rates = [24, 30, 60, 120]
+            ih.list_combo("Frame Rate", obj=self, attr='recording_fps', items=common_frame_rates)
 
-        # Start/Stop recording toggle button
-        imgui.spacing()
-        if imgui.button("Start Recording" if not self.is_recording else "Stop Recording"):
-            self.is_recording = not self.is_recording
-
-        # Check to automatically stop the recording if the duration exceeds the set limit
-        if self.is_recording and self.recording_time is not None and self.recording_duration > 0:
-            if self.recording_time >= self.recording_duration:
-                self.is_recording = False
-
-        # Display recording time if recording
-        if self.is_recording and self.recording_time is not None:
+            # Recording Duration input
             imgui.spacing()
-            recording_time_str = self.convert_seconds_to_hms(self.recording_time)
-            imgui.text(f"Recording time: {recording_time_str}")
+            ih.input_int("Duration (sec)", self, 'recording_duration', step=1, step_fast=10)
+            if self.recording_duration < 0:
+                self.recording_duration = 0
 
-        # Add a button to open the video folder
-        if not self.is_recording:
+            # Start/Stop recording toggle button
             imgui.spacing()
-            if imgui.button("Open Folder"):
-                self.open_folder(self.recording_directory)
+            if imgui.button("Start Recording" if not self.is_recording else "Stop Recording"):
+                self.is_recording = not self.is_recording
+
+            # Check to automatically stop the recording if the duration exceeds the set limit
+            if self.is_recording and self.recording_time is not None and self.recording_duration > 0:
+                if self.recording_time >= self.recording_duration:
+                    self.is_recording = False
+
+            # Display recording time if recording
+            if self.is_recording and self.recording_time is not None:
+                imgui.spacing()
+                recording_time_str = self.convert_seconds_to_hms(self.recording_time)
+                imgui.text(f"Recording time: {recording_time_str}")
+
+            # Add a button to open the video folder
+            if not self.is_recording:
+                imgui.spacing()
+                if imgui.button("Open Folder"):
+                    self.open_folder(self.recording_directory)
 
     @staticmethod
     def convert_seconds_to_hms(seconds: Union[int, float]) -> str:

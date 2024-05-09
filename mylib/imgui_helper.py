@@ -321,3 +321,36 @@ def _manage_attribute_interaction(obj: Any,
             return True  # Return True to indicate a change
     
     return False  # Return False if no change occurred
+
+
+class resized_items:
+    """
+    A context manager for temporarily resizing ImGui items.
+
+    This class is used as a context manager to temporarily set the width of ImGui items.
+    It pushes the specified width using `imgui.push_item_width()` when entering the context,
+    and pops the width using `imgui.pop_item_width()` when exiting the context.
+
+    Parameters:
+    - width: The width to set for the ImGui items.
+        0.0 - default to ~2/3 of windows width
+        >0.0 - width in pixels
+        <0.0 - align xx pixels to the right of window (so -FLOAT_MIN always align width to the right side)
+
+    Usage:
+    ```
+    with resized_items(width):
+        # Code that uses ImGui items with the specified width
+    ```
+    """
+
+    def __init__(self, width):
+        self.width = width
+
+    def __enter__(self):
+        imgui.push_item_width(self.width)
+        return self.width
+    
+    def __exit__(self, exc_type, exc_value, traceback):
+        imgui.pop_item_width()
+
