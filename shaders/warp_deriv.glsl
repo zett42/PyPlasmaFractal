@@ -4,6 +4,7 @@
 //----------------------------------------------------------------------------------------------------------------------------------
 
 #include "math_constants.glsl"
+#include "transforms.glsl"
 
 // Applies a simple offset to texture coordinates based on noise derivatives.
 vec2 warpOffsetDeriv(vec2 pos, vec4 noiseWithDerivatives, float time, float params[MAX_WARP_PARAMS]) {
@@ -63,6 +64,59 @@ vec2 warpSwirl(vec2 pos, vec4 noiseWithDerivatives, float time, float params[MAX
 
     // Modify swirl decrease with distance, incorporating the scaled isolation factor
     float newAngle = angle + angleScale * exp(-scaledIsolationFactor * normalizedDistance);
+
+    // Calculate new texture coordinates
+    vec2 newST = center + normalizedDistance * radiusScale * vec2(cos(newAngle), sin(newAngle));
+
+    return newST;
+}
+
+/// @brief Transforms a position vector using noise-induced warping for procedural animation effects.
+///
+/// This function applies a swirling distortion effect to a 2D position based on noise values and a set of parameters. 
+/// It calculates a dynamic swirling center influenced by noise derivatives, scales the influence on distance,
+/// and applies a sigmoid function to create a soft transition effect within a controlled range.
+///
+/// @param pos The original 2D position vector to be transformed.
+/// @param noiseWithDerivatives A 4D vector containing a noise value and its derivatives in the xy-plane.
+/// @param time The current time or frame, used to animate or vary the effect over time (not used in this specific implementation).
+/// @param params An array of float values containing parameters to control the effect:
+///               - params[0]: Controls the scale of the radius from the center of the swirl.
+///               - params[1]: Controls the scaling factor for the angle of rotation around the swirl center.
+///               - params[2]: Represents the isolation of the effect, controlling how localized the effect appears.
+///               - params[3]: The midpoint for scaling the isolation effect, adjusting the center point of the sigmoid function.
+///
+/// @return Returns a new 2D position vector that has been distorted by the noise-based warping effect.
+vec2 warpSwirlSigmoid(vec2 pos, vec4 noiseWithDerivatives, float time, float params[MAX_WARP_PARAMS]) {
+
+    float radiusScale = params[0];
+    float angleScale  = params[1];
+    float isolation   = params[2];
+    float isolationMidpoint = params[3];
+
+    // Scale the isolation input from [0, 1] to a more effective range [0, 10]
+    float steepness = 20.0 * isolation; // Amplify the input value for steepness
+
+    // Extract noise value and derivatives from the input
+    float noiseValue = noiseWithDerivatives.x;
+    vec2 derivatives = noiseWithDerivatives.yz;
+
+    // Determine a dynamic center for the swirl based on noise and its derivatives
+    vec2 center = pos + radiusScale * derivatives;
+
+    // Calculate distance and angle from the center for the swirling effect
+    vec2 toCenter = pos - center;
+    float distance = length(toCenter);
+    float angle = atan(toCenter.y, toCenter.x);
+
+    // Safe normalization of distance to avoid division by zero
+    float safeRadiusScale = radiusScale + 0.0001; // Adding a tiny value to avoid zero
+    float normalizedDistance = distance / safeRadiusScale;
+
+    // Use the sigmoid function directly with correctly adjusted parameters
+    float swirlIntensity = sigmoid(normalizedDistance, steepness, isolationMidpoint);
+
+    float newAngle = angle + angleScale * swirlIntensity;
 
     // Calculate new texture coordinates
     vec2 newST = center + normalizedDistance * radiusScale * vec2(cos(newAngle), sin(newAngle));

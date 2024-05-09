@@ -71,6 +71,15 @@ WARP_FUNCTION_INFOS = {
             WarpFunctionParam('Swirl Strength', logarithmic=True, default=0.08),
             WarpFunctionParam('Isolation Factor', logarithmic=True, default=0.0),
         ]
+    ),    
+    'SwirlSigmoid': WarpFunctionInfo(
+        FractalNoiseVariant.Deriv, 
+        params=[
+            WarpFunctionParam('Radial Strength', logarithmic=True, default=0.02),
+            WarpFunctionParam('Swirl Strength', logarithmic=True, default=0.08),
+            WarpFunctionParam('Transition Sharpness', logarithmic=True, default=0.0),
+            WarpFunctionParam('Transition Point', logarithmic=False, default=0.5),
+        ]
     ),
     'OffsetDeriv': WarpFunctionInfo(
         FractalNoiseVariant.Deriv, 
