@@ -369,7 +369,7 @@ def display_trimmed_path_with_tooltip(path: str, available_width: int, margin: i
     Returns:
         None
     """
-    display_path = trim_path_with_ellipsis(path, available_width - margin, imgui_text_width, '...')
+    display_path = trim_path_with_ellipsis(path, available_width - margin, imgui_text_width, ellipsis)
 
     # Display the trimmed path and provide a tooltip with the full path
     imgui.text(display_path)      
