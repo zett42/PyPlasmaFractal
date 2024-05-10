@@ -542,12 +542,20 @@ class PlasmaFractalGUI:
                 '2K'           : (2560, 1440),
                 '4K UHD'       : (3840, 2160),
                 '8K UHD'       : (7680, 4320),
+                'Custom'       : None  # This will trigger custom resolution input
             }
             resolution_names = list(common_resolutions.keys())
 
             # Resolution combo box refactored to use list_combo helper
             ih.list_combo("Resolution", self, 'recording_resolution', items=resolution_names)
-            self.recording_width, self.recording_height = common_resolutions[self.recording_resolution]
+
+            if self.recording_resolution == 'Custom':
+                # Input fields for custom resolution
+                ih.input_int("Width", self, 'recording_width', step=1, step_fast=10)
+                ih.input_int("Height", self, 'recording_height', step=1, step_fast=10)
+            else:
+                # Update resolution from predefined resolutions
+                self.recording_width, self.recording_height = common_resolutions[self.recording_resolution]
 
             # Frame rates combo box
             common_frame_rates = [24, 30, 60, 120]

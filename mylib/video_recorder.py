@@ -1,3 +1,5 @@
+import logging
+from typing import Tuple
 import moderngl
 import numpy as np
 import imageio
@@ -83,8 +85,9 @@ class VideoRecorder:
         self.fps = fps
         self.frame_count = 0
 
-        self.writer = imageio.get_writer(self.file_path, fps=self.fps, codec='libx264', quality=10)
+        logging.debug(f"Starting video recording to '{file_path}' at {width}x{height} with {fps} FPS.")
 
+        self.writer = imageio.get_writer(self.file_path, fps=self.fps, codec='libx264', quality=10)
 
 
     def capture_frame(self, texture: moderngl.Texture):
@@ -142,3 +145,23 @@ class VideoRecorder:
         closed if it is still open, preventing data loss.
         """
         self.stop_recording()
+
+
+    def get_aligned_dimensions(self, width: int, height: int) -> Tuple[int, int]:
+        """
+        Adjusts the width and height to meet alignment requirements for video encoding.
+
+        Parameters:
+            width (int): Original width of the video frame.
+            height (int): Original height of the video frame.
+
+        Returns:
+            (int, int): Adjusted width and height that are aligned to meet codec requirements.
+        """
+        # Ensure dimensions are even for libx264 compatibility
+        if width % 2 != 0:
+            width += 1
+        if height % 2 != 0:
+            height += 1
+
+        return width, height

@@ -351,13 +351,13 @@ class PyPlasmaFractalApp:
                 logging.debug(f"Starting recording with file name: {self.gui.recording_file_name}, size: {self.gui.recording_width}x{self.gui.recording_height}, fps: {self.gui.recording_fps}")
 
                 # Temporarily resize feedback texture to recording size
-                self.feedback_manager.resize(self.gui.recording_width, self.gui.recording_height)
+                self.feedback_manager.resize(*self.recorder.get_aligned_dimensions(self.gui.recording_width, self.gui.recording_height))
 
                 # During recording, the time is frame-based and starts at the current time of the timer.
                 self.timer.paused = True
 
                 video_path = os.path.join(self.user_videos_directory, self.gui.recording_file_name)
-                self.recorder.start_recording(video_path, self.gui.recording_width, self.gui.recording_height, fps=self.gui.recording_fps)
+                self.recorder.start_recording(video_path, self.feedback_manager.width, self.feedback_manager.height, fps=self.gui.recording_fps)
 
             else:
                 logging.debug("Stopping recording")
