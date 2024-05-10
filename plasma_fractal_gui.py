@@ -61,9 +61,7 @@ class PlasmaFractalGUI:
 
         self.app_presets_directory = os.path.join(path_manager.app_specific_path, 'presets')
         self.user_presets_directory = os.path.join(path_manager.user_specific_path, 'presets')
-
-        logging.debug(f"App presets directory: {self.app_presets_directory}")
-        logging.debug(f"User presets directory: {self.user_presets_directory}")
+        self.preset_error_message = None
 
         # Initialize recording state
         self.is_recording = False
@@ -261,6 +259,8 @@ class PlasmaFractalGUI:
         imgui.spacing()
         self.preset_save_ui(params)
 
+        self.handle_preset_error()
+
 
     def preset_selection_ui(self, params: PlasmaFractalParams):
         """
@@ -367,24 +367,7 @@ class PlasmaFractalGUI:
             # Confirmation popup logic
             if self.confirm_dialog(f'Are you sure you want to delete the preset "{self.current_preset_name}" ?', "Confirm Deletion"):
                 self.delete_selected_preset()
-
-
-    def delete_selected_preset(self):
-        """
-        Deletes the selected preset from the filesystem and updates the UI.
-        """
-        assert( self.selected_preset_index != -1, "No preset is selected." )
-
-        full_path = self.get_full_preset_path(self.current_preset_name)
-
-        try:
-            presets_manager.delete_preset(full_path)
-        except Exception as e:
-            logging.error(f"Failed to delete preset: {e}")
-
-        # Update the list of presets to reflect the deletion
-        self.update_presets_list()
-  
+ 
 
     def presets_open_folder_ui(self, params: PlasmaFractalParams):
         """
@@ -400,6 +383,18 @@ class PlasmaFractalGUI:
             preset_dir = os.path.join(directory, preset_subdir)
 
             self.open_folder(preset_dir)
+
+
+    def handle_preset_error(self):
+        """
+        Displays an error message if there was an issue with loading or saving a preset.
+        """
+        if self.preset_error_message:
+            imgui.spacing()
+            imgui.separator()
+            imgui.push_text_wrap_pos()
+            imgui.text_colored(f"ERROR: {self.preset_error_message}", 1.0, 0.2, 0.2)
+            imgui.pop_text_wrap_pos()
 
 
     def open_folder(self, directory: str):
@@ -481,6 +476,8 @@ class PlasmaFractalGUI:
             params (PlasmaFractalParams): The fractal parameters to be updated.
             selected_preset (Preset): The preset selected by the user for application.
         """
+        self.preset_error_message = None
+
         try:
             preset_json = presets_manager.load_preset(selected_preset)
             new_params = PlasmaFractalParams.from_json(preset_json)
@@ -492,8 +489,8 @@ class PlasmaFractalGUI:
             logging.info("Preset applied successfully.")
 
         except Exception as e:
-            # TODO: Show an error message to the user
-            logging.error(f"Error applying preset: {str(e)}")
+            self.preset_error_message = f"Failed to apply preset: {str(e)}"
+            logging.error(self.preset_error_message)
 
 
     def save_preset(self, params: PlasmaFractalParams):
@@ -501,6 +498,8 @@ class PlasmaFractalGUI:
         Saves the current plasma fractal settings as a preset file in the user-specific directory, under the current preset name, 
         overwriting an existing file if necessary.
         """
+        self.preset_error_message = None
+
         try:
             json = params.to_json()
             full_path = self.get_full_preset_path(self.current_preset_name)
@@ -511,8 +510,28 @@ class PlasmaFractalGUI:
             self.update_presets_list()
 
         except Exception as e:
-            # TODO: Show an error message to the user
-            logging.error(f"Error saving preset: {str(e)}")
+            self.preset_error_message = f"Failed to save preset: {str(e)}"
+            logging.error(self.preset_error_message)
+
+
+    def delete_selected_preset(self):
+        """
+        Deletes the selected preset from the filesystem and updates the UI.
+        """
+        assert( self.selected_preset_index != -1, "No preset is selected." )
+
+        self.preset_error_message = None 
+
+        full_path = self.get_full_preset_path(self.current_preset_name)
+
+        try:
+            presets_manager.delete_preset(full_path)
+        except Exception as e:
+            self.preset_error_message = f"Failed to delete preset: {str(e)}"
+            logging.error(self.preset_error_message)
+
+        # Update the list of presets to reflect the deletion
+        self.update_presets_list()
 
 
     def get_full_preset_path(self, preset_name: str) -> str:
