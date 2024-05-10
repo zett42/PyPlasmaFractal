@@ -49,31 +49,37 @@ class WarpFunctionInfo:
         self.params = params
 
 
-# Dictionary that maps warp functions to their respective information
-
-WARP_FUNCTION_INFOS = {
-    'Offset': WarpFunctionInfo(
+class WarpFunctionRegistry:
+    """
+    A class that stores information about warp functions and provides utility methods to access them.
+    """
+    Offset = WarpFunctionInfo(
         FractalNoiseVariant.Double,
         params=[
             WarpFunctionParam('Amplitude', logarithmic=True, default=0.05),
-        ]
-    ),
-    'Polar': WarpFunctionInfo(
-        FractalNoiseVariant.Double, 
+        ],
+        display_name='Offset'
+    )
+
+    Polar = WarpFunctionInfo(
+        FractalNoiseVariant.Double,
         params=[
             WarpFunctionParam('Radial Strength', logarithmic=True, default=0.02),
             WarpFunctionParam('Rotation Factor', logarithmic=True, default=0.1),
-        ]
-    ),    
-    'Swirl': WarpFunctionInfo(
+        ],
+        display_name='Polar'
+    )
+
+    Swirl = WarpFunctionInfo(
         FractalNoiseVariant.Deriv, 
         params=[
             WarpFunctionParam('Radial Strength', logarithmic=True, default=0.02),
             WarpFunctionParam('Swirl Strength', logarithmic=True, default=0.08),
             WarpFunctionParam('Isolation Factor', logarithmic=True, default=0.0),
         ]
-    ),    
-    'SwirlSigmoid': WarpFunctionInfo(
+    )
+
+    SwirlSigmoid = WarpFunctionInfo(
         FractalNoiseVariant.Deriv, 
         params=[
             WarpFunctionParam('Radial Strength', logarithmic=True, default=0.02),
@@ -81,14 +87,16 @@ WARP_FUNCTION_INFOS = {
             WarpFunctionParam('Transition Sharpness', logarithmic=True, default=0.0),
             WarpFunctionParam('Transition Point', logarithmic=False, default=0.5),
         ]
-    ),
-    'OffsetDeriv': WarpFunctionInfo(
+    )
+
+    OffsetDeriv = WarpFunctionInfo(
         FractalNoiseVariant.Deriv, 
         params=[
             WarpFunctionParam('Amplitude', logarithmic=True, default=0.02),
         ]
-    ),
-    'InfiniteMirror': WarpFunctionInfo(
+    )
+
+    InfiniteMirror = WarpFunctionInfo(
         FractalNoiseVariant.Deriv, 
         params=[
             WarpFunctionParam('Duplication Scale', logarithmic=True, default=0.5),
@@ -98,8 +106,9 @@ WARP_FUNCTION_INFOS = {
             WarpFunctionParam('Time Modulation', logarithmic=True, default=0.0),
             WarpFunctionParam('Frequency', logarithmic=True, default=2.0),
         ]
-    ),
-    'Test': WarpFunctionInfo(
+    )
+
+    Test = WarpFunctionInfo(
         FractalNoiseVariant.Deriv, 
         params=[
             WarpFunctionParam('Param1', logarithmic=True, default=0.1),
@@ -107,10 +116,42 @@ WARP_FUNCTION_INFOS = {
             WarpFunctionParam('Param3', logarithmic=True, default=0.0),
             WarpFunctionParam('Param4', logarithmic=True, default=0.0),
         ]
-    ),
-}
+    )
 
-MAX_WARP_PARAMS = max(len(info.params) for info in WARP_FUNCTION_INFOS.values())
+    @classmethod
+    def get_warp_function_info(cls, function_name: str):
+        """ Retrieve the WarpFunctionInfo instance for a given function name. """
+        function_info = getattr(cls, function_name, None)
+        if function_info and isinstance(function_info, WarpFunctionInfo):
+            return function_info
+        else:
+            raise ValueError(f"No WarpFunctionInfo found for function name: {function_name}")    
+
+    @classmethod
+    def get_all_function_names(cls):
+        """ Retrieve a list of all warp function names in the order they were declared. """
+        return [
+            attr_name for attr_name, attr_value in cls.__dict__.items()
+            if isinstance(attr_value, WarpFunctionInfo)
+        ]
+    
+    @classmethod
+    def get_max_warp_params(cls):
+        """ Compute the maximum number of parameters among all dynamically retrieved WarpFunctionInfo instances in this class. """
+        return max(
+            len(value.params) for _, value in cls.__dict__.items()
+            if isinstance(value, WarpFunctionInfo)
+        )
+    
+    @classmethod
+    def get_all_param_defaults(cls):
+        """ Retrieve default parameters for all warp functions in the registry. """
+        return {
+            attr_name: [param.default for param in getattr(cls, attr_name).params]
+            for attr_name in dir(cls) 
+            if isinstance(getattr(cls, attr_name), WarpFunctionInfo)
+        }
+
 
 class PlasmaFractalParams:
     """
@@ -150,11 +191,8 @@ class PlasmaFractalParams:
         self.feedback_param2 = 0.5
         
         # Warp settings for feedback
-        self.warpFunction = list(WARP_FUNCTION_INFOS.keys())[0]   # Default to the first warp function
-        self.warpParams = {    # A dictionary that maps warp function names to arrays of parameters
-            key: [param.default for param in WARP_FUNCTION_INFOS[key].params]
-            for key in WARP_FUNCTION_INFOS
-        }
+        self.warpFunction = WarpFunctionRegistry.get_all_function_names()[0]   # Default to the first warp function
+        self.warpParams = WarpFunctionRegistry.get_all_param_defaults()
         self.warpSpeed = 1.0
         self.warpNoiseAlgorithm = NoiseAlgorithm.Perlin3D
         self.warpScale = 1.0
@@ -168,18 +206,15 @@ class PlasmaFractalParams:
         self.warpTimeOffsetIncrement = 12.0
          
     
-    def get_warp_function_names(self) -> List[str]:
-        return list(WARP_FUNCTION_INFOS.keys())
-
     def get_current_warp_function_info(self) -> WarpFunctionInfo:
-        return WARP_FUNCTION_INFOS[self.warpFunction]
+        """ Return the current WarpFunctionInfo instance. """
+        return WarpFunctionRegistry.get_warp_function_info( self.warpFunction )
+
 
     def get_current_warp_params(self) -> List[float]:
+        """ Return the current warp parameters. """
         return self.warpParams[self.warpFunction]
     
-    def get_max_warp_params(self) -> int:
-        return MAX_WARP_PARAMS
-
     
     def update(self, new_params: 'PlasmaFractalParams'):
         """

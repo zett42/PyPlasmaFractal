@@ -9,7 +9,7 @@ import imgui
 from mylib.config_path_manager import ConfigPathManager
 from mylib.icons import Icons
 from mylib.window_fade_manager import WindowFadeManager
-from plasma_fractal_params import PlasmaFractalParams
+from plasma_fractal_params import PlasmaFractalParams, WarpFunctionRegistry
 import mylib.imgui_helper as ih
 from mylib.adjust_color import modify_rgba_color_hsv
 from mylib.presets_manager import Preset
@@ -210,7 +210,7 @@ class PlasmaFractalGUI:
                 ih.slider_float("Time Offset/Octave", params, 'warpTimeOffsetIncrement', min_value=0.0, max_value=20.0)
 
             if ih.collapsing_header("Feedback Effect Settings", self, attr='feedback_warp_effect_settings_open'):
-                ih.list_combo("Warp Function", params, 'warpFunction', items=params.get_warp_function_names())
+                ih.list_combo("Warp Function", params, 'warpFunction', items=WarpFunctionRegistry.get_all_function_names())
 
                 for index, paramInfo in enumerate(params.get_current_warp_function_info().params):
 

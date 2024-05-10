@@ -10,7 +10,7 @@ from mylib.resources import resource_path
 from mylib.shader_cache import VariantShaderCache
 from mylib.shader_template_system import make_dict_source_resolver
 from mylib.files_to_dict import read_directory_files_to_dict
-from plasma_fractal_params import PlasmaFractalParams
+from plasma_fractal_params import PlasmaFractalParams, WarpFunctionRegistry
 
 
 class PlasmaFractalRenderer:
@@ -103,7 +103,7 @@ class PlasmaFractalRenderer:
             'FB_WARP_FRACTAL_NOISE_VARIANT': params.get_current_warp_function_info().fractal_noise_variant.name,
             'FB_WARP_NOISE_FUNC': params.warpNoiseAlgorithm.name,
             'FB_WARP_XFORM_FUNC': params.warpFunction,
-            'MAX_WARP_PARAMS': params.get_max_warp_params(),
+            'MAX_WARP_PARAMS': WarpFunctionRegistry.get_max_warp_params(),
         }
         self.program, _ = self.shader_cache.get_or_create_program(fragment_template_params=fragment_template_params)
         self.vao = self.shader_cache.get_or_create_vao(self.program, self.vbo, 'in_pos')
@@ -168,7 +168,7 @@ class PlasmaFractalRenderer:
         """
 
         # Populate the array with current warp parameters and ensure the shader receives a fixed size array by filling unused params with zero.
-        max_warp_params = params.get_max_warp_params()
+        max_warp_params = WarpFunctionRegistry.get_max_warp_params()
         current_warp_params = params.get_current_warp_params()
         warpParams_np = np.zeros(max_warp_params, dtype='float32')
         warpParams_np[:len(current_warp_params)] = current_warp_params
