@@ -555,14 +555,10 @@ class PlasmaFractalGUI:
             # Start/Stop recording toggle button
             imgui.spacing()
             if imgui.button("Start Recording" if not self.is_recording else "Stop Recording"):
-                self.is_recording = not self.is_recording
-                self.notifications.push_notification(self.Notification.RECORDING_STATE_CHANGED)
+                self.toggle_recording_state()
 
-            # Check to automatically stop the recording if the duration exceeds the set limit
-            if self.is_recording and self.recording_time is not None and self.recording_duration > 0:
-                if self.recording_time >= self.recording_duration:
-                    self.is_recording = False
-                    self.notifications.push_notification(self.Notification.RECORDING_STATE_CHANGED)
+            # Automatic stop check
+            self.handle_automatic_stop()
 
             # Display recording time if recording
             if self.is_recording and self.recording_time is not None:
@@ -575,6 +571,24 @@ class PlasmaFractalGUI:
                 imgui.spacing()
                 if imgui.button("Open Folder"):
                     self.open_folder(self.recording_directory)
+
+
+    def toggle_recording_state(self):
+        """
+        Toggles the recording state between recording and not recording.
+        """
+        self.is_recording = not self.is_recording
+        self.notifications.push_notification(self.Notification.RECORDING_STATE_CHANGED)
+
+
+    def handle_automatic_stop(self):
+        """
+        Handles the automatic stop of recording based on recording time.
+        """
+        if self.is_recording and self.recording_time is not None and self.recording_duration > 0:
+            if self.recording_time >= self.recording_duration:
+                self.is_recording = False
+                self.notifications.push_notification(self.Notification.RECORDING_STATE_CHANGED)
 
     @staticmethod
     def convert_seconds_to_hms(seconds: Union[int, float]) -> str:
