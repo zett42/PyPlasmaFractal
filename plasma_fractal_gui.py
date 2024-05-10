@@ -1,4 +1,4 @@
-﻿import datetime
+import datetime
 import logging
 import math
 import os
@@ -108,7 +108,7 @@ class PlasmaFractalGUI:
                 width = imgui.get_content_region_available_width()
 
                 imgui.set_next_item_width(width - 160)
-                ih.slider_float("Speed", params, 'speed', min_value=0.1, max_value=10.0, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)
+                ih.slider_float("Speed", params, 'speed', min_value=0.01, max_value=10.0, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)
 
                 imgui.same_line()
                 ih.checkbox("Paused", self, attr='animation_paused')
@@ -143,7 +143,7 @@ class PlasmaFractalGUI:
         with ih.resized_items(-160):
 
             if ih.collapsing_header("Noise Settings", self, attr='noise_settings_open'):
-                ih.slider_float("Scale", params, 'scale', min_value=0.1, max_value=100.0, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)
+                ih.slider_float("Scale", params, 'scale', min_value=0.01, max_value=100.0, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)
                 ih.enum_combo("Noise Algorithm", params, 'noise_algorithm')
 
             if ih.collapsing_header("Fractal Settings", self, attr='fractal_settings_open'):
@@ -195,8 +195,8 @@ class PlasmaFractalGUI:
                 ih.slider_float("Feedback Decay", params, 'feedback_decay', min_value=0, max_value=1.0, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)
 
             if ih.collapsing_header("Feedback Noise Settings", self, attr='feedback_warp_noise_settings_open'):
-                ih.slider_float("Speed", params, 'warpSpeed', min_value=0.1, max_value=10.0)
-                ih.slider_float("Scale", params, 'warpScale', min_value=0.1, max_value=20.0)
+                ih.slider_float("Speed", params, 'warpSpeed', min_value=0.01, max_value=10.0)
+                ih.slider_float("Scale", params, 'warpScale', min_value=0.01, max_value=10.0)
                 ih.enum_combo("Noise Algorithm", params, 'warpNoiseAlgorithm')
 
             if ih.collapsing_header("Feedback Fractal Settings", self, attr='feedback_warp_octave_settings_open'):
