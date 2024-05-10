@@ -3,8 +3,11 @@ This module provides wrapper functions for ImGui controls to update attributes o
 """
 
 from enum import Enum
+import os
 import imgui
 from typing import *
+
+from mylib.trim_string import trim_path_with_ellipsis
 
 IndexType = Union[int, Hashable]
 
@@ -41,7 +44,7 @@ def collapsing_header(title: str, obj: Any, attr: str = None, index: Optional[In
     return current_state[0]
 
 
-def slider_int(label: str, obj: object, attr: str = None, index: Optional[int] = None, min_value: int = 0, max_value: int = 1, multiple: int = 1) -> None:
+def slider_int(label: str, obj: object, attr: str = None, index: Optional[int] = None, min_value: int = 0, max_value: int = 1, multiple: int = 1) -> bool:
     """
     Creates and manages an ImGui integer slider for modifying a property of an object or a specific index within a collection.
     Optionally rounds the slider value to the nearest multiple of a specified number.
@@ -68,7 +71,7 @@ def slider_int(label: str, obj: object, attr: str = None, index: Optional[int] =
     )
 
 
-def slider_float(label: str, obj: object, attr: str = None, index: Optional[IndexType] = None, min_value: float = 0.0, max_value: float = 1.0, flags: int = 0) -> None:
+def slider_float(label: str, obj: object, attr: str = None, index: Optional[IndexType] = None, min_value: float = 0.0, max_value: float = 1.0, flags: int = 0) -> bool:
     """
     Creates and manages an ImGui float slider for modifying a property of an object or a specific index within a collection.
 
@@ -92,7 +95,7 @@ def slider_float(label: str, obj: object, attr: str = None, index: Optional[Inde
     )
 
 
-def checkbox(label: str, obj: object, attr: str = None, index: Optional[IndexType] = None) -> None:
+def checkbox(label: str, obj: object, attr: str = None, index: Optional[IndexType] = None) -> bool:
     """
     Creates and manages an ImGui checkbox for toggling a boolean attribute of an object directly or within a collection.
 
@@ -113,7 +116,7 @@ def checkbox(label: str, obj: object, attr: str = None, index: Optional[IndexTyp
     )
 
 
-def list_combo(label: str, obj: object, attr: str = None, index: int = None, items: list = [] ) -> None:
+def list_combo(label: str, obj: object, attr: str = None, index: int = None, items: list = [] ) -> bool:
     """
     Creates an ImGui combo box for selecting a value from a provided list, modifying an attribute of an object directly or at a specified index within a collection using a centralized attribute management function.
 
@@ -157,7 +160,7 @@ def list_combo(label: str, obj: object, attr: str = None, index: int = None, ite
     )
 
 
-def enum_combo(label: str, obj: object, attr: str = None, index: Optional[IndexType] = None) -> None:
+def enum_combo(label: str, obj: object, attr: str = None, index: Optional[IndexType] = None) -> bool:
     """
     Creates an ImGui combo box for selecting an enum value, modifying an attribute of an object directly or at a specified index within a collection.
 
@@ -197,7 +200,7 @@ def enum_combo(label: str, obj: object, attr: str = None, index: Optional[IndexT
     )
 
 
-def input_text(label: str, obj: object, attr: str = None, index: Optional[IndexType] = None, buffer_size: int = 256) -> None:
+def input_text(label: str, obj: object, attr: str = None, index: Optional[IndexType] = None, buffer_size: int = 256) -> bool:
     """
     Creates and manages an ImGui text input for modifying a string property of an object or a specific index within a collection.
 
@@ -219,7 +222,7 @@ def input_text(label: str, obj: object, attr: str = None, index: Optional[IndexT
     )
 
 
-def input_int(label: str, obj: object, attr: str = None, index: Optional[IndexType] = None, step: int = 1, step_fast: int = 100) -> None:
+def input_int(label: str, obj: object, attr: str = None, index: Optional[IndexType] = None, step: int = 1, step_fast: int = 100) -> bool:
     """
     Creates and manages an ImGui integer input for modifying an integer property of an object or a specific index within a collection.
 
@@ -354,3 +357,36 @@ class resized_items:
     def __exit__(self, exc_type, exc_value, traceback):
         imgui.pop_item_width()
 
+
+def display_trimmed_path_with_tooltip(path: str, available_width: int, margin: int = 6, ellipsis: str = '...'):
+    """
+    Display a trimmed path with a tooltip showing the full path.
+
+    Args:
+        path (str): The path to be displayed.
+        available_width (int): The available width for displaying the path.
+
+    Returns:
+        None
+    """
+    display_path = trim_path_with_ellipsis(path, available_width - margin, imgui_text_width, '...')
+
+    # Display the trimmed path and provide a tooltip with the full path
+    imgui.text(display_path)      
+    if imgui.is_item_hovered() and len(display_path) != len(path):
+        imgui.set_tooltip(path)
+
+
+def imgui_text_width(*args, **kwargs) -> int:
+    """
+    Calculates the width of the text rendered using the imgui library.
+
+    Args:
+        *args: Variable length argument list.
+        **kwargs: Arbitrary keyword arguments.
+
+    Returns:
+        int: The width of the rendered text.
+
+    """
+    return imgui.calc_text_size(*args, **kwargs)[0]

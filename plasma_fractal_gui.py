@@ -66,6 +66,7 @@ class PlasmaFractalGUI:
         self.is_recording = False
         self.recording_directory = None
         self.recording_file_name = f"Capture_{datetime.datetime.now().strftime('%y%m%d_%H%M')}.mp4"
+        self.recording_last_saved_file_path = None
         self.recording_resolution = 'HD 720p'
         self.recording_width = None
         self.recording_height = None
@@ -526,8 +527,13 @@ class PlasmaFractalGUI:
 
         with ih.resized_items(-120):
 
+            available_width = imgui.get_content_region_available_width()
+
             # Filename input
-            ih.input_text("Filename", self, 'recording_file_name', buffer_size=256)
+            if ih.input_text("Filename", self, 'recording_file_name', buffer_size=256):
+                # Add .mp4 extension if not present
+                if not self.recording_file_name.lower().endswith('.mp4'):
+                    self.recording_file_name += '.mp4'
 
             # Common video resolutions
             common_resolutions = {
@@ -555,7 +561,7 @@ class PlasmaFractalGUI:
             # Start/Stop recording toggle button
             imgui.spacing()
             if imgui.button("Start Recording" if not self.is_recording else "Stop Recording"):
-                self.toggle_recording_state()
+                self.start_recording() if not self.is_recording else self.stop_recording()
 
             # Automatic stop check
             self.handle_automatic_stop()
@@ -564,31 +570,41 @@ class PlasmaFractalGUI:
             if self.is_recording and self.recording_time is not None:
                 imgui.spacing()
                 recording_time_str = self.convert_seconds_to_hms(self.recording_time)
-                imgui.text(f"Recording time: {recording_time_str}")
+                imgui.text_colored(f"Recording... {recording_time_str}", 1.0, 0.2, 1.0)
 
-            # Add a button to open the video folder
+
             if not self.is_recording:
                 imgui.spacing()
-                if imgui.button("Open Folder"):
-                    self.open_folder(self.recording_directory)
+                imgui.separator()
 
+                # Show message when recording has finished
+                if self.recording_last_saved_file_path:
+                    imgui.spacing()
+                    imgui.text_colored(f"Recording saved to:", 0.2, 1.0, 1.0)
+                    ih.display_trimmed_path_with_tooltip(self.recording_last_saved_file_path, available_width)
 
-    def toggle_recording_state(self):
-        """
-        Toggles the recording state between recording and not recording.
-        """
-        self.is_recording = not self.is_recording
+                # Add a button to open the video folder
+                if not self.is_recording:
+                    imgui.spacing()
+                    if imgui.button("Open Folder"):
+                        self.open_folder(self.recording_directory)
+
+    def start_recording(self):
+
+        self.is_recording = True
         self.notifications.push_notification(self.Notification.RECORDING_STATE_CHANGED)
 
+    def stop_recording(self):
+
+        self.is_recording = False
+        self.recording_last_saved_file_path = os.path.join(self.recording_directory, self.recording_file_name)
+        self.notifications.push_notification(self.Notification.RECORDING_STATE_CHANGED)
 
     def handle_automatic_stop(self):
-        """
-        Handles the automatic stop of recording based on recording time.
-        """
+
         if self.is_recording and self.recording_time is not None and self.recording_duration > 0:
             if self.recording_time >= self.recording_duration:
-                self.is_recording = False
-                self.notifications.push_notification(self.Notification.RECORDING_STATE_CHANGED)
+                self.stop_recording()
 
     @staticmethod
     def convert_seconds_to_hms(seconds: Union[int, float]) -> str:
@@ -596,3 +612,4 @@ class PlasmaFractalGUI:
         hours, remainder = divmod(seconds, 3600)
         minutes, seconds = divmod(remainder, 60)
         return f"{hours:02d}:{minutes:02d}:{seconds:02d}"
+
