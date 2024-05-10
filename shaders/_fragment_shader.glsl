@@ -78,8 +78,10 @@ vec4 applyFeedback_Enabled(vec4 noise_color) {
 
     vec2 scaledPosition = v_pos * u_warpScale;  // Scale position by provided scale factor
 
-    vec2 transformedTexCoords = warp<FB_WARP_XFORM_FUNC>(
+    vec4 tex_color = warp<FB_WARP_XFORM_FUNC>(
+        u_texture,
         v_tex,
+        noise_color,
         fractalNoise_<FB_WARP_FRACTAL_NOISE_VARIANT>_<FB_WARP_NOISE_FUNC>( 
             scaledPosition, u_warpOctaves, u_warpGain, u_warpTimeScaleFactor, 
             u_warpPositionScaleFactor, u_warpRotationAngleIncrement, 
@@ -87,9 +89,7 @@ vec4 applyFeedback_Enabled(vec4 noise_color) {
         u_time,
         u_warpParams);
     
-    vec4 tex_color = texture(u_texture, transformedTexCoords);
-
-    return blend<FB_BLEND_MODE>(tex_color, noise_color, u_feedback_decay);
+    return blend<FB_BLEND_MODE>(tex_color, noise_color, u_feedback_decay, u_feedback_param1, u_feedback_param2);
 }
 
 // Function to do nothing with the noise color, if feedback is disabled

@@ -11,7 +11,7 @@
 // The noise values are scaled by a factor, allowing for controlled distortion of the texture coordinates.
 //
 // Parameters:
-// - pos: The original texture coordinates.
+// - texPos: The original texture coordinates.
 // - noise: A vec2 containing noise values that dictate the direction and magnitude of the offset.
 // - time: Current time in seconds.
 // - amplitude: A scalar that scales the noise values to control the extent of the offset.
@@ -19,11 +19,13 @@
 // Returns:
 // - vec2: The new texture coordinates after applying the noise-based offset.
 
-vec2 warpOffset(vec2 pos, vec2 noise, float time, float params[MAX_WARP_PARAMS]) {
+vec4 warpOffset(sampler2D texture, vec2 texPos, vec4 newColor, vec2 noise, float time, float params[MAX_WARP_PARAMS]) {
     
     float amplitude = params[0];
 
-    return pos + noise * amplitude / 20.0;
+    vec2 newPos = texPos + noise * amplitude / 20.0;
+
+    return texture(texture, newPos);
 }
 
 
@@ -37,7 +39,7 @@ vec2 warpOffset(vec2 pos, vec2 noise, float time, float params[MAX_WARP_PARAMS])
 // is desired, such as in procedural texture generation or distortion effects in graphical applications.
 //
 // Parameters:
-// - pos: The original texture coordinates.
+// - texPos: The original texture coordinates.
 // - noise: A vec2 representing noise input, where noise.x affects the angular displacement and noise.y
 //   affects the radial displacement.
 // - time: Current time in seconds.
@@ -49,7 +51,7 @@ vec2 warpOffset(vec2 pos, vec2 noise, float time, float params[MAX_WARP_PARAMS])
 // Returns:
 // - vec2: The new texture coordinates after the polar offset has been applied.
 
-vec2 warpPolar(vec2 pos, vec2 noise, float time, float params[MAX_WARP_PARAMS]) {
+vec4 warpPolar(sampler2D texture, vec2 texPos, vec4 newColor, vec2 noise, float time, float params[MAX_WARP_PARAMS]) {
 
     float radiusScale = params[0];
     float angleScale  = params[1];
@@ -64,5 +66,7 @@ vec2 warpPolar(vec2 pos, vec2 noise, float time, float params[MAX_WARP_PARAMS]) 
     vec2 offset = vec2(cos(angle), sin(angle)) * radius;
 
     // Apply offset to the original texture coordinates
-    return pos + offset;
+    vec2 newPos = texPos + offset;
+
+    return texture(texture, newPos);    
 }

@@ -7,7 +7,7 @@
 #include "transforms.glsl"
 
 // Applies a simple offset to texture coordinates based on noise derivatives.
-vec2 warpOffsetDeriv(vec2 pos, vec4 noiseWithDerivatives, float time, float params[MAX_WARP_PARAMS]) {
+vec4 warpOffsetDeriv(sampler2D texture, vec2 texPos, vec4 newColor, vec4 noiseWithDerivatives, float time, float params[MAX_WARP_PARAMS]) {
 
     float amplitude = params[0] * 0.01;
 
@@ -16,7 +16,9 @@ vec2 warpOffsetDeriv(vec2 pos, vec4 noiseWithDerivatives, float time, float para
     // Calculate the offset for the texture coordinates
     vec2 offset = amplitude * derivatives;
 
-    return pos + offset;
+    vec2 newPos = texPos + offset;
+
+    return texture(texture, newPos);    
 }
 
 // Applies a swirling effect to texture coordinates based on noise and its derivatives.
@@ -28,7 +30,7 @@ vec2 warpOffsetDeriv(vec2 pos, vec4 noiseWithDerivatives, float time, float para
 // effects commonly associated with direct Cartesian noise applications.
 //
 // Parameters:
-// - pos: The original texture coordinates.
+// - texPos: The original texture coordinates.
 // - noiseWithDerivatives: A vec4 containing the noise value and its derivatives. The x component 
 //   is used for adjusting the swirl angleScale, and yz components determine the dynamic center offset.
 // - radiusScale: A scalar factor that adjusts the dynamic center based on noise derivatives.
@@ -37,7 +39,7 @@ vec2 warpOffsetDeriv(vec2 pos, vec4 noiseWithDerivatives, float time, float para
 // Returns:
 // - vec2: The new texture coordinates after applying the swirling effect.
 
-vec2 warpSwirl(vec2 pos, vec4 noiseWithDerivatives, float time, float params[MAX_WARP_PARAMS]) {
+vec4 warpSwirl(sampler2D texture, vec2 texPos, vec4 newColor, vec4 noiseWithDerivatives, float time, float params[MAX_WARP_PARAMS]) {
 
     float radiusScale = params[0];
     float angleScale  = params[1];
@@ -51,10 +53,10 @@ vec2 warpSwirl(vec2 pos, vec4 noiseWithDerivatives, float time, float params[MAX
     vec2 derivatives = noiseWithDerivatives.yz;
 
     // Determine a dynamic center for the swirl based on noise and its derivatives
-    vec2 center = pos + radiusScale * derivatives;
+    vec2 center = texPos + radiusScale * derivatives;
 
     // Calculate distance and angle from the center for the swirling effect
-    vec2 toCenter = pos - center;
+    vec2 toCenter = texPos - center;
     float distance = length(toCenter);
     float angle = atan(toCenter.y, toCenter.x);
 
@@ -66,9 +68,9 @@ vec2 warpSwirl(vec2 pos, vec4 noiseWithDerivatives, float time, float params[MAX
     float newAngle = angle + angleScale * exp(-scaledIsolationFactor * normalizedDistance);
 
     // Calculate new texture coordinates
-    vec2 newST = center + normalizedDistance * radiusScale * vec2(cos(newAngle), sin(newAngle));
+    vec2 newPos = center + normalizedDistance * radiusScale * vec2(cos(newAngle), sin(newAngle));
 
-    return newST;
+    return texture(texture, newPos);    
 }
 
 /// @brief Transforms a position vector using noise-induced warping for procedural animation effects.
@@ -77,7 +79,7 @@ vec2 warpSwirl(vec2 pos, vec4 noiseWithDerivatives, float time, float params[MAX
 /// It calculates a dynamic swirling center influenced by noise derivatives, scales the influence on distance,
 /// and applies a sigmoid function to create a soft transition effect within a controlled range.
 ///
-/// @param pos The original 2D position vector to be transformed.
+/// @param texPos The original 2D position vector to be transformed.
 /// @param noiseWithDerivatives A 4D vector containing a noise value and its derivatives in the xy-plane.
 /// @param time The current time or frame, used to animate or vary the effect over time (not used in this specific implementation).
 /// @param params An array of float values containing parameters to control the effect:
@@ -87,7 +89,7 @@ vec2 warpSwirl(vec2 pos, vec4 noiseWithDerivatives, float time, float params[MAX
 ///               - params[3]: The midpoint for scaling the isolation effect, adjusting the center point of the sigmoid function.
 ///
 /// @return Returns a new 2D position vector that has been distorted by the noise-based warping effect.
-vec2 warpSwirlSigmoid(vec2 pos, vec4 noiseWithDerivatives, float time, float params[MAX_WARP_PARAMS]) {
+vec4 warpSwirlSigmoid(sampler2D texture, vec2 texPos, vec4 newColor, vec4 noiseWithDerivatives, float time, float params[MAX_WARP_PARAMS]) {
 
     float radiusScale = params[0];
     float angleScale  = params[1];
@@ -102,10 +104,10 @@ vec2 warpSwirlSigmoid(vec2 pos, vec4 noiseWithDerivatives, float time, float par
     vec2 derivatives = noiseWithDerivatives.yz;
 
     // Determine a dynamic center for the swirl based on noise and its derivatives
-    vec2 center = pos + radiusScale * derivatives;
+    vec2 center = texPos + radiusScale * derivatives;
 
     // Calculate distance and angle from the center for the swirling effect
-    vec2 toCenter = pos - center;
+    vec2 toCenter = texPos - center;
     float distance = length(toCenter);
     float angle = atan(toCenter.y, toCenter.x);
 
@@ -119,9 +121,9 @@ vec2 warpSwirlSigmoid(vec2 pos, vec4 noiseWithDerivatives, float time, float par
     float newAngle = angle + angleScale * swirlIntensity;
 
     // Calculate new texture coordinates
-    vec2 newST = center + normalizedDistance * radiusScale * vec2(cos(newAngle), sin(newAngle));
-
-    return newST;
+    vec2 newPos = center + normalizedDistance * radiusScale * vec2(cos(newAngle), sin(newAngle));
+  
+    return texture(texture, newPos);   
 }
 
 // Modifies texture coordinates using noise and derivatives to create fractal-like patterns in feedback effects.
@@ -132,7 +134,7 @@ vec2 warpSwirlSigmoid(vec2 pos, vec4 noiseWithDerivatives, float time, float par
 // both static and time-modulated. 
 //
 // Parameters:
-// - pos: Original texture coordinates.
+// - texPos: Original texture coordinates.
 // - noiseWithDerivatives: A vec4 containing the noise value (x) and its derivatives (yz), influencing the duplication scale
 //   and the dynamic centers.
 // - params: Array of parameters:
@@ -146,7 +148,7 @@ vec2 warpSwirlSigmoid(vec2 pos, vec4 noiseWithDerivatives, float time, float par
 // Returns:
 // - vec2: New texture coordinates after applying duplication and dynamic transformations.
 
-vec2 warpInfiniteMirror(vec2 pos, vec4 noiseWithDerivatives, float time, float params[MAX_WARP_PARAMS]) {
+vec4 warpInfiniteMirror(sampler2D texture, vec2 texPos, vec4 newColor, vec4 noiseWithDerivatives, float time, float params[MAX_WARP_PARAMS]) {
     
     float duplicationScale = params[0] * 4.0; // Scaled duplication scale
     float influenceRadius = params[1];
@@ -158,8 +160,8 @@ vec2 warpInfiniteMirror(vec2 pos, vec4 noiseWithDerivatives, float time, float p
     float noiseValue = noiseWithDerivatives.x;
     vec2 derivatives = noiseWithDerivatives.yz;
 
-    vec2 center = pos + duplicationScale * noiseValue * normalize(derivatives);
-    vec2 displacement = pos - center;
+    vec2 center = texPos + duplicationScale * noiseValue * normalize(derivatives);
+    vec2 displacement = texPos - center;
 
     // Calculate normalized distance and influence
     float normalizedDistance = length(displacement) / influenceRadius;
@@ -173,18 +175,18 @@ vec2 warpInfiniteMirror(vec2 pos, vec4 noiseWithDerivatives, float time, float p
                                sin(rotationAngle), cos(rotationAngle));
 
     // Apply rotation around the center
-    vec2 rotatedPos = center + rotationMatrix * (pos - center);
+    vec2 rotatedPos = center + rotationMatrix * (texPos - center);
 
     // Calculate new texture coordinates
-    vec2 newST = mix(pos, 2.0 * rotatedPos - center, influence);
+    vec2 newPos = mix(texPos, 2.0 * rotatedPos - center, influence);
 
-    return newST;
+    return texture(texture, newPos);    
 }
 
 // This is just a playground function for developing new effects. It can be used to test new ideas and techniques.
-// NOTE: pos is the texture coordinates, noiseWithDerivatives is a vec4 containing the noise value and its derivatives,
+// NOTE: texPos is the texture coordinates, noiseWithDerivatives is a vec4 containing the noise value and its derivatives,
 // and param1, param2, param3, and param4 are user-controllable parameters that can be used in the function, with a range of [0, 1].
-vec2 warpTest(vec2 pos, vec4 noiseWithDerivatives, float time, float params[MAX_WARP_PARAMS]) {
+vec4 warpTest(sampler2D texture, vec2 texPos, vec4 newColor, vec4 noiseWithDerivatives, float time, float params[MAX_WARP_PARAMS]) {
 
     float displacementScale = params[0] * 0.05;
     float falloffRate = params[1] * 10.;  // New parameter to control the falloff rate
@@ -200,7 +202,7 @@ vec2 warpTest(vec2 pos, vec4 noiseWithDerivatives, float time, float params[MAX_
     // Calculate displacement with moderated influence of derivatives and apply falloff
     vec2 displacement = displacementScale * noiseValue * smoothedDerivatives * falloff;
 
-    vec2 newPos = pos + displacement;
+    vec2 newPos = texPos + displacement;
 
-    return newPos;
+    return texture(texture, newPos);
 }
