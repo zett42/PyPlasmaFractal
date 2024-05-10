@@ -540,7 +540,8 @@ class PlasmaFractalGUI:
                 'HD 720p'      : (1280,  720),
                 'Full HD 1080p': (1920, 1080),
                 '2K'           : (2560, 1440),
-                '4K UHD'       : (3840, 2160)
+                '4K UHD'       : (3840, 2160),
+                '8K UHD'       : (7680, 4320),
             }
             resolution_names = list(common_resolutions.keys())
 
