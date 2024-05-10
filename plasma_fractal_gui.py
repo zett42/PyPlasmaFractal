@@ -48,6 +48,7 @@ class PlasmaFractalGUI:
         self.preset_list = []
         self.selected_preset_index = -1
         self.current_preset_name = "new_file"
+        self.new_preset_loaded = False
 
         self.app_presets_directory = os.path.join(path_manager.app_specific_path, 'presets')
         self.user_presets_directory = os.path.join(path_manager.user_specific_path, 'presets')
@@ -471,6 +472,8 @@ class PlasmaFractalGUI:
             new_params = PlasmaFractalParams.from_json(preset_json)
             
             params.update(new_params)
+
+            self.new_preset_loaded = True
 
             logging.info("Preset applied successfully.")
 

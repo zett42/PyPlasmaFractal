@@ -100,9 +100,17 @@ class FeedbackTextureManager:
             texture.filter = filter
 
         # Clear each new texture to ensure it starts from a clean state
+        self.clear()
+
+
+    def clear(self, color=(0.0, 0.0, 0.0, 1.0)):
+        """
+        Clears all textures with the given color.
+        """
         for fbo in self.framebuffers:
             with self.ctx.scope(fbo):
-                self.ctx.clear(0.0, 0.0, 0.0, 1.0)
+                self.ctx.clear(*color)
+                
 
     @property
     def current_texture(self):
