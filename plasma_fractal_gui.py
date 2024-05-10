@@ -37,6 +37,7 @@ class PlasmaFractalGUI:
 
     class Notification(Enum):
         NEW_PRESET_LOADED = auto()
+        RECORDING_STATE_CHANGED = auto()
 
 
     def __init__(self, path_manager: ConfigPathManager):
@@ -555,11 +556,13 @@ class PlasmaFractalGUI:
             imgui.spacing()
             if imgui.button("Start Recording" if not self.is_recording else "Stop Recording"):
                 self.is_recording = not self.is_recording
+                self.notifications.push_notification(self.Notification.RECORDING_STATE_CHANGED)
 
             # Check to automatically stop the recording if the duration exceeds the set limit
             if self.is_recording and self.recording_time is not None and self.recording_duration > 0:
                 if self.recording_time >= self.recording_duration:
                     self.is_recording = False
+                    self.notifications.push_notification(self.Notification.RECORDING_STATE_CHANGED)
 
             # Display recording time if recording
             if self.is_recording and self.recording_time is not None:

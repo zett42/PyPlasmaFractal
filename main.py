@@ -76,10 +76,10 @@ class PyPlasmaFractalApp:
         self.user_videos_directory = os.path.join(self.path_manager.user_specific_path, 'videos')
         os.makedirs(self.user_videos_directory, exist_ok=True)
         self.recorder = VideoRecorder()
-        self.is_recording = False
 
-        # Initialize variables related to frame rate
-        self.fps_calculator = None
+        # Initialize timing-related variables
+        self.timer = AnimationTimer()
+        self.fps_calculator = FpsCalculator() 
         self.desired_fps = 60.0
 
         # Setup GUI
@@ -250,9 +250,7 @@ class PyPlasmaFractalApp:
         """
         main_renderer = PlasmaFractalRenderer(self.ctx)
         texture_to_screen = TextureRenderer(self.ctx)
-        timer = AnimationTimer()
-        fps_limiter = FrameRateLimiter(self.desired_fps)
-        self.fps_calculator = FpsCalculator()                
+        fps_limiter = FrameRateLimiter(self.desired_fps)                     
 
         while not glfw.window_should_close(self.window):
 
@@ -263,9 +261,10 @@ class PyPlasmaFractalApp:
 
             self.handle_gui()
 
-            elapsed_time = self.handle_time(timer)
+            elapsed_time = self.handle_time()
 
-            if not timer.paused:
+            if not self.gui.animation_paused:
+
                 # Clear the feedback textures if a new preset has been loaded, to ensure we start with a clean state
                 if self.gui.notifications.pull_notification(PlasmaFractalGUI.Notification.NEW_PRESET_LOADED):
                     self.feedback_manager.clear()
@@ -282,7 +281,7 @@ class PyPlasmaFractalApp:
 
             glfw.swap_buffers(self.window)
 
-            if not self.is_recording:
+            if not self.gui.is_recording:
                 fps_limiter.end_frame()
                 
             self.fps_calculator.update()
@@ -302,8 +301,8 @@ class PyPlasmaFractalApp:
 
                 self.ctx.viewport = (0, 0, self.requested_framebuffer_size.width, self.requested_framebuffer_size.height)
 
-                # During recording, the feedback manager should not be resized directly, since the video size is fixed
-                if not self.is_recording:
+                # During recording, the feedback textures should not be resized, since the video size is fixed
+                if not self.gui.is_recording:
                     self.feedback_manager.resize(self.requested_framebuffer_size.width, self.requested_framebuffer_size.height)
                 
                 self.resize_requested = False
@@ -327,16 +326,14 @@ class PyPlasmaFractalApp:
         self.gui.update(self.params)
 
 
-    def handle_time(self, timer: AnimationTimer) -> float:
+    def handle_time(self) -> float:
         
-        timer.paused = self.is_recording or self.gui.animation_paused
-
-        if self.is_recording:
-            # For consistent results during recording, use the recording time, starting at the accumulated time from the timer, 
-            # otherwise the time could depend on CPU load.
-            return timer.accumulated_time + self.recorder.recording_time * self.params.speed
+        if self.gui.is_recording:
+            # For consistent results during recording, use the recording time, starting at the accumulated time from the timer (which is paused), 
+            # otherwise the time could depend on system load.
+            return self.timer.accumulated_time + self.recorder.recording_time * self.params.speed
         
-        return timer.update(self.gui.animation_paused, self.params.speed)
+        return self.timer.update(self.gui.animation_paused, self.params.speed)
 
 
     def handle_recording(self):
@@ -345,28 +342,37 @@ class PyPlasmaFractalApp:
         """
 
         # If GUI recording state has changed, start or stop recording accordingly
-        if self.is_recording != self.gui.is_recording:
+        if self.gui.notifications.pull_notification(PlasmaFractalGUI.Notification.RECORDING_STATE_CHANGED):
 
-            self.is_recording = self.gui.is_recording
+            logging.debug(f"Recording state changed to: {self.gui.is_recording}")
 
-            if self.is_recording:
+            if self.gui.is_recording:
 
-                video_path = os.path.join(self.user_videos_directory, self.gui.recording_file_name)
+                logging.debug(f"Starting recording with file name: {self.gui.recording_file_name}, size: {self.gui.recording_width}x{self.gui.recording_height}, fps: {self.gui.recording_fps}")
 
                 # Temporarily resize feedback texture to recording size
                 self.feedback_manager.resize(self.gui.recording_width, self.gui.recording_height)
 
+                # During recording, the time is frame-based and starts at the current time of the timer.
+                self.timer.paused = True
+
+                video_path = os.path.join(self.user_videos_directory, self.gui.recording_file_name)
                 self.recorder.start_recording(video_path, self.gui.recording_width, self.gui.recording_height, fps=self.gui.recording_fps)
 
             else:
+                logging.debug("Stopping recording")
+
                 self.recorder.stop_recording()
                 self.gui.recording_time = 0
 
                 # Restore feedback texture size
                 width, height = glfw.get_framebuffer_size(self.window)
-                self.feedback_manager.resize(width, height)    
+                self.feedback_manager.resize(width, height)
+                
 
-        if self.is_recording:
+        # Capture frame if recording is active
+        if self.gui.is_recording:
+
             self.recorder.capture_frame(self.feedback_manager.current_texture)  
             self.gui.recording_time = self.recorder.recording_time
 
