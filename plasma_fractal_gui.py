@@ -8,6 +8,7 @@ import imgui
 
 from mylib.config_path_manager import ConfigPathManager
 from mylib.icons import Icons
+from mylib.notification_manager import NotificationManager
 from mylib.window_fade_manager import WindowFadeManager
 from plasma_fractal_params import PlasmaFractalParams, WarpFunctionRegistry
 import mylib.imgui_helper as ih
@@ -15,7 +16,7 @@ from mylib.adjust_color import modify_rgba_color_hsv
 from mylib.presets_manager import Preset
 import mylib.presets_manager as presets_manager
 
-#------------------------------------------------------------------------------------------------------------------------------------
+from enum import Enum, auto
 
 class PlasmaFractalGUI:
     """
@@ -33,6 +34,11 @@ class PlasmaFractalGUI:
         feedback_warp_octave_settings_open (bool): Flag to control the visibility of feedback octave settings.
         feedback_warp_effect_settings_open (bool): Flag to control the visibility of feedback effect settings.
     """
+
+    class Notification(Enum):
+        NEW_PRESET_LOADED = auto()
+
+
     def __init__(self, path_manager: ConfigPathManager):
      
         self.animation_paused = False
@@ -48,7 +54,6 @@ class PlasmaFractalGUI:
         self.preset_list = []
         self.selected_preset_index = -1
         self.current_preset_name = "new_file"
-        self.new_preset_loaded = False
 
         self.app_presets_directory = os.path.join(path_manager.app_specific_path, 'presets')
         self.user_presets_directory = os.path.join(path_manager.user_specific_path, 'presets')
@@ -73,6 +78,9 @@ class PlasmaFractalGUI:
 
         # Initialize the fade manager for the control panel
         self.fade_manager = WindowFadeManager()
+
+        # Initialize the notification manager
+        self.notifications = NotificationManager()
 
 
     # .......................... UI update methods ...........................................................................
@@ -473,7 +481,7 @@ class PlasmaFractalGUI:
             
             params.update(new_params)
 
-            self.new_preset_loaded = True
+            self.notifications.push_notification(self.Notification.NEW_PRESET_LOADED)
 
             logging.info("Preset applied successfully.")
 

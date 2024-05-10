@@ -267,9 +267,8 @@ class PyPlasmaFractalApp:
 
             if not timer.paused:
                 # Clear the feedback textures if a new preset has been loaded, to ensure we start with a clean state
-                if self.gui.new_preset_loaded:
+                if self.gui.notifications.pull_notification(PlasmaFractalGUI.Notification.NEW_PRESET_LOADED):
                     self.feedback_manager.clear()
-                    self.gui.new_preset_loaded = False
 
                 main_renderer.update_params(self.params, self.feedback_manager.previous_texture, elapsed_time, self.feedback_manager.aspect_ratio)
                 self.feedback_manager.render_to_texture(main_renderer.current_vao)
