@@ -24,6 +24,7 @@ class FeedbackBlendMode(Enum):
     """
     Linear = auto()
     Additive = auto()
+    Sigmoid = auto()
 
 class WarpFunctionParam:
     """
@@ -145,10 +146,12 @@ class PlasmaFractalParams:
         self.enable_feedback = False
         self.feedback_blend_mode = FeedbackBlendMode.Linear
         self.feedback_decay = 0.01
+        self.feedback_param1 = 0.1   # TODO: Create dictionary of parameters, similar to warpParams
+        self.feedback_param2 = 0.5
         
         # Warp settings for feedback
         self.warpFunction = list(WARP_FUNCTION_INFOS.keys())[0]   # Default to the first warp function
-        self.warpParams = {
+        self.warpParams = {    # A dictionary that maps warp function names to arrays of parameters
             key: [param.default for param in WARP_FUNCTION_INFOS[key].params]
             for key in WARP_FUNCTION_INFOS
         }
@@ -187,7 +190,7 @@ class PlasmaFractalParams:
         """
         for key, value in vars(new_params).items():
             if hasattr(self, key):
-                setattr(self, key, value)
+                setattr(self, key, value)    # TODO: dictionary attributes like warpParams need special handling (recursion)
 
 
     #............ Serialization methods ........................................................................

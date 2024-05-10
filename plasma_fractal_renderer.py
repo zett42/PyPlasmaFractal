@@ -126,6 +126,8 @@ class PlasmaFractalRenderer:
 
         feedback_attributes = [            
             'feedback_decay',
+            'feedback_param1',
+            'feedback_param2',
             'warpSpeed',
             'warpOctaves',
             'warpGain',

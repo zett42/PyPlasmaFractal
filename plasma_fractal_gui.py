@@ -1,4 +1,4 @@
-import datetime
+﻿import datetime
 import logging
 import math
 import os
@@ -193,6 +193,8 @@ class PlasmaFractalGUI:
                 #Slider for feedback blend mode
                 ih.enum_combo("Blend Mode", params, 'feedback_blend_mode')
                 ih.slider_float("Feedback Decay", params, 'feedback_decay', min_value=0, max_value=1.0, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)
+                ih.slider_float("Feedback Param 1", params, 'feedback_param1', min_value=0, max_value=1.0, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)
+                ih.slider_float("Feedback Param 2", params, 'feedback_param2', min_value=0, max_value=1.0)
 
             if ih.collapsing_header("Feedback Noise Settings", self, attr='feedback_warp_noise_settings_open'):
                 ih.slider_float("Speed", params, 'warpSpeed', min_value=0.01, max_value=10.0)

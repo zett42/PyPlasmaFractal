@@ -43,6 +43,8 @@ uniform float u_warpTimeOffsetIncrement;    // Time offset increase for warping 
 
 // Feedback parameters
 uniform float u_feedback_decay;         // Value between 0 and 1 to control feedback decay
+uniform float u_feedback_param1;         // Value between 0 and 1
+uniform float u_feedback_param2;         // Value between 0 and 1
 
 // Input/Output
 in vec2 v_tex;               // Texture coordinates from vertex shader
