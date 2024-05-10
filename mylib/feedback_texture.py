@@ -1,11 +1,14 @@
 import logging
+from typing import *
 import moderngl
 
 class FeedbackTextureManager:
     """
     Class to handle a feedback effect using two textures and framebuffers.
     """
-    def __init__(self, ctx, width=800, height=600, 
+    def __init__(self, 
+                 ctx: moderngl.Context, 
+                 width: int = 800, height: int = 600, 
                  dtype='f4', 
                  repeat_x=False, repeat_y=False, 
                  filter_x: int = moderngl.NEAREST, filter_y: int = moderngl.NEAREST):
@@ -42,7 +45,7 @@ class FeedbackTextureManager:
         return self.width / self.height
 
 
-    def render_to_texture(self, vao):
+    def render_to_texture(self, vao: moderngl.VertexArray) -> None:
         """
         Renders to the current destination texture using the other texture as a source.
         
@@ -62,7 +65,7 @@ class FeedbackTextureManager:
         self.current_render_index = 1 - self.current_render_index
 
 
-    def resize(self, new_width, new_height):
+    def resize(self, new_width: int, new_height: int) -> None:
         """
         Resizes the textures and framebuffers used in the feedback loop.
         """
@@ -103,7 +106,7 @@ class FeedbackTextureManager:
         self.clear()
 
 
-    def clear(self, color=(0.0, 0.0, 0.0, 1.0)):
+    def clear(self, color: Tuple[float, float, float, float] = (0.0, 0.0, 0.0, 1.0)) -> None:
         """
         Clears all textures with the given color.
         """
@@ -113,7 +116,7 @@ class FeedbackTextureManager:
                 
 
     @property
-    def current_texture(self):
+    def current_texture(self) -> moderngl.Texture:
         """
         Returns the texture currently used as the destination for rendering.
         """
@@ -121,7 +124,7 @@ class FeedbackTextureManager:
 
 
     @property
-    def previous_texture(self):
+    def previous_texture(self) -> moderngl.Texture:
         """
         Returns the texture that was last used as the destination and is now used as the source.
         """
