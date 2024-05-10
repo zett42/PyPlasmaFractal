@@ -1,8 +1,14 @@
 import logging
+import os
 from typing import Tuple
 import moderngl
 import numpy as np
 import imageio
+
+class VideoRecorderException(Exception):
+    """Custom exception class for VideoRecorder errors."""
+    pass
+
 
 class VideoRecorder:
     """
@@ -79,6 +85,25 @@ class VideoRecorder:
         Starts the video writer to allow frame capturing with the given dimensions. This
         method must be called before capturing any frames.
         """
+
+        if self.is_recording:
+            raise VideoRecorderException("Recording is already active.")
+
+        assert self.writer is None, "Video writer is already initialized"
+
+        if not file_path:
+            raise VideoRecorderException("File path must not be empty.")
+
+        if width <= 0 or height <= 0:
+            raise VideoRecorderException(f"Invalid video dimensions ({width}x{height}) provided.")
+
+        # Try to create an empty file to validate the file path
+        try:
+            with open(file_path, 'a') as f:
+                pass
+        except Exception as e:
+            raise VideoRecorderException(f"Failed to validate file path '{file_path}': {e}") from e
+
         self.file_path = file_path
         self.width = width
         self.height = height
@@ -87,7 +112,10 @@ class VideoRecorder:
 
         logging.debug(f"Starting video recording to '{file_path}' at {width}x{height} with {fps} FPS.")
 
-        self.writer = imageio.get_writer(self.file_path, fps=self.fps, codec='libx264', quality=10)
+        try:
+            self.writer = imageio.get_writer(self.file_path, fps=self.fps, codec='libx264', quality=10)
+        except Exception as e:
+            raise VideoRecorderException("Failed to initialize video writer.") from e
 
 
     def capture_frame(self, texture: moderngl.Texture):
@@ -104,23 +132,25 @@ class VideoRecorder:
         This method reads pixel data from the specified texture, validates its dimensions,
         converts the data to the appropriate format, and appends it to the video stream.
         """
-        if self.writer is None:
-            raise ValueError("Video recording has not been started.")
+        if not self.is_recording:
+            raise VideoRecorderException("Video recording has not been started.")
 
-        if texture.width != self.width or texture.height != self.height:
-            raise ValueError(f"Texture dimensions do not match size specified at begin of recording: {self.width}x{self.height}, "
-                             f"got {texture.width}x{texture.height}")
+        assert self.writer is not None, "Video writer is not initialized"
 
-        texture.use()
-        data = texture.read()
-        numpy_dtype = np.dtype(texture.dtype)  # Assuming texture.dtype is directly usable
-        
-        image = np.frombuffer(data, dtype=numpy_dtype).reshape(self.height, self.width, 4)
-        image_rgb = image[:, :, :3]  # Assuming the texture includes an alpha channel
-        image_uint8 = np.clip(image_rgb * 255, 0, 255).astype(np.uint8)
-        self.writer.append_data(image_uint8)
+        try:
+            texture.use()
+            data = texture.read()
+            numpy_dtype = np.dtype(texture.dtype)  # Assuming texture.dtype is directly usable
+            
+            image = np.frombuffer(data, dtype=numpy_dtype).reshape(self.height, self.width, 4)
+            image_rgb = image[:, :, :3]  # Assuming the texture includes an alpha channel
+            image_uint8 = np.clip(image_rgb * 255, 0, 255).astype(np.uint8)
+            self.writer.append_data(image_uint8)
 
-        self.frame_count += 1
+            self.frame_count += 1
+
+        except Exception as e:
+            raise VideoRecorderException("Failed to capture frame.") from e
 
 
     def stop_recording(self):
@@ -131,8 +161,18 @@ class VideoRecorder:
         properly finalized. This method should be called to properly close the video file
         after all frames have been captured.
         """
-        if self.writer is not None:
+        if not self.is_recording:
+            raise VideoRecorderException("No active recording to stop.")
+
+        assert self.writer is not None, "Video writer is not initialized"
+
+        try:
             self.writer.close()
+            logging.debug(f"Video recording stopped. {self.frame_count} frames captured.")
+
+        except Exception as e:
+            raise VideoRecorderException("Failed to finalize video file.") from e
+        finally:
             self.writer = None
             self.frame_count = 0
 
@@ -140,11 +180,18 @@ class VideoRecorder:
     def __del__(self):
         """
         Ensures that resources are cleaned up when the VideoRecorder instance is destroyed.
-
         This destructor method calls stop_recording to ensure that the video writer is properly
         closed if it is still open, preventing data loss.
         """
-        self.stop_recording()
+        if self.is_recording:
+            try:
+                self.stop_recording()
+            except VideoRecorderException as e:
+                # Log and suppress exceptions (best practice in __del__ methods to avoid exceptions during cleanup)
+                logging.error(f"Failed to stop recording during object finalization: {e}")
+            except Exception as e:
+                # Log and suppress exceptions (best practice in __del__ methods to avoid exceptions during cleanup)
+                logging.error(f"Unexpected error during object finalization: {e}")
 
 
     def get_aligned_dimensions(self, width: int, height: int) -> Tuple[int, int]:
@@ -158,6 +205,9 @@ class VideoRecorder:
         Returns:
             (int, int): Adjusted width and height that are aligned to meet codec requirements.
         """
+        if width <= 0 or height <= 0:
+            raise VideoRecorderException(f"Invalid dimensions ({width}x{height}) provided for alignment.")
+
         # Ensure dimensions are even for libx264 compatibility
         if width % 2 != 0:
             width += 1
