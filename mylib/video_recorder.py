@@ -89,8 +89,6 @@ class VideoRecorder:
         if self.is_recording:
             raise VideoRecorderException("Recording is already active.")
 
-        assert self.writer is None, "Video writer is already initialized"
-
         if not file_path:
             raise VideoRecorderException("File path must not be empty.")
 
@@ -135,8 +133,6 @@ class VideoRecorder:
         if not self.is_recording:
             raise VideoRecorderException("Video recording has not been started.")
 
-        assert self.writer is not None, "Video writer is not initialized"
-
         try:
             texture.use()
             data = texture.read()
@@ -150,6 +146,13 @@ class VideoRecorder:
             self.frame_count += 1
 
         except Exception as e:
+            try:
+                self.writer.close()
+            except Exception as e:
+                # Log error message
+                logging.error(f"Could not close the video writer during exception handling: {e}")
+
+            self.writer = None
             raise VideoRecorderException("Failed to capture frame.") from e
 
 
@@ -164,8 +167,6 @@ class VideoRecorder:
         if not self.is_recording:
             raise VideoRecorderException("No active recording to stop.")
 
-        assert self.writer is not None, "Video writer is not initialized"
-
         try:
             self.writer.close()
             logging.debug(f"Video recording stopped. {self.frame_count} frames captured.")
@@ -174,7 +175,6 @@ class VideoRecorder:
             raise VideoRecorderException("Failed to finalize video file.") from e
         finally:
             self.writer = None
-            self.frame_count = 0
 
 
     def __del__(self):

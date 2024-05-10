@@ -281,7 +281,7 @@ class PyPlasmaFractalApp:
 
             glfw.swap_buffers(self.window)
 
-            if not self.gui.is_recording:
+            if not self.recorder.is_recording:
                 fps_limiter.end_frame()
                 
             self.fps_calculator.update()
@@ -302,7 +302,7 @@ class PyPlasmaFractalApp:
                 self.ctx.viewport = (0, 0, self.requested_framebuffer_size.width, self.requested_framebuffer_size.height)
 
                 # During recording, the feedback textures should not be resized, since the video size is fixed
-                if not self.gui.is_recording:
+                if not self.recorder.is_recording:
                     self.feedback_manager.resize(self.requested_framebuffer_size.width, self.requested_framebuffer_size.height)
                 
                 self.resize_requested = False
@@ -328,7 +328,7 @@ class PyPlasmaFractalApp:
 
     def handle_time(self) -> float:
         
-        if self.gui.is_recording:
+        if self.recorder.is_recording:
             # For consistent results during recording, use the recording time, starting at the accumulated time from the timer (which is paused), 
             # otherwise the time could depend on system load.
             return self.timer.accumulated_time + self.recorder.recording_time * self.params.speed
@@ -342,11 +342,11 @@ class PyPlasmaFractalApp:
         """
 
         # If GUI recording state has changed, start or stop recording accordingly
-        if self.gui.notifications.pull_notification(PlasmaFractalGUI.Notification.RECORDING_STATE_CHANGED):
+        if (notifyData := self.gui.notifications.pull_notification(PlasmaFractalGUI.Notification.RECORDING_STATE_CHANGED)):
 
-            logging.debug(f"Recording state changed to: {self.gui.is_recording}")
+            logging.debug(f"Recording state changed to: {notifyData['is_recording']}")
 
-            if self.gui.is_recording:
+            if notifyData['is_recording']:
 
                 logging.debug(f"Starting recording with file name: {self.gui.recording_file_name}, size: {self.gui.recording_width}x{self.gui.recording_height}, fps: {self.gui.recording_fps}")
 
@@ -357,12 +357,21 @@ class PyPlasmaFractalApp:
                 self.timer.paused = True
 
                 video_path = os.path.join(self.user_videos_directory, self.gui.recording_file_name)
-                self.recorder.start_recording(video_path, self.feedback_manager.width, self.feedback_manager.height, fps=self.gui.recording_fps)
+                try:
+                    self.recorder.start_recording(video_path, self.feedback_manager.width, self.feedback_manager.height, fps=self.gui.recording_fps)
+                except Exception as e:
+                    logging.error(f"The recording could not be started: {e}")
+                    self.gui.notifications.push_notification(PlasmaFractalGUI.Notification.RECORDING_ERROR, str(e))
 
             else:
                 logging.debug("Stopping recording")
 
-                self.recorder.stop_recording()
+                try:
+                    self.recorder.stop_recording()
+                except Exception as e:
+                    logging.error(f"The recording could not be finished: {e}")
+                    self.gui.notifications.push_notification(PlasmaFractalGUI.Notification.RECORDING_ERROR, str(e))
+
                 self.gui.recording_time = 0
 
                 # Restore feedback texture size
@@ -371,9 +380,14 @@ class PyPlasmaFractalApp:
                 
 
         # Capture frame if recording is active
-        if self.gui.is_recording:
+        if self.recorder.is_recording:
 
-            self.recorder.capture_frame(self.feedback_manager.current_texture)  
+            try:
+                self.recorder.capture_frame(self.feedback_manager.current_texture)
+            except Exception as e:
+                logging.error(f"Failed to capture frame: {e}")
+                self.gui.notifications.push_notification(PlasmaFractalGUI.Notification.RECORDING_ERROR, str(e))
+
             self.gui.recording_time = self.recorder.recording_time
 
 

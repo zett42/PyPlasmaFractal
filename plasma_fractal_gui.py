@@ -35,9 +35,12 @@ class PlasmaFractalGUI:
         feedback_warp_effect_settings_open (bool): Flag to control the visibility of feedback effect settings.
     """
 
+    # Notification types for the notification manager
+
     class Notification(Enum):
-        NEW_PRESET_LOADED = auto()
-        RECORDING_STATE_CHANGED = auto()
+        NEW_PRESET_LOADED = auto()         # Send by the GUI when a new preset is loaded
+        RECORDING_STATE_CHANGED = auto()   # Send by the GUI when the recording state changes
+        RECORDING_ERROR = auto()           # Received by the GUI when an error occurs during recording
 
 
     def __init__(self, path_manager: ConfigPathManager):
@@ -73,6 +76,7 @@ class PlasmaFractalGUI:
         self.recording_fps = 60
         self.recording_duration = 30
         self.recording_time = None
+        self.recording_error_message = None
 
         # FPS display
         self.actual_fps = 0.0
@@ -581,13 +585,26 @@ class PlasmaFractalGUI:
                 recording_time_str = self.convert_seconds_to_hms(self.recording_time)
                 imgui.text_colored(f"Recording... {recording_time_str}", 1.0, 0.2, 1.0)
 
+            # Check for recording errors
+            if (message := self.notifications.pull_notification(self.Notification.RECORDING_ERROR)) is not None:
+                self.is_recording = False
+                self.recording_error_message = message
 
             if not self.is_recording:
                 imgui.spacing()
                 imgui.separator()
 
-                # Show message when recording has finished
-                if self.recording_last_saved_file_path:
+                if self.recording_error_message:
+                    # Show error message if recording failed
+                    imgui.spacing()
+                    imgui.spacing()
+                    imgui.push_text_wrap_pos()
+                    imgui.text_colored(f"ERROR: {self.recording_error_message}", 1.0, 0.2, 0.2)
+                    imgui.pop_text_wrap_pos()
+                    imgui.separator()
+
+                elif self.recording_last_saved_file_path:
+                    # Show the path where the recording was saved
                     imgui.spacing()
                     imgui.text_colored(f"Recording saved to:", 0.2, 1.0, 1.0)
                     ih.display_trimmed_path_with_tooltip(self.recording_last_saved_file_path, available_width)
@@ -601,13 +618,15 @@ class PlasmaFractalGUI:
     def start_recording(self):
 
         self.is_recording = True
-        self.notifications.push_notification(self.Notification.RECORDING_STATE_CHANGED)
+        self.recording_error_message = None
+        self.recording_last_saved_file_path = None
+        self.notifications.push_notification(self.Notification.RECORDING_STATE_CHANGED, {'is_recording': self.is_recording})
 
     def stop_recording(self):
 
         self.is_recording = False
         self.recording_last_saved_file_path = os.path.join(self.recording_directory, self.recording_file_name)
-        self.notifications.push_notification(self.Notification.RECORDING_STATE_CHANGED)
+        self.notifications.push_notification(self.Notification.RECORDING_STATE_CHANGED, {'is_recording': self.is_recording})
 
     def handle_automatic_stop(self):
 
