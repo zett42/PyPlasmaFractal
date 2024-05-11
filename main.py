@@ -53,7 +53,7 @@ class PyPlasmaFractalApp:
         """
         Initializes logging and sets basic application constants.
         """
-        logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+        self.setup_logging()
 
         self.app_name = 'PyPlasmaFractal'
         self.app_author = 'zett42'
@@ -86,6 +86,16 @@ class PyPlasmaFractalApp:
         self.gui = PlasmaFractalGUI(self.path_manager)
         self.gui.recording_directory = self.user_videos_directory
         self.gui.recording_fps = self.desired_fps
+        
+        
+    def setup_logging(self):
+
+        logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+    
+        # Ignore debug messages from this module
+        logger = logging.getLogger('mylib.shader_template_system')
+        logger.setLevel(logging.INFO)        
+        
 
     def run(self):
         """

@@ -3,6 +3,8 @@ from typing import *
 import re
 import logging
 
+logger = logging.getLogger(__name__)
+
 #------------------------------------------------------------------------------------------------------------------------------
 
 def resolve_shader_template(
@@ -62,7 +64,7 @@ def resolve_shader_template(
         with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.glsl') as temp_file:
             temp_file.write(resolved_source)
             temp_file_path = temp_file.name
-            logging.debug(f'RESOLVED TEMPLATE "filename": {temp_file_path}')
+            logger.debug(f'RESOLVED TEMPLATE "{filename}": {temp_file_path}')
 
     return resolved_source
 
@@ -109,19 +111,19 @@ def _include_file(
             access or misuse of template directives also raise exceptions with appropriate messages.
     """
     
-    logging.debug(f'Processing template file "{filename}" at depth {depth} with template args: {template_args}')
+    logger.debug(f'Processing template file "{filename}" at depth {depth} with template args: {template_args}')
 
     if depth > max_include_depth:
         raise Exception(f'Maximum include depth of {max_include_depth} exceeded.')
 
     include_key = (filename, tuple(sorted(template_args.items())))  # Unique key for file with template arguments
     if include_key in included_files:
-        logging.debug(f'Skipping already included file: "{filename}" with args {template_args}')
+        logger.debug(f'Skipping already included file: "{filename}" with args {template_args}')
         return ''  # Skip as this exact instance has already been included
 
     try:
         content = get_file_content(filename)
-        logging.debug(f'Loaded content from "{filename}"')
+        logger.debug(f'Loaded content from "{filename}"')
     except Exception as e:
         raise Exception(f'Error loading source from "{filename}": {str(e)}')    
 
@@ -140,7 +142,7 @@ def _include_file(
         include_name = match.group(2).strip()
         template_args_str = match.group(3) or ''
 
-        logging.debug(f"Found directive '{directive}' for file '{include_name}' with args '{template_args_str}'")
+        logger.debug(f"Found directive '{directive}' for file '{include_name}' with args '{template_args_str}'")
 
         if directive.lower() == '#include' and template_args_str:
             raise Exception(f'Error in \"{parent_file}\": Template arguments are not allowed for #include directive.\n  {match.group(0)}')
@@ -163,7 +165,7 @@ def _include_file(
 
     current_path.pop()
 
-    logging.debug(f'Finished processing file: "{filename}"')
+    logger.debug(f'Finished processing file: "{filename}"')
 
     if extra_debug_info:
         comment = '//////////'
