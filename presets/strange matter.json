@@ -1,6 +1,6 @@
 {
-    "speed": 1.0,
-    "scale": 60.82600021362305,
+    "speed": 0.10000000149011612,
+    "scale": 2.0,
     "noise_algorithm": {
         "__enum__": "NoiseAlgorithm.SimplexPerlin3D"
     },
@@ -10,11 +10,11 @@
     "positionScaleFactor": 2.0,
     "rotationAngleIncrement": 0.0,
     "timeOffsetIncrement": 12.0,
-    "brightness": 0.7419999837875366,
-    "contrastSteepness": 44.696998596191406,
-    "contrastMidpoint": 0.9580000042915344,
+    "brightness": 1.0,
+    "contrastSteepness": 29.534000396728516,
+    "contrastMidpoint": 0.5440000295639038,
     "enable_feedback": true,
-    "feedback_function": "Additive",
+    "feedback_function": "Linear",
     "feedback_params": {
         "Linear": [
             0.01
@@ -28,7 +28,7 @@
             0.5
         ]
     },
-    "warpFunction": "Swirl",
+    "warpFunction": "SwirlSigmoid",
     "warpParams": {
         "Offset": [
             0.05
@@ -38,15 +38,16 @@
             0.1
         ],
         "Swirl": [
-            0.03500000014901161,
-            0.026000000536441803,
-            0.07699999958276749
-        ],
-        "SwirlSigmoid": [
             0.02,
             0.08,
-            0.0,
-            0.5
+            0.0
+        ],
+        "SwirlSigmoid": [
+            0.07100000232458115,
+            0.6510000228881836,
+            0.22200000286102295,
+            0.8550000190734863,
+            0.3179999887943268
         ],
         "SwirlSigmoidDistorted": [
             0.02,
@@ -77,15 +78,15 @@
             0.0
         ]
     },
-    "warpSpeed": 0.10000000149011612,
+    "warpSpeed": 0.45899999141693115,
     "warpNoiseAlgorithm": {
         "__enum__": "NoiseAlgorithm.Perlin3D"
     },
-    "warpScale": 0.9290000200271606,
-    "warpOctaves": 1,
+    "warpScale": 0.4090000092983246,
+    "warpOctaves": 4,
     "warpGain": 0.5,
-    "warpAmplitude": null,
-    "warpTimeScaleFactor": 1.0,
+    "warpAmplitude": 1.0,
+    "warpTimeScaleFactor": 1.1239999532699585,
     "warpPositionScaleFactor": 2.0,
     "warpRotationAngleIncrement": 0.0,
     "warpTimeOffsetInitial": 42.0,
