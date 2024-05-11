@@ -7,6 +7,7 @@ from typing import *
 import imgui
 
 from mylib.config_path_manager import ConfigPathManager
+from mylib.function_registry import FunctionRegistry
 from mylib.icons import Icons
 from mylib.notification_manager import NotificationManager
 from mylib.window_fade_manager import WindowFadeManager
@@ -202,21 +203,11 @@ class PlasmaFractalGUI:
         """
         with ih.resized_items(-160):
 
-            if ih.collapsing_header("Feedback Mix Settings", self, attr='feedback_general_settings_open'):
-
-                ih.list_combo("Feedback Function", params, 'feedback_function', items=FeedbackFunctionRegistry.get_all_function_names())
-                
-                # Retrieve current feedback function information
-                feedback_function_info = FeedbackFunctionRegistry.get_function_info(params.feedback_function)
-                
-                # Generate sliders for each parameter of the current feedback function
-                for index, paramInfo in enumerate(feedback_function_info.params):
-                    
-                    label = f"{paramInfo.display_name}##{params.feedback_function}"  # Ensure unique labels by appending function name
-                    ih.slider_float(label, params.get_current_feedback_params(), index=index,
-                                    min_value=paramInfo.min, max_value=paramInfo.max, 
-                                    flags=imgui.SLIDER_FLAGS_LOGARITHMIC if paramInfo.logarithmic else 0)
-        
+            self.function_settings(header="Feedback Mix Settings", header_attr='feedback_general_settings_open', 
+                                   registry=FeedbackFunctionRegistry,
+                                   function_attr='feedback_function', function_params=params.get_current_feedback_params(), 
+                                   params=params)
+      
             if ih.collapsing_header("Feedback Noise Settings", self, attr='feedback_warp_noise_settings_open'):
 
                 ih.slider_float("Speed", params, 'warpSpeed', min_value=0.01, max_value=10.0)
@@ -232,16 +223,52 @@ class PlasmaFractalGUI:
                 ih.slider_float("Time Scale/Octave", params, 'warpTimeScaleFactor', min_value=0.1, max_value=2.0)
                 ih.slider_float("Time Offset/Octave", params, 'warpTimeOffsetIncrement', min_value=0.0, max_value=20.0)
 
-            if ih.collapsing_header("Feedback Effect Settings", self, attr='feedback_warp_effect_settings_open'):
+            self.function_settings(header="Feedback Effect Settings", header_attr='feedback_warp_effect_settings_open', 
+                                   registry=WarpFunctionRegistry, 
+                                   function_attr='warpFunction', function_params=params.get_current_warp_params(),
+                                   params=params)
 
-                ih.list_combo("Warp Function", params, 'warpFunction', items=WarpFunctionRegistry.get_all_function_names())
 
-                for index, paramInfo in enumerate(params.get_current_warp_function_info().params):
+    def function_settings(self, 
+                          header: str, 
+                          header_attr: str, 
+                          registry: FunctionRegistry,
+                          function_attr: str,
+                          function_params: List[float], 
+                          params: PlasmaFractalParams):
+        """
+        Display the settings for a specific function.
 
-                    label = f"{paramInfo.display_name}##{params.warpFunction}"
-                    ih.slider_float(label, params.get_current_warp_params(), index=index,
-                                    min_value=paramInfo.min, max_value=paramInfo.max, 
-                                    flags=imgui.SLIDER_FLAGS_LOGARITHMIC if paramInfo.logarithmic else 0)
+        Args:
+            header (str): The header text to display for the collapsible section.
+            header_attr (str): The attribute name in the object to store the collapsed state.
+            registry (FunctionRegistry): The registry of available functions.
+            function_attr (str): The attribute name in the object to store the selected function.
+            function_params (List[float]): The list of function parameters.
+            params (PlasmaFractalParams): The object containing the overall parameters.
+
+        Returns:
+            None
+        """
+        if ih.collapsing_header(header, self, attr=header_attr):
+            
+            # Dropdown for the available functions
+            # Make sure to create a unique identifier by appending the header to the label
+            ih.list_combo(f"Function##{header}", params, function_attr, items=registry.get_all_function_names())
+            
+            selected_function_name = getattr(params, function_attr)
+            
+            # Get the current function info
+            function_info = registry.get_function_info(selected_function_name)
+            
+            # Generate sliders for the function's parameters
+            for index, paramInfo in enumerate(function_info.params):
+
+                # Make sure to create a unique identifier by appending the header to the label
+                ih.slider_float(f"{paramInfo.display_name}##{header}", 
+                                function_params, index=index,
+                                min_value=paramInfo.min, max_value=paramInfo.max, 
+                                flags=imgui.SLIDER_FLAGS_LOGARITHMIC if paramInfo.logarithmic else 0)
 
 
     def handle_presets_tab(self, params: PlasmaFractalParams):
