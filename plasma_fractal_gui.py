@@ -84,7 +84,7 @@ class PlasmaFractalGUI:
         self.fade_manager = WindowFadeManager()
 
         # Initialize the notification manager
-        self.notifications = NotificationManager()
+        self.notifications = NotificationManager[self.Notification]()
 
 
     # .......................... UI update methods ...........................................................................
@@ -486,7 +486,7 @@ class PlasmaFractalGUI:
 
             self.notifications.push_notification(self.Notification.NEW_PRESET_LOADED)
 
-            logging.info("Preset applied successfully.")
+            logging.info(f'Preset "{selected_preset.relative_file_path}" applied successfully.')
 
         except Exception as e:
             self.preset_error_message = f"Failed to apply preset: {str(e)}"
