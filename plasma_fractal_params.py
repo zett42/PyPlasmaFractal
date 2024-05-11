@@ -3,7 +3,8 @@ import json
 from typing import *
 from enum import Enum, auto
 
-from mylib.function_registry import FunctionInfo, FunctionParam, FunctionRegistry
+from mylib.function_registry import *
+
 
 class NoiseAlgorithm(Enum):
     """
@@ -11,6 +12,7 @@ class NoiseAlgorithm(Enum):
     """
     Perlin3D = auto()
     SimplexPerlin3D = auto()
+
 
 class FractalNoiseVariant(Enum):
     """
@@ -20,6 +22,7 @@ class FractalNoiseVariant(Enum):
     Double = auto()
     Deriv = auto()
 
+
 class FeedbackBlendMode(Enum):
     """
     Enumeration of feedback blend modes.
@@ -27,7 +30,8 @@ class FeedbackBlendMode(Enum):
     Linear = auto()
     Additive = auto()
     Sigmoid = auto()
-
+    
+    
 class WarpFunctionInfo(FunctionInfo):
     """
     Extends FunctionInfo to include a dependency on a specific fractal noise variant.
@@ -35,7 +39,8 @@ class WarpFunctionInfo(FunctionInfo):
     def __init__(self, display_name: str, fractal_noise_variant: FractalNoiseVariant, params: List[FunctionParam]):
         super().__init__(display_name, params)
         self.fractal_noise_variant = fractal_noise_variant
-
+        
+        
 class WarpFunctionRegistry(FunctionRegistry):
     """
     A class that statically stores information about warp functions.
@@ -118,6 +123,46 @@ class WarpFunctionRegistry(FunctionRegistry):
             ]
         ),
     }
+    
+    
+class FeedbackFunctionInfo(FunctionInfo):
+    """
+    Extends FunctionInfo to include a dependency on a specific feedback blend mode.
+    """
+    def __init__(self, display_name: str, feedback_blend_mode: FeedbackBlendMode, params: List[FunctionParam]):
+        super().__init__(display_name, params)
+        self.feedback_blend_mode = feedback_blend_mode
+
+
+class FeedbackFunctionRegistry(FunctionRegistry):
+    """
+    Manages feedback function information, extending the generic FunctionRegistry.
+    """
+    functions = {
+        "Linear": FeedbackFunctionInfo(
+            display_name="Linear",
+            feedback_blend_mode=FeedbackBlendMode.Linear,
+            params=[
+                FunctionParam("Feedback Decay", logarithmic=False, min=0.0, max=0.3, default=0.01)
+            ]
+        ),
+        "Additive": FeedbackFunctionInfo(
+            display_name="Additive",
+            feedback_blend_mode=FeedbackBlendMode.Additive,
+            params=[
+                FunctionParam("Feedback Decay", logarithmic=False, min=0.0, max=0.3, default=0.01)
+            ]
+        ),
+        "Sigmoid": FeedbackFunctionInfo(
+            display_name="Sigmoid",
+            feedback_blend_mode=FeedbackBlendMode.Sigmoid,
+            params=[
+                FunctionParam("Feedback Decay",     logarithmic=False, min=0.0, max=0.3, default=0.01),
+                FunctionParam("Feedback Steepness", logarithmic=False, default=0.1),
+                FunctionParam("Feedback Midpoint",  logarithmic=False, default=0.5)
+            ]
+        )
+    }
 
 
 class PlasmaFractalParams:
@@ -131,6 +176,7 @@ class PlasmaFractalParams:
         Initializes a new instance of the PlasmaFractalParams class with default values.
         """     
         # NOISE
+        
         # General noise settings
         self.speed = 1.0
         self.scale = 2.0
@@ -150,12 +196,12 @@ class PlasmaFractalParams:
         self.contrastMidpoint = 0.5
         
         # FEEDBACK
-        # General Feedback Settings
+        
         self.enable_feedback = False
-        self.feedback_blend_mode = FeedbackBlendMode.Linear
-        self.feedback_decay = 0.01
-        self.feedback_param1 = 0.1   # TODO: Create dictionary of parameters, similar to warpParams
-        self.feedback_param2 = 0.5
+
+        # Feedback blend function settings
+        self.feedback_function = FeedbackFunctionRegistry.get_all_function_names()[0]   # Default to the first feedback function
+        self.feedback_params = FeedbackFunctionRegistry.get_all_param_defaults()
         
         # Warp settings for feedback
         self.warpFunction = WarpFunctionRegistry.get_all_function_names()[0]   # Default to the first warp function
@@ -175,12 +221,20 @@ class PlasmaFractalParams:
     
     def get_current_warp_function_info(self) -> WarpFunctionInfo:
         """ Return the current WarpFunctionInfo instance. """
-        return WarpFunctionRegistry.get_function_info( self.warpFunction )
-
+        return WarpFunctionRegistry.get_function_info(self.warpFunction)
 
     def get_current_warp_params(self) -> List[float]:
         """ Return the current warp parameters. """
         return self.warpParams[self.warpFunction]
+    
+    
+    def get_current_feedback_function_info(self) -> FeedbackFunctionInfo:
+        """ Return the current FeedbackFunctionInfo instance. """
+        return FeedbackFunctionRegistry.get_function_info(self.feedback_function)
+
+    def get_current_feedback_params(self) -> List[float]:
+        """ Return the current feedback parameters. """
+        return self.feedback_params[self.feedback_function]
     
     
     def update(self, new_params: 'PlasmaFractalParams'):

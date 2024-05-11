@@ -11,7 +11,8 @@
 #version 330
 precision highp float;
 
-#define MAX_WARP_PARAMS <MAX_WARP_PARAMS> // Maximum number of warp parameters
+#define MAX_FEEDBACK_PARAMS <MAX_FEEDBACK_PARAMS>  // Maximum number of feedback blend parameters
+#define MAX_WARP_PARAMS     <MAX_WARP_PARAMS>      // Maximum number of warp parameters
 
 // General uniforms
 uniform float u_time;                   // Elapsed time in seconds
@@ -29,6 +30,9 @@ uniform float u_brightness;             // Scales the noise output
 uniform float u_contrastSteepness;      // Sigmoid function steepness for contrast adjustment
 uniform float u_contrastMidpoint;       // Midpoint for sigmoid contrast function
 
+// Feedback blend parameters
+uniform float u_feedbackParams[MAX_FEEDBACK_PARAMS]; // Parameters specific to the feedback blend function
+
 // Parameters for fractal noise that warps the feedback texture
 uniform float u_warpParams[MAX_WARP_PARAMS]; // Parameters specific to the warp function
 uniform float u_warpSpeed;              // Noise mutation speed
@@ -40,11 +44,6 @@ uniform float u_warpPositionScaleFactor;// Position scaling for warping noise
 uniform float u_warpRotationAngleIncrement; // Rotation angle increase for warping noise
 uniform float u_warpTimeOffsetInitial;      // Time offset initial for warping noise
 uniform float u_warpTimeOffsetIncrement;    // Time offset increase for warping noise
-
-// Feedback parameters
-uniform float u_feedback_decay;         // Value between 0 and 1 to control feedback decay
-uniform float u_feedback_param1;         // Value between 0 and 1
-uniform float u_feedback_param2;         // Value between 0 and 1
 
 // Input/Output
 in vec2 v_tex;               // Texture coordinates from vertex shader
@@ -91,7 +90,7 @@ vec4 applyFeedback_Enabled(vec4 noise_color) {
         u_time,
         u_warpParams);
     
-    return blend<FB_BLEND_MODE>(tex_color, noise_color, u_feedback_decay, u_feedback_param1, u_feedback_param2);
+    return blend<FB_BLEND_FUNC>(tex_color, noise_color, u_feedbackParams);
 }
 
 // Function to do nothing with the noise color, if feedback is disabled

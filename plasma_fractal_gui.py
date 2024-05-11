@@ -10,7 +10,7 @@ from mylib.config_path_manager import ConfigPathManager
 from mylib.icons import Icons
 from mylib.notification_manager import NotificationManager
 from mylib.window_fade_manager import WindowFadeManager
-from plasma_fractal_params import PlasmaFractalParams, WarpFunctionRegistry
+from plasma_fractal_params import FeedbackFunctionRegistry, PlasmaFractalParams, WarpFunctionRegistry
 import mylib.imgui_helper as ih
 from mylib.adjust_color import modify_rgba_color_hsv
 from mylib.presets_manager import Preset
@@ -203,18 +203,28 @@ class PlasmaFractalGUI:
         with ih.resized_items(-160):
 
             if ih.collapsing_header("Feedback Mix Settings", self, attr='feedback_general_settings_open'):
-                #Slider for feedback blend mode
-                ih.enum_combo("Blend Mode", params, 'feedback_blend_mode')
-                ih.slider_float("Feedback Decay", params, 'feedback_decay', min_value=0, max_value=1.0, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)
-                ih.slider_float("Feedback Param 1", params, 'feedback_param1', min_value=0, max_value=1.0, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)
-                ih.slider_float("Feedback Param 2", params, 'feedback_param2', min_value=0, max_value=1.0)
 
+                ih.list_combo("Feedback Function", params, 'feedback_function', items=FeedbackFunctionRegistry.get_all_function_names())
+                
+                # Retrieve current feedback function information
+                feedback_function_info = FeedbackFunctionRegistry.get_function_info(params.feedback_function)
+                
+                # Generate sliders for each parameter of the current feedback function
+                for index, paramInfo in enumerate(feedback_function_info.params):
+                    
+                    label = f"{paramInfo.display_name}##{params.feedback_function}"  # Ensure unique labels by appending function name
+                    ih.slider_float(label, params.get_current_feedback_params(), index=index,
+                                    min_value=paramInfo.min, max_value=paramInfo.max, 
+                                    flags=imgui.SLIDER_FLAGS_LOGARITHMIC if paramInfo.logarithmic else 0)
+        
             if ih.collapsing_header("Feedback Noise Settings", self, attr='feedback_warp_noise_settings_open'):
+
                 ih.slider_float("Speed", params, 'warpSpeed', min_value=0.01, max_value=10.0)
                 ih.slider_float("Scale", params, 'warpScale', min_value=0.01, max_value=10.0)
                 ih.enum_combo("Noise Algorithm", params, 'warpNoiseAlgorithm')
 
             if ih.collapsing_header("Feedback Fractal Settings", self, attr='feedback_warp_octave_settings_open'):
+
                 ih.slider_int("Num. Octaves", params, 'warpOctaves', min_value=1, max_value=12)
                 ih.slider_float("Gain/Octave", params, 'warpGain', min_value=0.1, max_value=1.0)
                 ih.slider_float("Pos. Scale/Octave", params, 'warpPositionScaleFactor', min_value=0.1, max_value=10.0)
@@ -223,11 +233,12 @@ class PlasmaFractalGUI:
                 ih.slider_float("Time Offset/Octave", params, 'warpTimeOffsetIncrement', min_value=0.0, max_value=20.0)
 
             if ih.collapsing_header("Feedback Effect Settings", self, attr='feedback_warp_effect_settings_open'):
+
                 ih.list_combo("Warp Function", params, 'warpFunction', items=WarpFunctionRegistry.get_all_function_names())
 
                 for index, paramInfo in enumerate(params.get_current_warp_function_info().params):
 
-                    label = f"{paramInfo.displayName}##{params.warpFunction}"
+                    label = f"{paramInfo.display_name}##{params.warpFunction}"
                     ih.slider_float(label, params.get_current_warp_params(), index=index,
                                     min_value=paramInfo.min, max_value=paramInfo.max, 
                                     flags=imgui.SLIDER_FLAGS_LOGARITHMIC if paramInfo.logarithmic else 0)

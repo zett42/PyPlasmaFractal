@@ -10,7 +10,7 @@ from mylib.resources import resource_path
 from mylib.shader_cache import VariantShaderCache
 from mylib.shader_template_system import make_dict_source_resolver
 from mylib.files_to_dict import read_directory_files_to_dict
-from plasma_fractal_params import PlasmaFractalParams, WarpFunctionRegistry
+from plasma_fractal_params import FeedbackFunctionRegistry, PlasmaFractalParams, WarpFunctionRegistry
 
 
 class PlasmaFractalRenderer:
@@ -99,11 +99,12 @@ class PlasmaFractalRenderer:
         fragment_template_params = {
             'NOISE_FUNC': params.noise_algorithm.name,
             'FB_ENABLED': 'Enabled' if params.enable_feedback else 'Disabled',
-            'FB_BLEND_MODE': params.feedback_blend_mode.name,
+            'FB_BLEND_FUNC': params.feedback_function,
             'FB_WARP_FRACTAL_NOISE_VARIANT': params.get_current_warp_function_info().fractal_noise_variant.name,
             'FB_WARP_NOISE_FUNC': params.warpNoiseAlgorithm.name,
             'FB_WARP_XFORM_FUNC': params.warpFunction,
             'MAX_WARP_PARAMS': WarpFunctionRegistry.max_param_count(),
+            'MAX_FEEDBACK_PARAMS': FeedbackFunctionRegistry.max_param_count(),
         }
         self.program, _ = self.shader_cache.get_or_create_program(fragment_template_params=fragment_template_params)
         self.vao = self.shader_cache.get_or_create_vao(self.program, self.vbo, 'in_pos')
@@ -125,9 +126,6 @@ class PlasmaFractalRenderer:
         ]
 
         feedback_attributes = [            
-            'feedback_decay',
-            'feedback_param1',
-            'feedback_param2',
             'warpSpeed',
             'warpOctaves',
             'warpGain',
@@ -152,29 +150,30 @@ class PlasmaFractalRenderer:
 
             self.program['u_warpScale'] = (params.warpScale * view_scale.x, params.warpScale * view_scale.y)
 
-            self._set_warp_params_uniform(params, self.program)
+            # Assign the parameters to their respective shader uniforms
+            self.set_params_uniform(params.get_current_warp_params(), 'u_warpParams', WarpFunctionRegistry.max_param_count())
+            self.set_params_uniform(params.get_current_feedback_params(), 'u_feedbackParams', FeedbackFunctionRegistry.max_param_count())
 
             feedback_texture.use(location=0)
-
-
-    def _set_warp_params_uniform(self, params: PlasmaFractalParams, program):
+        
+    
+    def set_params_uniform(self, current_params: List[float], uniform_name: str, max_params_count: int):
         """
-        Prepare and update the shader's warp parameters based on the current warp function.
+        General function to prepare and update shader function arguments for user-selectable shader functions.
 
         Args:
-            params (PlasmaFractalParams): The object containing warp function and parameters.
+            current_params (list): List of current parameter values.
+            uniform_name (str): The name of the uniform variable in the shader.
+            max_params_count (int): The maximum number of parameters expected by the shader.
             program (ShaderProgram): The shader program object which will use the parameters.
 
         """
-
-        # Populate the array with current warp parameters and ensure the shader receives a fixed size array by filling unused params with zero.
-        max_warp_params = WarpFunctionRegistry.max_param_count()
-        current_warp_params = params.get_current_warp_params()
-        warpParams_np = np.zeros(max_warp_params, dtype='float32')
-        warpParams_np[:len(current_warp_params)] = current_warp_params
+        # Populate the array with current parameters and ensure the shader receives a fixed size array by filling unused params with zero.
+        params_np = np.zeros(max_params_count, dtype='float32')
+        params_np[:len(current_params)] = current_params
 
         # Write the array to the shader's uniform buffer
-        program['u_warpParams'].write(warpParams_np.tobytes())
+        self.program[uniform_name].write(params_np.tobytes())        
 
 
     @property

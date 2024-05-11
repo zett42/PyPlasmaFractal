@@ -4,9 +4,9 @@ class FunctionParam:
     """
     Information about a parameter used in functions and how to represent it in the UI.
     """
-    def __init__(self, displayName: str, min=0.0, max=1.0, logarithmic: bool=False, default=0.0):
+    def __init__(self, display_name: str, min=0.0, max=1.0, logarithmic: bool=False, default=0.0):
         
-        self.displayName = displayName
+        self.display_name = display_name
         self.min = min
         self.max = max
         self.logarithmic = logarithmic
