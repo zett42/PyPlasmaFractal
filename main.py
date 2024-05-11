@@ -1,7 +1,8 @@
 """
-This Python script, implemented using ModernGL, GLFW, and ImGui, creates a real-time application for rendering and exploring fractal noise with 
-interactive controls. The application focuses on the dynamic generation and manipulation of fractals through the use of fractal noise techniques 
-for both initial generation and feedback transformations.
+This Python script utilizes ModernGL, GLFW, and ImGui to create a real-time application for rendering and interactively exploring fractal noise.
+The application leverages fractal noise techniques for generating dynamic fractal patterns and applying feedback transformations. Feedback loops
+are integral to this application, enhancing the visuals by recursively processing and layering outputs to produce complex, evolving textures that 
+can appear almost organic in nature.
 
 Key functionalities:
 - Initializes a GLFW window and OpenGL context suitable for high-performance graphics rendering.
