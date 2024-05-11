@@ -126,6 +126,79 @@ vec4 warpSwirlSigmoid(sampler2D texture, vec2 texPos, vec4 newColor, vec4 noiseW
     return texture(texture, newPos);   
 }
 
+// Applies a dynamic swirling and warping effect to texture coordinates based on controlled feedback mechanisms.
+//
+// This function combines several transformation techniques to modify texture coordinates dynamically, focusing on creating
+// complex visual effects. It utilizes sigmoid functions to apply non-linear transformations to the swirling intensity and 
+// error handling, ensuring smooth transitions and complex patterns. The texture manipulation is influenced by noise and its 
+// derivatives, which determine the center of the swirl and its intensity, thereby enriching the visual complexity.
+//
+// The function enhances the swirling effect by incorporating an additional noise function to randomly introduce errors, 
+// adding complexity and reducing uniformity in the visual output.
+//
+// Parameters:
+// - texture: The input texture sampler for fetching the color data.
+// - texPos: The original texture coordinates.
+// - newColor: A vec4 color that could potentially be used for blending or masking effects (not utilized in this specific function).
+// - noiseWithDerivatives: A vec4 where the x component represents the noise value used for error adjustment, and yz components 
+//   are the spatial derivatives used to determine the dynamic swirling center.
+// - time: Current time or frame number, used to add a temporal variation to the noise calculations for error adjustments.
+// - params: An array of floating-point values defining various parameters for the effect:
+//   [0]: radiusScale - Scales the radius around which texture coordinates are swirled.
+//   [1]: angleScale - Determines the angular displacement magnitude in the swirl effect.
+//   [2]: isolation - Adjusts the steepness of the sigmoid function for swirl intensity, effectively isolating the effect to certain areas.
+//   [3]: isolationMidpoint - Midpoint for the sigmoid function controlling swirl isolation.
+//   [4]: errorScale - Scales the texture coordinates for the noise function, influencing the pattern of the error adjustments.
+//   [5]: errorThreshold - Sets the threshold for when the error effect starts to apply, determining its visibility based on noise.
+//   [6]: errorMidpoint - Midpoint for the sigmoid function controlling the smooth transition of the error effect.
+//   [7]: errorStrength - Magnifies the impact of the error on the angular displacement.
+//   [8]: errorSpeed - Modifies the speed at which the error pattern evolves over time.
+//
+// Returns:
+// - vec4: The color from the texture sampled at the newly calculated coordinates after applying the swirling and warping effects.
+
+vec4 warpSwirlSigmoidDistorted(sampler2D texture, vec2 texPos, vec4 newColor, vec4 noiseWithDerivatives, float time, float params[MAX_WARP_PARAMS]) {
+ 
+    float radiusScale = params[0];
+    float angleScale  = params[1];
+    float isolation   = params[2] * 20.0;
+    float isolationMidpoint = params[3];
+    float errorScale = 1.0 + params[4] * 99.0; 
+    float errorThreshold = params[5];
+    float errorMidpoint = params[6];
+    float errorStrength = params[7];
+    float errorSpeed = params[8];  
+
+     float noiseValue = noiseWithDerivatives.x;
+    vec2 derivatives = noiseWithDerivatives.yz;
+
+    vec2 center = texPos + radiusScale * derivatives;
+    vec2 toCenter = texPos - center;
+    float distance = length(toCenter);
+    float angle = atan(toCenter.y, toCenter.x);
+
+    float safeRadiusScale = radiusScale + 0.0001;
+    float normalizedDistance = distance / safeRadiusScale;
+
+    float swirlIntensity = sigmoid(normalizedDistance, isolation, isolationMidpoint);
+    float newAngle = angle + angleScale * swirlIntensity;
+
+    // Adjust for error using noise
+    vec3 errorNoisePos = vec3(texPos * errorScale, time * errorSpeed + 37.0);  // Add a constant for randomness
+    float errorNoise = Perlin3D_Std(errorNoisePos);
+    float errorValue = (errorNoise + 1.0) * 0.5;
+
+    // Smooth transition for error effect
+    float errorEffect = sigmoid(errorValue, 10.0 * (1.0 / errorThreshold), errorMidpoint);  // Steep transition near the threshold
+    float errorAngleAdjustment = errorEffect * errorNoise * errorStrength;
+
+    newAngle += errorAngleAdjustment;
+
+    vec2 newPos = center + normalizedDistance * radiusScale * vec2(cos(newAngle), sin(newAngle));
+
+    return texture(texture, newPos);   
+}
+
 // Modifies texture coordinates using noise and derivatives to create fractal-like patterns in feedback effects.
 //
 // This function duplicates texture elements around centers calculated from noise values and their derivatives,

@@ -87,6 +87,21 @@ class WarpFunctionRegistry:
             WarpFunctionParam('Transition Sharpness', logarithmic=True, default=0.0),
             WarpFunctionParam('Transition Point', logarithmic=False, default=0.5),
         ]
+    )    
+    
+    SwirlSigmoidDistorted = WarpFunctionInfo(
+        FractalNoiseVariant.Deriv, 
+        params=[
+            WarpFunctionParam('Radial Strength', logarithmic=True, default=0.02),
+            WarpFunctionParam('Swirl Strength', logarithmic=True, default=0.08),
+            WarpFunctionParam('Transition Sharpness', logarithmic=True, default=0.0),
+            WarpFunctionParam('Transition Point', logarithmic=False, default=0.5),
+            WarpFunctionParam('Error Scale', logarithmic=True, default=0.0),
+            WarpFunctionParam('Error Threshold', logarithmic=True, default=0.0),
+            WarpFunctionParam('Error Midpoint', logarithmic=False, default=0.5),
+            WarpFunctionParam('Error Strength', logarithmic=True, default=0.3),
+            WarpFunctionParam('Error Speed', logarithmic=True, default=0.3),
+        ]
     )
 
     OffsetDeriv = WarpFunctionInfo(
@@ -197,7 +212,7 @@ class PlasmaFractalParams:
         self.warpNoiseAlgorithm = NoiseAlgorithm.Perlin3D
         self.warpScale = 1.0
         self.warpOctaves = 1
-        self.warpGain = 0.5
+        self.warpGain = 0.3
         self.warpAmplitude = 1.0  # Assuming a default value for amplitude
         self.warpTimeScaleFactor = 1.0
         self.warpPositionScaleFactor = 2.0
