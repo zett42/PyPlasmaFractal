@@ -3,6 +3,8 @@ import json
 from typing import *
 from enum import Enum, auto
 
+from mylib.function_registry import FunctionInfo, FunctionParam, FunctionRegistry
+
 class NoiseAlgorithm(Enum):
     """
     Enumeration of noise algorithms.
@@ -26,146 +28,96 @@ class FeedbackBlendMode(Enum):
     Additive = auto()
     Sigmoid = auto()
 
-class WarpFunctionParam:
+class WarpFunctionInfo(FunctionInfo):
     """
-    Information about a parameter used in warp functions and how to represent it in the UI.
+    Extends FunctionInfo to include a dependency on a specific fractal noise variant.
     """
-    def __init__(self, displayName: str, min = 0.0, max = 1.0, logarithmic: bool = False, default = 0.5):
-        self.displayName = displayName
-        self.min = min
-        self.max = max
-        self.logarithmic = logarithmic
-        self.default = default
-
-class WarpFunctionInfo:
-    """
-    Contains information about a warp function, including its parameters and dependency on specific fractal noise variant.
-    """
-
-    def __init__(self, fractal_noise_variant: FractalNoiseVariant, params: List[WarpFunctionParam] = [], display_name: str = None):
-
-        self.display_name = display_name
+    def __init__(self, display_name: str, fractal_noise_variant: FractalNoiseVariant, params: List[FunctionParam]):
+        super().__init__(display_name, params)
         self.fractal_noise_variant = fractal_noise_variant
-        self.params = params
 
-
-class WarpFunctionRegistry:
+class WarpFunctionRegistry(FunctionRegistry):
     """
-    A class that stores information about warp functions and provides utility methods to access them.
+    A class that statically stores information about warp functions.
     """
-    Offset = WarpFunctionInfo(
-        FractalNoiseVariant.Double,
-        params=[
-            WarpFunctionParam('Amplitude', logarithmic=True, default=0.05),
-        ],
-        display_name='Offset'
-    )
-
-    Polar = WarpFunctionInfo(
-        FractalNoiseVariant.Double,
-        params=[
-            WarpFunctionParam('Radial Strength', logarithmic=True, default=0.02),
-            WarpFunctionParam('Rotation Factor', logarithmic=True, default=0.1),
-        ],
-        display_name='Polar'
-    )
-
-    Swirl = WarpFunctionInfo(
-        FractalNoiseVariant.Deriv, 
-        params=[
-            WarpFunctionParam('Radial Strength', logarithmic=True, default=0.02),
-            WarpFunctionParam('Swirl Strength', logarithmic=True, default=0.08),
-            WarpFunctionParam('Isolation Factor', logarithmic=True, default=0.0),
-        ]
-    )
-
-    SwirlSigmoid = WarpFunctionInfo(
-        FractalNoiseVariant.Deriv, 
-        params=[
-            WarpFunctionParam('Radial Strength', logarithmic=True, default=0.02),
-            WarpFunctionParam('Swirl Strength', logarithmic=True, default=0.08),
-            WarpFunctionParam('Transition Sharpness', logarithmic=True, default=0.0),
-            WarpFunctionParam('Transition Point', logarithmic=False, default=0.5),
-        ]
-    )    
-    
-    SwirlSigmoidDistorted = WarpFunctionInfo(
-        FractalNoiseVariant.Deriv, 
-        params=[
-            WarpFunctionParam('Radial Strength', logarithmic=True, default=0.02),
-            WarpFunctionParam('Swirl Strength', logarithmic=True, default=0.08),
-            WarpFunctionParam('Transition Sharpness', logarithmic=True, default=0.0),
-            WarpFunctionParam('Transition Point', logarithmic=False, default=0.5),
-            WarpFunctionParam('Error Scale', logarithmic=True, default=0.0),
-            WarpFunctionParam('Error Threshold', logarithmic=True, default=0.0),
-            WarpFunctionParam('Error Midpoint', logarithmic=False, default=0.5),
-            WarpFunctionParam('Error Strength', logarithmic=True, default=0.3),
-            WarpFunctionParam('Error Speed', logarithmic=True, default=0.3),
-        ]
-    )
-
-    OffsetDeriv = WarpFunctionInfo(
-        FractalNoiseVariant.Deriv, 
-        params=[
-            WarpFunctionParam('Amplitude', logarithmic=True, default=0.02),
-        ]
-    )
-
-    InfiniteMirror = WarpFunctionInfo(
-        FractalNoiseVariant.Deriv, 
-        params=[
-            WarpFunctionParam('Duplication Scale', logarithmic=True, default=0.5),
-            WarpFunctionParam('Influence Radius', logarithmic=True, default=0.5),
-            WarpFunctionParam('Non-Linearity', logarithmic=True, default=0.0),
-            WarpFunctionParam('Base Rotation', logarithmic=True, default=0.0),
-            WarpFunctionParam('Time Modulation', logarithmic=True, default=0.0),
-            WarpFunctionParam('Frequency', logarithmic=True, default=2.0),
-        ]
-    )
-
-    Test = WarpFunctionInfo(
-        FractalNoiseVariant.Deriv, 
-        params=[
-            WarpFunctionParam('Param1', logarithmic=True, default=0.1),
-            WarpFunctionParam('Param2', logarithmic=True, default=0.1),
-            WarpFunctionParam('Param3', logarithmic=True, default=0.0),
-            WarpFunctionParam('Param4', logarithmic=True, default=0.0),
-        ]
-    )
-
-    @classmethod
-    def get_warp_function_info(cls, function_name: str):
-        """ Retrieve the WarpFunctionInfo instance for a given function name. """
-        function_info = getattr(cls, function_name, None)
-        if function_info and isinstance(function_info, WarpFunctionInfo):
-            return function_info
-        else:
-            raise ValueError(f"No WarpFunctionInfo found for function name: {function_name}")    
-
-    @classmethod
-    def get_all_function_names(cls):
-        """ Retrieve a list of all warp function names in the order they were declared. """
-        return [
-            attr_name for attr_name, attr_value in cls.__dict__.items()
-            if isinstance(attr_value, WarpFunctionInfo)
-        ]
-    
-    @classmethod
-    def get_max_warp_params(cls):
-        """ Compute the maximum number of parameters among all dynamically retrieved WarpFunctionInfo instances in this class. """
-        return max(
-            len(value.params) for _, value in cls.__dict__.items()
-            if isinstance(value, WarpFunctionInfo)
-        )
-    
-    @classmethod
-    def get_all_param_defaults(cls):
-        """ Retrieve default parameters for all warp functions in the registry. """
-        return {
-            attr_name: [param.default for param in getattr(cls, attr_name).params]
-            for attr_name in dir(cls) 
-            if isinstance(getattr(cls, attr_name), WarpFunctionInfo)
-        }
+    functions = {
+        'Offset': WarpFunctionInfo(
+            display_name='Offset',
+            fractal_noise_variant=FractalNoiseVariant.Double,
+            params=[FunctionParam('Amplitude', logarithmic=True, default=0.05)]
+        ),
+        'Polar': WarpFunctionInfo(
+            display_name='Polar',
+            fractal_noise_variant=FractalNoiseVariant.Double,
+            params=[
+                FunctionParam('Radial Strength', logarithmic=True, default=0.02),
+                FunctionParam('Rotation Factor', logarithmic=True, default=0.1)
+            ]
+        ),
+        'Swirl': WarpFunctionInfo(
+            display_name='Swirl',
+            fractal_noise_variant=FractalNoiseVariant.Deriv,
+            params=[
+                FunctionParam('Radial Strength', logarithmic=True, default=0.02),
+                FunctionParam('Swirl Strength', logarithmic=True, default=0.08),
+                FunctionParam('Isolation Factor', logarithmic=True, default=0.0),
+            ]
+        ),
+        'SwirlSigmoid': WarpFunctionInfo(
+            display_name='Swirl Sigmoid',
+            fractal_noise_variant=FractalNoiseVariant.Deriv,
+            params=[
+                FunctionParam('Radial Strength', logarithmic=True, default=0.02),
+                FunctionParam('Swirl Strength', logarithmic=True, default=0.08),
+                FunctionParam('Transition Sharpness', logarithmic=True, default=0.0),
+                FunctionParam('Transition Point', logarithmic=False, default=0.5),
+            ]
+        ),
+        'SwirlSigmoidDistorted': WarpFunctionInfo(
+            display_name='Swirl Sigmoid Distorted',
+            fractal_noise_variant=FractalNoiseVariant.Deriv,
+            params=[
+                FunctionParam('Radial Strength', logarithmic=True, default=0.02),
+                FunctionParam('Swirl Strength', logarithmic=True, default=0.08),
+                FunctionParam('Transition Sharpness', logarithmic=True, default=0.0),
+                FunctionParam('Transition Point', logarithmic=False, default=0.5),
+                FunctionParam('Error Scale', logarithmic=True, default=0.0),
+                FunctionParam('Error Threshold', logarithmic=True, default=0.0),
+                FunctionParam('Error Midpoint', logarithmic=False, default=0.5),
+                FunctionParam('Error Strength', logarithmic=True, default=0.3),
+                FunctionParam('Error Speed', logarithmic=True, default=0.3),
+            ]
+        ),
+        'OffsetDeriv': WarpFunctionInfo(
+            display_name='Offset Derivatives',
+            fractal_noise_variant=FractalNoiseVariant.Deriv,
+            params=[
+                FunctionParam('Amplitude', logarithmic=True, default=0.02),
+            ]
+        ),
+        'InfiniteMirror': WarpFunctionInfo(
+            display_name='Infinite Mirror',
+            fractal_noise_variant=FractalNoiseVariant.Deriv,
+            params=[
+                FunctionParam('Duplication Scale', logarithmic=True, default=0.5),
+                FunctionParam('Influence Radius', logarithmic=True, default=0.5),
+                FunctionParam('Non-Linearity', logarithmic=True, default=0.0),
+                FunctionParam('Base Rotation', logarithmic=True, default=0.0),
+                FunctionParam('Time Modulation', logarithmic=True, default=0.0),
+                FunctionParam('Frequency', logarithmic=True, default=2.0),
+            ]
+        ),
+        'Test': WarpFunctionInfo(
+            display_name='Test',
+            fractal_noise_variant=FractalNoiseVariant.Deriv,
+            params=[
+                FunctionParam('Param1', logarithmic=True, default=0.1),
+                FunctionParam('Param2', logarithmic=True, default=0.1),
+                FunctionParam('Param3', logarithmic=True, default=0.0),
+                FunctionParam('Param4', logarithmic=True, default=0.0),
+            ]
+        ),
+    }
 
 
 class PlasmaFractalParams:
@@ -223,7 +175,7 @@ class PlasmaFractalParams:
     
     def get_current_warp_function_info(self) -> WarpFunctionInfo:
         """ Return the current WarpFunctionInfo instance. """
-        return WarpFunctionRegistry.get_warp_function_info( self.warpFunction )
+        return WarpFunctionRegistry.get_function_info( self.warpFunction )
 
 
     def get_current_warp_params(self) -> List[float]:
