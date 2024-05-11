@@ -32,6 +32,46 @@ class FeedbackBlendMode(Enum):
     Sigmoid = auto()
     
     
+class FeedbackFunctionInfo(FunctionInfo):
+    """
+    Extends FunctionInfo to include a dependency on a specific feedback blend mode.
+    """
+    def __init__(self, display_name: str, feedback_blend_mode: FeedbackBlendMode, params: List[FunctionParam]):
+        super().__init__(display_name, params)
+        self.feedback_blend_mode = feedback_blend_mode
+
+
+class FeedbackFunctionRegistry(FunctionRegistry):
+    """
+    Manages feedback function information, extending the generic FunctionRegistry.
+    """
+    functions = {
+        "Linear": FeedbackFunctionInfo(
+            display_name="Linear",
+            feedback_blend_mode=FeedbackBlendMode.Linear,
+            params=[
+                FunctionParam("Feedback Decay", logarithmic=False, min=0.0, max=0.3, default=0.01)
+            ]
+        ),
+        "Additive": FeedbackFunctionInfo(
+            display_name="Additive",
+            feedback_blend_mode=FeedbackBlendMode.Additive,
+            params=[
+                FunctionParam("Feedback Decay", logarithmic=False, min=0.0, max=0.3, default=0.01)
+            ]
+        ),
+        "Sigmoid": FeedbackFunctionInfo(
+            display_name="Sigmoid",
+            feedback_blend_mode=FeedbackBlendMode.Sigmoid,
+            params=[
+                FunctionParam("Feedback Decay",     logarithmic=False, min=0.0, max=0.3, default=0.01),
+                FunctionParam("Feedback Steepness", logarithmic=False, default=0.1),
+                FunctionParam("Feedback Midpoint",  logarithmic=False, default=0.5)
+            ]
+        )
+    }
+    
+    
 class WarpFunctionInfo(FunctionInfo):
     """
     Extends FunctionInfo to include a dependency on a specific fractal noise variant.
@@ -125,46 +165,6 @@ class WarpFunctionRegistry(FunctionRegistry):
     }
     
     
-class FeedbackFunctionInfo(FunctionInfo):
-    """
-    Extends FunctionInfo to include a dependency on a specific feedback blend mode.
-    """
-    def __init__(self, display_name: str, feedback_blend_mode: FeedbackBlendMode, params: List[FunctionParam]):
-        super().__init__(display_name, params)
-        self.feedback_blend_mode = feedback_blend_mode
-
-
-class FeedbackFunctionRegistry(FunctionRegistry):
-    """
-    Manages feedback function information, extending the generic FunctionRegistry.
-    """
-    functions = {
-        "Linear": FeedbackFunctionInfo(
-            display_name="Linear",
-            feedback_blend_mode=FeedbackBlendMode.Linear,
-            params=[
-                FunctionParam("Feedback Decay", logarithmic=False, min=0.0, max=0.3, default=0.01)
-            ]
-        ),
-        "Additive": FeedbackFunctionInfo(
-            display_name="Additive",
-            feedback_blend_mode=FeedbackBlendMode.Additive,
-            params=[
-                FunctionParam("Feedback Decay", logarithmic=False, min=0.0, max=0.3, default=0.01)
-            ]
-        ),
-        "Sigmoid": FeedbackFunctionInfo(
-            display_name="Sigmoid",
-            feedback_blend_mode=FeedbackBlendMode.Sigmoid,
-            params=[
-                FunctionParam("Feedback Decay",     logarithmic=False, min=0.0, max=0.3, default=0.01),
-                FunctionParam("Feedback Steepness", logarithmic=False, default=0.1),
-                FunctionParam("Feedback Midpoint",  logarithmic=False, default=0.5)
-            ]
-        )
-    }
-
-
 class PlasmaFractalParams:
     """
     Represents the parameters for a plasma fractal.
