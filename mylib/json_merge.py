@@ -3,6 +3,8 @@ import logging
 import numbers
 from typing import *
 
+logger = logging.getLogger(__name__)
+    
 class MergePolicy(Enum):
     MERGE_EXTEND = auto()
     MERGE_EXISTING = auto()    
@@ -97,14 +99,18 @@ def json_deep_merge(target: Any,
     # Use the type mismatch handler if supplied
     if handle_type_mismatch:
         try:
-            return handle_type_mismatch(target, source)
+            return handle_type_mismatch(path, target, source)
         except Exception as e:
-            raise TypeError(f"JSON type mismatch handling failed at path '{path}': {e}") from e
+            error_msg = f"JSON type mismatch cannot be handled at '{path}': {type(target).__name__} vs {type(source).__name__}"
+            logger.error(error_msg)
+            raise TypeError(f"{error_msg}: {e}") from e
    
-    raise TypeError(f"Unhandled JSON type mismatch at path '{path}': {type(target)} != {type(source)}")
+    error_msg = f"Unhandled JSON type mismatch at '{path}': {type(target).__name__} vs {type(source).__name__}"
+    logger.error(error_msg)
+    raise TypeError(error_msg)
 
 
-def handle_type_mismatch_gracefully(target: Any, source: Any) -> Any:
+def handle_type_mismatch_gracefully(path: str, target: Any, source: Any) -> Any:
     """
     Provides a lenient approach to handling type mismatches during JSON merging. Attempts to convert `source` to 
     the type of `target` or vice versa, and falls back to the original `target` if conversion is not feasible.
@@ -160,6 +166,8 @@ def handle_type_mismatch_gracefully(target: Any, source: Any) -> Any:
             return str(source)
 
     except Exception as e:
-        pass  # Ignore conversion errors and return the target value
+        error_msg = f"JSON type mismatch cannot be handled at '{path}': {type(target).__name__} vs {type(source).__name__}"
+        logger.warning(f"{error_msg}: {e}")
+        pass  # Ignore conversion errors
 
     return target  # Safe fallback to the target value if conversion is not possible
