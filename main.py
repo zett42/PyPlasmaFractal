@@ -18,6 +18,7 @@ Major dependencies:
 - imgui: Enables the creation and management of an interactive GUI.
 """
 
+import json
 import logging
 import sys
 import time
@@ -121,18 +122,13 @@ class PyPlasmaFractalApp:
     def load_config(self):
         """
         Loads or initializes the application's render configuration.
-        """
-    
-        self.fractal_config_manager = ConfigFileManager(
-            directory=self.path_manager.user_specific_path,
-            filename='fractal_config.json',
-            load_function=lambda json_str: PlasmaFractalParams.from_json(json_str),
-            save_function=lambda obj: obj.to_json()
-        )
+        """  
+        self.fractal_config_manager = ConfigFileManager(directory=self.path_manager.user_specific_path, filename='fractal_config.json')
         
-        self.params = self.fractal_config_manager.load_config() or PlasmaFractalParams()
+        data = self.fractal_config_manager.load_config()
+        self.params = PlasmaFractalParams.from_dict(data) or PlasmaFractalParams()
 
-        logging.debug("PlasmaFractalParams: " + self.params.to_json())
+        logging.debug(f"PlasmaFractalParams:\n{self.params.to_dict()}")
 
 
     def initialize_glfw(self):
@@ -416,8 +412,8 @@ class PyPlasmaFractalApp:
         """
         Finalizes the application by releasing resources and saving the fractal configuration.
         """
-        # Save fractal configuration first to ensure it is saved even if an exception occurs during cleanup
-        self.fractal_config_manager.save_config(self.params)
+        # Save fractal configuration first to ensure it is saved even if an exception occurs during cleanup      
+        self.fractal_config_manager.save_config(self.params.to_dict())
 
         self.save_current_window_size_pos()       
 

@@ -5,18 +5,7 @@
         "**/.hg": true,
         "**/CVS": true,
         "**/.DS_Store": true,
-        "**/Thumbs.db": true,
-        ".vscode": true,
-        ".pytest_cache": true,
-        "__pycache__": true,
-        "tests/mylib/__pycache__": true,
-        "imgui.ini": true,
-        "pytest.ini": true,
-        "requirements.txt": true,
-        "mylib/__pycache__": true,
-        "mylib/__init__.py": true,
-        ".gitignore": true,
-        "_experiments/__pycache__": true
+        "**/Thumbs.db": true
     },
     "hide-files.files": [
         ".vscode",

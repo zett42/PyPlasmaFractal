@@ -1,7 +1,17 @@
+from enum import Enum
 import os
 import json
 import logging
 from typing import Any
+
+class EnumJSONEncoder(json.JSONEncoder):
+    """ Custom JSON encoder for Enum objects (which are not serializable by default)."""
+    
+    def default(self, obj):
+        if isinstance(obj, Enum):
+            return obj.name
+        return json.JSONEncoder.default(self, obj)
+
 
 class ConfigFileManager:
     """
@@ -53,7 +63,7 @@ class ConfigFileManager:
     @staticmethod
     def _default_save(obj: Any):
         """ Default JSON save function. """
-        return json.dumps(obj, indent=4)
+        return json.dumps(obj, indent=4, cls=EnumJSONEncoder)
 
 
     @staticmethod

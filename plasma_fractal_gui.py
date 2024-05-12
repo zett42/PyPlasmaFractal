@@ -11,7 +11,7 @@ from mylib.function_registry import FunctionRegistry
 from mylib.icons import Icons
 from mylib.notification_manager import NotificationManager
 from mylib.window_fade_manager import WindowFadeManager
-from plasma_fractal_params import FeedbackFunctionRegistry, PlasmaFractalParams, WarpFunctionRegistry
+from plasma_fractal_params import FeedbackFunctionRegistry, NoiseAlgorithm, PlasmaFractalParams, WarpFunctionRegistry
 import mylib.imgui_helper as ih
 from mylib.adjust_color import modify_rgba_color_hsv
 from mylib.presets_manager import Preset
@@ -204,8 +204,7 @@ class PlasmaFractalGUI:
         with ih.resized_items(-160):
 
             self.function_settings(header="Feedback Mix Settings", header_attr='feedback_general_settings_open', 
-                                   registry=FeedbackFunctionRegistry,
-                                   function_attr='feedback_function', function_params=params.get_current_feedback_params(), 
+                                   registry=FeedbackFunctionRegistry, function_attr='feedback_function', params_attr='feedback_params', 
                                    params=params)
       
             if ih.collapsing_header("Feedback Noise Settings", self, attr='feedback_warp_noise_settings_open'):
@@ -224,8 +223,7 @@ class PlasmaFractalGUI:
                 ih.slider_float("Time Offset/Octave", params, 'warpTimeOffsetIncrement', min_value=0.0, max_value=20.0)
 
             self.function_settings(header="Feedback Effect Settings", header_attr='feedback_warp_effect_settings_open', 
-                                   registry=WarpFunctionRegistry, 
-                                   function_attr='warpFunction', function_params=params.get_current_warp_params(),
+                                   registry=WarpFunctionRegistry, function_attr='warpFunction', params_attr='warpParams',
                                    params=params)
 
 
@@ -234,7 +232,7 @@ class PlasmaFractalGUI:
                           header_attr: str, 
                           registry: FunctionRegistry,
                           function_attr: str,
-                          function_params: List[float], 
+                          params_attr: str,
                           params: PlasmaFractalParams):
         """
         Display the settings for a specific function.
@@ -244,7 +242,6 @@ class PlasmaFractalGUI:
             header_attr (str): The attribute name in the object to store the collapsed state.
             registry (FunctionRegistry): The registry of available functions.
             function_attr (str): The attribute name in the object to store the selected function.
-            function_params (List[float]): The list of function parameters.
             params (PlasmaFractalParams): The object containing the overall parameters.
 
         Returns:
@@ -254,21 +251,27 @@ class PlasmaFractalGUI:
             
             # Dropdown for the available functions
             # Make sure to create a unique identifier by appending the header to the label
-            ih.list_combo(f"Function##{header}", params, function_attr, items=registry.get_all_function_names())
+            ih.list_combo(f"Function##{header}", obj=params, attr=function_attr, items=registry.get_all_function_names())
             
             selected_function_name = getattr(params, function_attr)
             
             # Get the current function info
             function_info = registry.get_function_info(selected_function_name)
             
+            # Get the parameters for the selected function
+            function_params_dict = getattr(params, params_attr)
+            function_params = function_params_dict[selected_function_name] 
+            
             # Generate sliders for the function's parameters
-            for index, paramInfo in enumerate(function_info.params):
+            for index, param_info in enumerate(function_info.params):
 
-                # Make sure to create a unique identifier by appending the header to the label
-                ih.slider_float(f"{paramInfo.display_name}##{header}", 
-                                function_params, index=index,
-                                min_value=paramInfo.min, max_value=paramInfo.max, 
-                                flags=imgui.SLIDER_FLAGS_LOGARITHMIC if paramInfo.logarithmic else 0)
+                changed, new_value = imgui.slider_float(f"{param_info.display_name}##{header}", 
+                                                        function_params[index], 
+                                                        param_info.min, 
+                                                        param_info.max, 
+                                                        flags=imgui.SLIDER_FLAGS_LOGARITHMIC if param_info.logarithmic else 0)
+                if changed:
+                    function_params[index] = new_value
 
 
     def handle_presets_tab(self, params: PlasmaFractalParams):
@@ -517,10 +520,11 @@ class PlasmaFractalGUI:
         self.preset_error_message = None
 
         try:
-            preset_json = presets_manager.load_preset(selected_preset)
-            new_params = PlasmaFractalParams.from_json(preset_json)
-            
-            params.update(new_params)
+            preset_data = presets_manager.load_preset(selected_preset)
+            #logging.debug(f"Loaded preset data: {preset_data}")
+                       
+            params.merge_dict(preset_data)
+            #logging.debug(f"Preset data merged into params: {params.to_dict()}")
 
             self.notifications.push_notification(self.Notification.NEW_PRESET_LOADED)
 
@@ -539,10 +543,10 @@ class PlasmaFractalGUI:
         self.preset_error_message = None
 
         try:
-            json = params.to_json()
+            data = params.to_dict()
             full_path = self.get_full_preset_path(self.current_preset_name)
-                        
-            presets_manager.save_preset(full_path, json)
+            
+            presets_manager.save_preset(full_path, data)
 
             # Update the list of presets to reflect the new file
             self.update_presets_list()

@@ -1,5 +1,8 @@
+import json
 import logging
 import os
+
+from mylib.config_file_manager import EnumJSONEncoder
 
 class Preset:
     """
@@ -54,7 +57,7 @@ def list_presets(app_dir: str, user_dir: str):
     return all_presets
 
 
-def load_preset(preset: Preset) -> str:
+def load_preset(preset: Preset) -> dict:
     """
     Load the configuration from a preset file based on the provided Preset object.
     
@@ -62,35 +65,36 @@ def load_preset(preset: Preset) -> str:
     preset (Preset): The preset object containing the directory, relative file path, and predefined status.
 
     Returns:
-    Raw string data from the preset file.
+    dict: The configuration data loaded from the preset file.
     """
     full_path = os.path.join(preset.directory, preset.relative_file_path)
     
-    with open(full_path, 'r') as file:
-        preset_data = file.read()
+    with open(full_path, 'r', encoding='utf-8') as file:
+        text = file.read()
     
-    logging.info(f"Preset loaded successfully from {full_path}")
+        logging.info(f'Preset loaded successfully from "{full_path}"')
 
-    return preset_data
+        return json.loads(text)
 
 
-def save_preset(file_path: str, data: str):
+def save_preset(file_path: str, data: dict):
     """
     Save the configuration data to a preset file based on the provided Preset object.
     
     Args:
     file_path (str): The full path to the preset file.
-    data (str): The configuration data to be saved to the preset file.
+    data (dict): The configuration data to be saved to the preset file.
     """
 
     # Create the directory if it does not exist
     directory = os.path.dirname(file_path)
     os.makedirs(directory, exist_ok=True)
 
-    with open(file_path, 'w') as file:
-        file.write(data)
+    with open(file_path, 'w', encoding='utf-8') as file:
+        # Convert the data to a JSON string and save it to the file
+        file.write(json.dumps(data, indent=4, cls=EnumJSONEncoder))
     
-    logging.info(f"Preset saved successfully to {file_path}")
+    logging.info(f'Preset saved successfully to "{file_path}"')
 
 
 def delete_preset(file_path: str):
@@ -103,5 +107,5 @@ def delete_preset(file_path: str):
     
     os.remove(file_path)
 
-    logging.info(f"Preset deleted successfully from {file_path}")
+    logging.info(f'Preset deleted successfully from "{file_path}"')
     

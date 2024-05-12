@@ -1,9 +1,7 @@
 {
     "speed": 0.10400000214576721,
     "scale": 1.8799999952316284,
-    "noise_algorithm": {
-        "__enum__": "NoiseAlgorithm.SimplexPerlin3D"
-    },
+    "noise_algorithm": "SimplexPerlin3D",
     "octaves": 4,
     "gain": 0.38499999046325684,
     "timeScaleFactor": 1.5809999704360962,
@@ -14,9 +12,7 @@
     "contrastSteepness": 15.053999900817871,
     "contrastMidpoint": 0.6399999856948853,
     "enable_feedback": true,
-    "feedback_blend_mode": {
-        "__enum__": "FeedbackBlendMode.Linear"
-    },
+    "feedback_blend_mode": "Linear",
     "feedback_decay": 0.23499999940395355,
     "warpFunction": "InfiniteMirror",
     "warpParams": {
@@ -51,9 +47,7 @@
         ]
     },
     "warpSpeed": 0.25,
-    "warpNoiseAlgorithm": {
-        "__enum__": "NoiseAlgorithm.Perlin3D"
-    },
+    "warpNoiseAlgorithm": "Perlin3D",
     "warpScale": 0.7419999837875366,
     "warpOctaves": 7,
     "warpGain": 0.26499998569488525,

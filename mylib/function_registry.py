@@ -30,7 +30,7 @@ class FunctionRegistry:
     functions = {}
     
     @classmethod
-    def get_function_info(cls, function_name: str):
+    def get_function_info(cls, function_name: str) -> FunctionInfo:
         """
         Retrieve the function info for a given function name.
         """
@@ -41,21 +41,21 @@ class FunctionRegistry:
             raise ValueError(f"No function info found for function name: {function_name}")
     
     @classmethod
-    def get_all_function_names(cls):
+    def get_all_function_names(cls) -> List[str]:
         """
         Retrieve a list of all function names in the registry.
         """
         return list(cls.functions.keys())
 
     @classmethod
-    def max_param_count(cls):
+    def max_param_count(cls) -> int:
         """
         Compute the maximum number of parameters among all functions in the registry.
         """
         return max(len(info.params) for info in cls.functions.values())
 
     @classmethod
-    def get_all_param_defaults(cls):
+    def get_all_param_defaults(cls) -> dict[str, List[float]]:
         """
         Retrieve default parameters for all functions in the registry.
         This assumes each function conforms to having 'params' with 'default' attributes.

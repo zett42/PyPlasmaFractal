@@ -1,9 +1,7 @@
 {
     "speed": 0.10400000214576721,
     "scale": 1.8250000476837158,
-    "noise_algorithm": {
-        "__enum__": "NoiseAlgorithm.SimplexPerlin3D"
-    },
+    "noise_algorithm": "SimplexPerlin3D",
     "octaves": 7,
     "gain": 0.5,
     "timeScaleFactor": 1.5809999704360962,
@@ -40,9 +38,7 @@
         ]
     },
     "warpSpeed": 0.25,
-    "warpNoiseAlgorithm": {
-        "__enum__": "NoiseAlgorithm.Perlin3D"
-    },
+    "warpNoiseAlgorithm": "Perlin3D",
     "warpScale": 0.4020000100135803,
     "warpOctaves": 8,
     "warpGain": 0.3659999966621399,

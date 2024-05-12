@@ -1,9 +1,11 @@
 from json import JSONEncoder
 import json
+import logging
 from typing import *
 from enum import Enum, auto
 
 from mylib.function_registry import *
+from mylib.json_helper import convert_json_scalar, type_safe_json_merge
 
 
 class NoiseAlgorithm(Enum):
@@ -64,7 +66,7 @@ class FeedbackFunctionRegistry(FunctionRegistry):
             display_name="Sigmoid",
             feedback_blend_mode=FeedbackBlendMode.Sigmoid,
             params=[
-                FunctionParam("Feedback Decay",     logarithmic=False, min=0.0, max=0.3, default=0.01),
+                FunctionParam("Feedback Decay",     logarithmic=False, min=0.0, max=0.3, default=0.02),
                 FunctionParam("Feedback Steepness", logarithmic=False, default=0.1),
                 FunctionParam("Feedback Midpoint",  logarithmic=False, default=0.5)
             ]
@@ -182,7 +184,7 @@ class PlasmaFractalParams:
         self.scale = 2.0
         
         # Specific noise settings
-        self.noise_algorithm = NoiseAlgorithm.Perlin3D  
+        self.noise_algorithm = NoiseAlgorithm.Perlin3D
         self.octaves = 1
         self.gain = 0.5
         self.timeScaleFactor = 1.3
@@ -218,6 +220,15 @@ class PlasmaFractalParams:
         self.warpTimeOffsetInitial = 42.0
         self.warpTimeOffsetIncrement = 12.0
          
+         
+    def get_current_feedback_function_info(self) -> FeedbackFunctionInfo:
+        """ Return the current FeedbackFunctionInfo instance. """
+        return FeedbackFunctionRegistry.get_function_info(self.feedback_function)
+
+    def get_current_feedback_params(self) -> List[float]:
+        """ Return the current feedback parameters. """
+        return self.feedback_params[self.feedback_function]
+             
     
     def get_current_warp_function_info(self) -> WarpFunctionInfo:
         """ Return the current WarpFunctionInfo instance. """
@@ -226,74 +237,35 @@ class PlasmaFractalParams:
     def get_current_warp_params(self) -> List[float]:
         """ Return the current warp parameters. """
         return self.warpParams[self.warpFunction]
-    
-    
-    def get_current_feedback_function_info(self) -> FeedbackFunctionInfo:
-        """ Return the current FeedbackFunctionInfo instance. """
-        return FeedbackFunctionRegistry.get_function_info(self.feedback_function)
 
-    def get_current_feedback_params(self) -> List[float]:
-        """ Return the current feedback parameters. """
-        return self.feedback_params[self.feedback_function]
     
-    
-    def update(self, new_params: 'PlasmaFractalParams'):
+    #............ Serialization helpers ........................................................................
+
+    def to_dict(self) -> dict:
         """
-        Update the instance attributes with another instance's attributes.
+        Convert the public attributes to a dictionary.
 
-        Args:
-        new_params (PlasmaFractalParams): An instance of PlasmaFractalParams with new values.
+        Returns:
+        dict: A dictionary representation of the instance.
         """
-        for key, value in vars(new_params).items():
-            if hasattr(self, key):
-                setattr(self, key, value)    # TODO: dictionary attributes like warpParams need special handling (recursion)
-
-
-    #............ Serialization methods ........................................................................
-
-    def to_dict(self):
-        """Convert all public attributes of the class to a dictionary."""
-        return {attr: getattr(self, attr) for attr in self.__dict__ if not attr.startswith('_')}
+        return {key: value for key, value in self.__dict__.items() if not key.startswith('_')}
 
     @classmethod
-    def from_dict(cls, data):
-        """Initialize the class from a dictionary, setting only attributes that already exist after default construction, 
-        with special handling for dictionary attributes (like the warpParams attribute)."""
-        obj = cls()
-        for key, value in data.items():
-            if hasattr(obj, key):
-                current_attribute = getattr(obj, key)
-                # Check if both are dictionaries and then merge them based on existing keys
-                if isinstance(current_attribute, dict) and isinstance(value, dict):
-                    for sub_key in current_attribute:
-                        if sub_key in value:
-                            current_attribute[sub_key] = value[sub_key]
-                else:
-                    setattr(obj, key, value)
-        return obj
-
-    def to_json(self):
-        """Serializes the object to a JSON formatted str."""
-
-        # Define the custom JSON encoder for complex types
-        class CustomEncoder(JSONEncoder):
-            def default(self, obj):
-                if isinstance(obj, Enum):
-                    return {"__enum__": str(obj)}
-                elif isinstance(obj, PlasmaFractalParams):
-                    return obj.to_dict()  # Serialize PlasmaFractalParams using its to_dict method
-                return JSONEncoder.default(self, obj)
-
-        return json.dumps(self, cls=CustomEncoder, indent=4)
-
-    @classmethod
-    def from_json(cls, json_str):
-        """Deserializes JSON formatted str to an instance of the class."""
-
-        def decode_custom(dct):
-            if "__enum__" in dct:
-                enum_name, member_name = dct["__enum__"].split('.')
-                return getattr(globals()[enum_name], member_name)
-            return dct
-
-        return cls.from_dict(json.loads(json_str, object_hook=decode_custom))
+    def from_dict(cls, data: dict) -> 'PlasmaFractalParams':
+        """
+        Create a new instance from a dictionary.
+        """
+        instance = cls()           # Create a new instance with defaults
+        instance.merge_dict(data)  # Merge the dictionary into the instance
+        return instance
+              
+    def merge_dict(self, source: dict) -> None:
+        """
+        Update the instance with the values from a dictionary.
+        Only sets attributes from the dictionary that already exist in the instance.
+        Makes sure that the types of the values match the types of the attributes.
+        """
+        merged = type_safe_json_merge(self.to_dict(), source, convert_scalar=convert_json_scalar)
+        
+        for key, value in merged.items():
+            setattr(self, key, value)
