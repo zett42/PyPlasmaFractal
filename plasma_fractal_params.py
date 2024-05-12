@@ -275,7 +275,7 @@ class PlasmaFractalParams:
         Only sets attributes from the dictionary that already exist in the instance.
         Handles type mismatches gracefully to avoid data migration issues.
         """
-        merged = json_deep_merge(self.to_dict(), source, default_merge_policy=MergePolicy.MERGE_EXTEND, 
+        merged = json_deep_merge(self.to_dict(), source, default_merge_policy=MergePolicy.MERGE_EXISTING, 
                                  handle_type_mismatch=handle_type_mismatch_gracefully)
         
         for key, value in merged.items():
