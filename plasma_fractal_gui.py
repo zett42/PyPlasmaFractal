@@ -11,7 +11,7 @@ from mylib.function_registry import FunctionRegistry
 from mylib.icons import Icons
 from mylib.notification_manager import NotificationManager
 from mylib.window_fade_manager import WindowFadeManager
-from plasma_fractal_params import FeedbackFunctionRegistry, NoiseAlgorithm, PlasmaFractalParams, WarpFunctionRegistry
+from plasma_fractal_params import BlendFunctionRegistry, NoiseAlgorithm, PlasmaFractalParams, WarpFunctionRegistry
 import mylib.imgui_helper as ih
 from mylib.adjust_color import modify_rgba_color_hsv
 from mylib.presets_manager import Preset
@@ -204,7 +204,7 @@ class PlasmaFractalGUI:
         with ih.resized_items(-160):
 
             self.function_settings(header="Feedback Mix Settings", header_attr='feedback_general_settings_open', 
-                                   registry=FeedbackFunctionRegistry, function_attr='feedback_function', params_attr='feedback_params', 
+                                   registry=BlendFunctionRegistry, function_attr='feedback_function', params_attr='feedback_params', 
                                    params=params)
       
             if ih.collapsing_header("Warp Noise Settings", self, attr='feedback_warp_noise_settings_open'):

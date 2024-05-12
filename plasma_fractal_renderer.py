@@ -10,7 +10,7 @@ from mylib.resources import resource_path
 from mylib.shader_cache import VariantShaderCache
 from mylib.shader_template_system import make_dict_source_resolver
 from mylib.files_to_dict import read_directory_files_to_dict
-from plasma_fractal_params import FeedbackFunctionRegistry, PlasmaFractalParams, WarpFunctionRegistry
+from plasma_fractal_params import BlendFunctionRegistry, PlasmaFractalParams, WarpFunctionRegistry
 
 
 class PlasmaFractalRenderer:
@@ -104,7 +104,7 @@ class PlasmaFractalRenderer:
             'FB_WARP_NOISE_FUNC': params.warpNoiseAlgorithm.name,
             'FB_WARP_XFORM_FUNC': params.warpFunction.name,
             'MAX_WARP_PARAMS': WarpFunctionRegistry.max_param_count(),
-            'MAX_FEEDBACK_PARAMS': FeedbackFunctionRegistry.max_param_count(),
+            'MAX_FEEDBACK_PARAMS': BlendFunctionRegistry.max_param_count(),
         }
         self.program, _ = self.shader_cache.get_or_create_program(fragment_template_params=fragment_template_params)
         self.vao = self.shader_cache.get_or_create_vao(self.program, self.vbo, 'in_pos')
@@ -152,7 +152,7 @@ class PlasmaFractalRenderer:
 
             # Assign the parameters to their respective shader uniforms
             self.set_params_uniform(params.get_current_warp_params(), 'u_warpParams', WarpFunctionRegistry.max_param_count())
-            self.set_params_uniform(params.get_current_feedback_params(), 'u_feedbackParams', FeedbackFunctionRegistry.max_param_count())
+            self.set_params_uniform(params.get_current_feedback_params(), 'u_feedbackParams', BlendFunctionRegistry.max_param_count())
 
             feedback_texture.use(location=0)
         

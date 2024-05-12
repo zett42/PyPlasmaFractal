@@ -25,7 +25,7 @@ class FractalNoiseVariant(Enum):
     Deriv = auto()
 
 
-class FeedbackBlendMode(Enum):
+class BlendFunction(Enum):
     """
     Enumeration of feedback blend modes.
     """
@@ -34,7 +34,7 @@ class FeedbackBlendMode(Enum):
     Sigmoid = auto()
     
     
-class WarpFunctionId(Enum):
+class WarpFunction(Enum):
     Offset = auto()
     Polar = auto()
     Swirl = auto()
@@ -45,27 +45,27 @@ class WarpFunctionId(Enum):
     Test = auto()  
     
     
-# Right now we don't need a custom class for FeedbackFunctionInfo, so just define an alias for consistency.
-FeedbackFunctionInfo = FunctionInfo    
+# Right now we don't need a custom class for BlendFunctionInfo, so just define an alias for consistency.
+BlendFunctionInfo = FunctionInfo    
     
-class FeedbackFunctionRegistry(FunctionRegistry):
+class BlendFunctionRegistry(FunctionRegistry):
     """
     A class that statically stores information about feedback blend functions.
     """
     functions = {
-        FeedbackBlendMode.Linear: FeedbackFunctionInfo(
+        BlendFunction.Linear: BlendFunctionInfo(
             display_name="Linear",
             params=[
                 FunctionParam("Feedback Decay", logarithmic=False, min=0.0, max=0.3, default=0.01)
             ]
         ),
-        FeedbackBlendMode.Additive: FeedbackFunctionInfo(
+        BlendFunction.Additive: BlendFunctionInfo(
             display_name="Additive",
             params=[
                 FunctionParam("Feedback Decay", logarithmic=False, min=0.0, max=0.3, default=0.01)
             ]
         ),
-        FeedbackBlendMode.Sigmoid: FeedbackFunctionInfo(
+        BlendFunction.Sigmoid: BlendFunctionInfo(
             display_name="Sigmoid",
             params=[
                 FunctionParam("Feedback Decay",     logarithmic=False, min=0.0, max=0.3, default=0.02),
@@ -90,12 +90,12 @@ class WarpFunctionRegistry(FunctionRegistry):
     A class that statically stores information about warp functions.
     """
     functions = {
-        WarpFunctionId.Offset: WarpFunctionInfo(
+        WarpFunction.Offset: WarpFunctionInfo(
             display_name='Offset',
             fractal_noise_variant=FractalNoiseVariant.Double,
             params=[FunctionParam('Amplitude', logarithmic=True, default=0.05)]
         ),
-        WarpFunctionId.Polar: WarpFunctionInfo(
+        WarpFunction.Polar: WarpFunctionInfo(
             display_name='Polar',
             fractal_noise_variant=FractalNoiseVariant.Double,
             params=[
@@ -103,7 +103,7 @@ class WarpFunctionRegistry(FunctionRegistry):
                 FunctionParam('Rotation Factor', logarithmic=True, default=0.1)
             ]
         ),
-        WarpFunctionId.Swirl: WarpFunctionInfo(
+        WarpFunction.Swirl: WarpFunctionInfo(
             display_name='Swirl',
             fractal_noise_variant=FractalNoiseVariant.Deriv,
             params=[
@@ -112,7 +112,7 @@ class WarpFunctionRegistry(FunctionRegistry):
                 FunctionParam('Isolation Factor', logarithmic=True, default=0.0),
             ]
         ),
-        WarpFunctionId.SwirlSigmoid: WarpFunctionInfo(
+        WarpFunction.SwirlSigmoid: WarpFunctionInfo(
             display_name='Swirl Sigmoid',
             fractal_noise_variant=FractalNoiseVariant.Deriv,
             params=[
@@ -122,7 +122,7 @@ class WarpFunctionRegistry(FunctionRegistry):
                 FunctionParam('Transition Point', logarithmic=False, default=0.5),
             ]
         ),
-        WarpFunctionId.SwirlSigmoidDistorted: WarpFunctionInfo(
+        WarpFunction.SwirlSigmoidDistorted: WarpFunctionInfo(
             display_name='Swirl Sigmoid Distorted',
             fractal_noise_variant=FractalNoiseVariant.Deriv,
             params=[
@@ -137,14 +137,14 @@ class WarpFunctionRegistry(FunctionRegistry):
                 FunctionParam('Error Speed', logarithmic=True, default=0.3),
             ]
         ),
-        WarpFunctionId.OffsetDeriv: WarpFunctionInfo(
+        WarpFunction.OffsetDeriv: WarpFunctionInfo(
             display_name='Offset Derivatives',
             fractal_noise_variant=FractalNoiseVariant.Deriv,
             params=[
                 FunctionParam('Amplitude', logarithmic=True, default=0.02),
             ]
         ),
-        WarpFunctionId.InfiniteMirror: WarpFunctionInfo(
+        WarpFunction.InfiniteMirror: WarpFunctionInfo(
             display_name='Infinite Mirror',
             fractal_noise_variant=FractalNoiseVariant.Deriv,
             params=[
@@ -156,7 +156,7 @@ class WarpFunctionRegistry(FunctionRegistry):
                 FunctionParam('Frequency', logarithmic=True, default=2.0),
             ]
         ),
-        WarpFunctionId.Test: WarpFunctionInfo(
+        WarpFunction.Test: WarpFunctionInfo(
             display_name='Test',
             fractal_noise_variant=FractalNoiseVariant.Deriv,
             params=[
@@ -204,11 +204,11 @@ class PlasmaFractalParams:
         self.enable_feedback = False
 
         # Feedback blend function settings
-        self.feedback_function = FeedbackBlendMode.Linear
-        self.feedback_params = FeedbackFunctionRegistry.get_all_param_defaults(use_string_keys=True)   # Convert enum key to string to simplify serialization
+        self.feedback_function = BlendFunction.Linear
+        self.feedback_params = BlendFunctionRegistry.get_all_param_defaults(use_string_keys=True)   # Convert enum key to string to simplify serialization
         
         # Warp settings for feedback
-        self.warpFunction = WarpFunctionId.Offset
+        self.warpFunction = WarpFunction.Offset
         self.warpParams = WarpFunctionRegistry.get_all_param_defaults(use_string_keys=True)   # Convert enum key to string to simplify serialization
         self.warpSpeed = 1.0
         self.warpNoiseAlgorithm = NoiseAlgorithm.Perlin3D
@@ -223,9 +223,9 @@ class PlasmaFractalParams:
         self.warpTimeOffsetIncrement = 12.0
          
          
-    def get_current_feedback_function_info(self) -> FeedbackFunctionInfo:
-        """ Return the current FeedbackFunctionInfo instance. """
-        return FeedbackFunctionRegistry.get_function_info(self.feedback_function)
+    def get_current_feedback_function_info(self) -> BlendFunctionInfo:
+        """ Return the current BlendFunctionInfo instance. """
+        return BlendFunctionRegistry.get_function_info(self.feedback_function)
 
     def get_current_feedback_params(self) -> List[float]:
         """ Return the current feedback parameters. """
