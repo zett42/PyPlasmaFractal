@@ -10,20 +10,32 @@ class MergePolicy(Enum):
 
 def json_deep_merge(target: Any, 
                     source: Any, 
-                    merge_policies: Dict[str, MergePolicy] = {},
+                    merge_policies: Dict[str, MergePolicy] = None,
                     default_merge_policy: MergePolicy = MergePolicy.MERGE_EXTEND,
                     handle_type_mismatch: Callable[[Any, Any], Any] = None,
                     path: str = '') -> Any:
     """
     Recursively merges two JSON-like structures (`target` and `source`) based on defined merging policies and 
-    optional type mismatch handling.
+    optional type mismatch handling. The function supports deep merging of nested dictionaries and lists, and 
+    applies different merging strategies based on the merge policy defined for specific paths within the structures.
 
-    The function supports deep merging of nested dictionaries and lists, and applies different merging strategies 
-    based on the merge policy defined for specific paths within the structures. Type mismatches are handled via 
-    an optional callback, which can either convert incompatible types or raise an exception to ensure data integrity.
+    Overview of Merge Policies:
+    - MERGE_EXTEND: Merges elements from `source` into `target`. For lists, elements in `source` are appended to 
+                    `target` after existing elements, unless the indices already exist, in which case the element
+                    at that index in `target` is updated.
+    - MERGE_EXISTING: Updates values in `target` with values from `source` only for existing keys or indices. No 
+                    new keys or indices are added to `target`.
+    - OVERWRITE: Replaces the existing element in `target` with the element from `source` at the same path, 
+                except at the root level, where the `OVERWRITE` policy does not replace the entire `target` but 
+                instead updates it in place to avoid potential errors.
+
+    Type mismatches are handled via an optional callback, which can either convert incompatible types or raise an 
+    exception to ensure data integrity. This callback is especially useful in complex data structures where type 
+    consistency must be maintained.
 
     Args:
-        target (Any): The base structure into which the `source` structure is merged.
+        target (Any): The base structure into which the `source` structure is merged. This root structure is not 
+                    replaced when the `OVERWRITE` policy is used, preserving the top-level container.
         source (Any): The structure that provides new values to be merged into the `target`.
         merge_policies (Dict[str, MergePolicy], optional): A dictionary where keys represent nested paths in the 
             structures with specific merging policies as values. Supports dot and bracket notation for paths.
@@ -41,7 +53,10 @@ def json_deep_merge(target: Any,
         TypeError: If a type mismatch occurs and `handle_type_mismatch` is not provided or if it fails to resolve 
             the mismatch without raising an exception.
         ValueError: If an invalid merge policy is encountered.
-    """       
+    """
+    
+    merge_policies = merge_policies or {}
+    
     policy = merge_policies.get(path, default_merge_policy)
     if not isinstance(policy, MergePolicy):
         raise ValueError(f"Invalid merge policy: {policy}") 

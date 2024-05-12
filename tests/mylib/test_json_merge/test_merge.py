@@ -48,18 +48,36 @@ def test_dict_merge_with_no_extend_policy_nested():
         }
     }
     assert result == expected
+
+def test_list_merge_default_equal_len_source():
+    target = [1, 2, 3]
+    source = [4, 5, 6]
+    result = json_deep_merge(target, source)
+    assert result == [4, 5, 6]    # Expected: Replaces all elements of the target list with the source list
     
-def test_list_merge_no_extend():
+def test_list_merge_default_shorter_source():
     target = [1, 2, 3]
     source = [4, 5]
     result = json_deep_merge(target, source)
-    assert result == [4, 5, 3]
+    assert result == [4, 5, 3]    # Expected: Overwrite 1st and 2nd, retain the 3rd element of the target list
 
-def test_list_merge_with_extend():
+def test_list_merge_default_longer_source():
     target = [1, 2, 3]
     source = [4, 5, 6, 7]
-    result = json_deep_merge(target, source, default_merge_policy=MergePolicy.MERGE_EXTEND)
-    assert result == [4, 5, 6, 7]
+    result = json_deep_merge(target, source)
+    assert result == [4, 5, 6, 7]   # Expected: Overwrite 1st to 3rd and add the 4th element of the target list
+    
+def test_list_merge_with_extend_longer_source():
+    target = [1, 2, 3]
+    source = [4, 5, 6, 7]
+    result = json_deep_merge(target, source, default_merge_policy=MergePolicy.MERGE_EXISTING)
+    assert result == [4, 5, 6]   # Expected: Overwrite 1st to 3rd, discard the 4th element of the target list
+
+def test_list_merge_with_extend_shorter_source():
+    target = [1, 2, 3]
+    source = [4, 5]
+    result = json_deep_merge(target, source, default_merge_policy=MergePolicy.MERGE_EXISTING)
+    assert result == [4, 5, 3]   # Expected: Overwrite 1st and 2nd of the target list, retain the 3rd element
 
 def test_type_mismatch_unhandled():
     target = 100
@@ -80,6 +98,12 @@ def test_type_mismatch_handler():
         return int(source)
     result = json_deep_merge(target, source, handle_type_mismatch=handle_type_mismatch)
     assert result == 200
+
+def test_type_mismatch_in_lists():
+    target = [1, 2, 'a']
+    source = ['x', 5, 6]
+    result = json_deep_merge(target, source, handle_type_mismatch=lambda t, s: t if isinstance(t, str) else s)
+    assert result == ['x', 5, 'a']  # Uses the mismatch handler to resolve conflicts
 
 def test_nested_structure_merge():
     target = {'level1': {'key1': [1, 2], 'key2': 'value'}}
@@ -104,7 +128,7 @@ def test_merge_empty_source():
     source = {}
     result = json_deep_merge(target, source)
     assert result == {'key1': 'value1'}
-
+        
 def test_merge_empty_target():
     target = {}
     source = {'key1': 'value1'}
@@ -117,6 +141,18 @@ def test_multi_level_policy():
     merge_policies = {'level1.level2': MergePolicy.MERGE_EXTEND}
     result = json_deep_merge(target, source, merge_policies=merge_policies)
     assert result == {'level1': {'level2': {'key1': 'new_value', 'key2': 'value2'}}}
+
+def test_no_overwrite_root():
+    target = [1, 2, 3]
+    source = []
+    result = json_deep_merge(target, source, default_merge_policy=MergePolicy.OVERWRITE)
+    assert result == [1, 2, 3]  # Expected: Root should not be overwritten
+    
+def test_empty_source_list_non_root_overwrite():
+    target = {'data': [1, 2, 3]}
+    source = {'data': []}
+    result = json_deep_merge(target, source, default_merge_policy=MergePolicy.OVERWRITE)
+    assert result == {'data': []}  # Tests behavior when source list is empty but overwrite policy is used at a non-root level
 
 def test_invalid_policy_specification():
     target = {'key1': 'value1'}
