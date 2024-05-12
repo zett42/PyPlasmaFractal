@@ -7,3 +7,5 @@ imgui.ini
 /dist
 /build
 /main.spec
+/pyinstaller-src
+/requirements.txt
