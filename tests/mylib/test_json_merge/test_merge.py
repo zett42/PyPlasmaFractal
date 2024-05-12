@@ -2,30 +2,30 @@ import pytest
 from enum import Enum, auto
 from mylib.json_merge import MergePolicy, json_deep_merge
 
+def test_dict_merge_with_default_policy():
+    target = {'key1': 'value1'}
+    source = {'key2': 'value2'}
+    result = json_deep_merge(target, source)
+    assert result == {'key1': 'value1', 'key2': 'value2'}
+
 def test_dict_merge_no_extend():
     target = {'key1': 'value1'}
     source = {'key1': 'updated', 'key2': 'value2'}
-    result = json_deep_merge(target, source)
+    result = json_deep_merge(target, source, default_merge_policy=MergePolicy.MERGE_EXISTING)
     assert result == {'key1': 'updated'}
-
-def test_dict_merge_with_extend_policy():
-    target = {'key1': 'value1'}
-    source = {'key2': 'value2'}
-    result = json_deep_merge(target, source, merge_policies={'': MergePolicy.MERGE_EXTEND})
-    assert result == {'key1': 'value1', 'key2': 'value2'}
     
-def test_dict_merge_with_extend_policy_nested():
+def test_dict_merge_with_no_extend_policy_nested():
     target = {
         'outer': {
-            'inner': {
+            'inner1': {
                 'key1': 'original'
             },
-            'remain': 'untouched'
+            'inner2': 'original'
         }
     }
     source = {
         'outer': {
-            'inner': {
+            'inner1': {
                 'key1': 'updated',
                 'key2': 'added'
             },
@@ -34,17 +34,17 @@ def test_dict_merge_with_extend_policy_nested():
     }
     
     # Applying MERGE_EXTEND only to the 'outer.inner' path
-    merge_policies = {'outer.inner': MergePolicy.MERGE_EXTEND}
+    merge_policies = {'outer.inner1': MergePolicy.MERGE_EXISTING}
     result = json_deep_merge(target, source, merge_policies=merge_policies)
 
-    # Expected: 'outer.inner' has 'key1' updated and 'key2' added, 'outer' should not have 'new_inner' added
+    # Expected: 'outer.inner' has 'key1' updated and 'key2' discarded, 'outer' should have 'new_inner' added
     expected = {
         'outer': {
-            'inner': {
-                'key1': 'updated',
-                'key2': 'added'
+            'inner1': {
+                'key1': 'updated'
             },
-            'remain': 'untouched'
+            'inner2': 'original',
+            'new_inner': 'new value'
         }
     }
     assert result == expected
@@ -61,12 +61,18 @@ def test_list_merge_with_extend():
     result = json_deep_merge(target, source, default_merge_policy=MergePolicy.MERGE_EXTEND)
     assert result == [4, 5, 6, 7]
 
-def test_scalar_conversion():
+def test_type_mismatch_unhandled():
     target = 100
     source = '200'
-    def convert_scalar(target, source):
+    with pytest.raises(TypeError):
+        json_deep_merge(target, source)
+    
+def test_type_mismatch_handler():
+    target = 100
+    source = '200'
+    def handle_type_mismatch(target, source):
         return int(source)
-    result = json_deep_merge(target, source, convert_scalar=convert_scalar)
+    result = json_deep_merge(target, source, handle_type_mismatch=handle_type_mismatch)
     assert result == 200
 
 def test_nested_structure_merge():
@@ -81,3 +87,8 @@ def test_overwrite_policy():
     result = json_deep_merge(target, source, default_merge_policy=MergePolicy.OVERWRITE)
     assert result == {'key1': 'updated'}
     
+def test_deeply_nested_mixed_types():
+    target = {'level1': {'key1': [1, {'key2': 'value2'}], 'key3': 'value3'}}
+    source = {'level1': {'key1': [2, {'key2': 'updated'}], 'key4': 'new'}}
+    result = json_deep_merge(target, source)
+    assert result == {'level1': {'key1': [2, {'key2': 'updated'}], 'key3': 'value3', 'key4': 'new'}}
