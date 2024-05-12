@@ -207,13 +207,13 @@ class PlasmaFractalGUI:
                                    registry=FeedbackFunctionRegistry, function_attr='feedback_function', params_attr='feedback_params', 
                                    params=params)
       
-            if ih.collapsing_header("Feedback Noise Settings", self, attr='feedback_warp_noise_settings_open'):
+            if ih.collapsing_header("Warp Noise Settings", self, attr='feedback_warp_noise_settings_open'):
 
                 ih.slider_float("Speed", params, 'warpSpeed', min_value=0.01, max_value=10.0)
                 ih.slider_float("Scale", params, 'warpScale', min_value=0.01, max_value=10.0)
                 ih.enum_combo("Noise Algorithm", params, 'warpNoiseAlgorithm')
 
-            if ih.collapsing_header("Feedback Fractal Settings", self, attr='feedback_warp_octave_settings_open'):
+            if ih.collapsing_header("Warp Fractal Settings", self, attr='feedback_warp_octave_settings_open'):
 
                 ih.slider_int("Num. Octaves", params, 'warpOctaves', min_value=1, max_value=12)
                 ih.slider_float("Gain/Octave", params, 'warpGain', min_value=0.1, max_value=1.0)
@@ -222,7 +222,7 @@ class PlasmaFractalGUI:
                 ih.slider_float("Time Scale/Octave", params, 'warpTimeScaleFactor', min_value=0.1, max_value=2.0)
                 ih.slider_float("Time Offset/Octave", params, 'warpTimeOffsetIncrement', min_value=0.0, max_value=20.0)
 
-            self.function_settings(header="Feedback Effect Settings", header_attr='feedback_warp_effect_settings_open', 
+            self.function_settings(header="Warp Function Settings", header_attr='feedback_warp_effect_settings_open', 
                                    registry=WarpFunctionRegistry, function_attr='warpFunction', params_attr='warpParams',
                                    params=params)
 
@@ -251,16 +251,16 @@ class PlasmaFractalGUI:
             
             # Dropdown for the available functions
             # Make sure to create a unique identifier by appending the header to the label
-            ih.list_combo(f"Function##{header}", obj=params, attr=function_attr, items=registry.get_all_function_names())
+            ih.enum_combo(f"Function##{header}", obj=params, attr=function_attr)
             
-            selected_function_name = getattr(params, function_attr)
+            selected_function = getattr(params, function_attr)
             
             # Get the current function info
-            function_info = registry.get_function_info(selected_function_name)
+            function_info = registry.get_function_info(selected_function)
             
             # Get the parameters for the selected function
             function_params_dict = getattr(params, params_attr)
-            function_params = function_params_dict[selected_function_name] 
+            function_params = function_params_dict[selected_function.name] 
             
             # Generate sliders for the function's parameters
             for index, param_info in enumerate(function_info.params):
@@ -522,7 +522,8 @@ class PlasmaFractalGUI:
         try:
             preset_data = presets_manager.load_preset(selected_preset)
             #logging.debug(f"Loaded preset data: {preset_data}")
-                       
+                
+            params.apply_defaults()       
             params.merge_dict(preset_data)
             #logging.debug(f"Preset data merged into params: {params.to_dict()}")
 

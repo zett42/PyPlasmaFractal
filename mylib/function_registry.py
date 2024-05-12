@@ -1,3 +1,4 @@
+import enum
 from typing import *
 
 class FunctionParam:
@@ -30,18 +31,21 @@ class FunctionRegistry:
     functions = {}
     
     @classmethod
-    def get_function_info(cls, function_name: str) -> FunctionInfo:
+    def has_function(cls, key: Hashable) -> bool:
+        """
+        Check if a function with a given name exists in the registry.
+        """
+        return key in cls.functions
+    
+    @classmethod
+    def get_function_info(cls, key: Hashable) -> FunctionInfo:
         """
         Retrieve the function info for a given function name.
         """
-        function_info = cls.functions.get(function_name, None)
-        if function_info:
-            return function_info
-        else:
-            raise ValueError(f"No function info found for function name: {function_name}")
+        return cls.functions[key]
     
     @classmethod
-    def get_all_function_names(cls) -> List[str]:
+    def get_all_function_keys(cls) -> List[str]:
         """
         Retrieve a list of all function names in the registry.
         """
@@ -55,12 +59,20 @@ class FunctionRegistry:
         return max(len(info.params) for info in cls.functions.values())
 
     @classmethod
-    def get_all_param_defaults(cls) -> dict[str, List[float]]:
+    def get_all_param_defaults(cls, use_string_keys: bool = False) -> dict[str, List[float]]:
         """
         Retrieve default parameters for all functions in the registry.
-        This assumes each function conforms to having 'params' with 'default' attributes.
+        This method converts enum keys to string representations if use_string_keys is True.
+        Assumes each function conforms to having 'params' with 'default' attributes.
         """
-        return {
-            name: [param.default for param in info.params]
-            for name, info in cls.functions.items()
-        }
+        result = {}
+        
+        for key, info in cls.functions.items():
+            
+            # Optionally convert enum keys to string
+            if use_string_keys and isinstance(key, enum.Enum):
+                key = key.name
+                
+            result[key] = [param.default for param in info.params]
+
+        return result
