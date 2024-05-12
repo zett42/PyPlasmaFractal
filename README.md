@@ -3,7 +3,11 @@ Screenshot
 
 [![PyPlasmaFractal Video](https://img.youtube.com/vi/nlJ_fTiE-dk/0.jpg)](https://www.youtube.com/watch?v=nlJ_fTiE-dk "PyPlasmaFractal")
 <br>
-Captured Video (30 sec)
+Video #1 (recorded in-app)
+
+[![PyPlasmaFractal Video](https://img.youtube.com/vi/CHkkzqfMnjE/0.jpg)](https://www.youtube.com/watch?v=CHkkzqfMnjE "PyPlasmaFractal")
+<br>
+Video #2 (recorded in-app)
 
 # PyPlasmaFractal
 
