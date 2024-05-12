@@ -64,8 +64,8 @@ def test_list_merge_with_extend():
 def test_scalar_conversion():
     target = 100
     source = '200'
-    def convert_scalar(s, t):
-        return int(s)
+    def convert_scalar(target, source):
+        return int(source)
     result = json_deep_merge(target, source, convert_scalar=convert_scalar)
     assert result == 200
 

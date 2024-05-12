@@ -28,7 +28,10 @@ def json_deep_merge(target: Any,
       Paths are dot-separated strings representing nested structures, with square brackets for list indices,
       e.g., 'user.address.city' or 'users[0].name'.
     - default_merge_policy (MergePolicy, optional): The default merging behavior when no specific policy is provided.
-    - convert_scalar (Callable[[Any, Any], Any], optional): A function to handle scalar value conversions between different types.
+    - convert_scalar (Callable[[Any, Any], Any], optional): A function to handle scalar value conversions 
+      between different types. This callable should take two arguments: the target (indicating the desired 
+      type or format) and the source value to be converted. The function should return the converted value 
+      if conversion is possible; otherwise, it may return the source unchanged or perform a fallback operation.
     - path (str, optional): The current path used for merging, accumulates during recursive calls to reflect deeper levels of the structure.
 
     Returns:
@@ -72,10 +75,10 @@ def json_deep_merge(target: Any,
     if convert_scalar is None:
         return source
     
-    return convert_scalar(source, target)
+    return convert_scalar(target, source)
 
 
-def convert_json_scalar(source: Any, target: Any) -> Any:
+def convert_json_scalar(target: Any, source: Any) -> Any:
     """
     Safely converts scalar values between different data types for JSON-like data handling.
 
@@ -90,8 +93,8 @@ def convert_json_scalar(source: Any, target: Any) -> Any:
     - Boolean to string conversion.
 
     Parameters:
-    - source (Any): The value to be converted.
     - target (Any): The target value whose type indicates the desired conversion.
+    - source (Any): The value to be converted.
 
     Returns:
     - Any: The converted value if conversion is possible and successful; otherwise, returns the target unchanged.
