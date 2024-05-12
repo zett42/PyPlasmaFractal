@@ -40,8 +40,11 @@ def json_deep_merge(target: Any,
     Raises:
         TypeError: If a type mismatch occurs and `handle_type_mismatch` is not provided or if it fails to resolve 
             the mismatch without raising an exception.
+        ValueError: If an invalid merge policy is encountered.
     """       
     policy = merge_policies.get(path, default_merge_policy)
+    if not isinstance(policy, MergePolicy):
+        raise ValueError(f"Invalid merge policy: {policy}") 
 
     # Directly overwrite the target with source if specified, making sure root is never overwritten
     if path and policy == MergePolicy.OVERWRITE:

@@ -66,6 +66,12 @@ def test_type_mismatch_unhandled():
     source = '200'
     with pytest.raises(TypeError):
         json_deep_merge(target, source)
+        
+def test_complex_type_mismatch_unhandled():
+    target = {'key1': [1, 2, 3]}
+    source = {'key1': {'new_key': 'new_value'}}
+    with pytest.raises(TypeError):
+        json_deep_merge(target, source)      
     
 def test_type_mismatch_handler():
     target = 100
@@ -92,3 +98,28 @@ def test_deeply_nested_mixed_types():
     source = {'level1': {'key1': [2, {'key2': 'updated'}], 'key4': 'new'}}
     result = json_deep_merge(target, source)
     assert result == {'level1': {'key1': [2, {'key2': 'updated'}], 'key3': 'value3', 'key4': 'new'}}
+
+def test_merge_empty_source():
+    target = {'key1': 'value1'}
+    source = {}
+    result = json_deep_merge(target, source)
+    assert result == {'key1': 'value1'}
+
+def test_merge_empty_target():
+    target = {}
+    source = {'key1': 'value1'}
+    result = json_deep_merge(target, source)
+    assert result == {'key1': 'value1'}
+
+def test_multi_level_policy():
+    target = {'level1': {'level2': {'key1': 'value1'}}}
+    source = {'level1': {'level2': {'key1': 'new_value', 'key2': 'value2'}}}
+    merge_policies = {'level1.level2': MergePolicy.MERGE_EXTEND}
+    result = json_deep_merge(target, source, merge_policies=merge_policies)
+    assert result == {'level1': {'level2': {'key1': 'new_value', 'key2': 'value2'}}}
+
+def test_invalid_policy_specification():
+    target = {'key1': 'value1'}
+    source = {'key1': 'updated'}
+    with pytest.raises(ValueError):
+        json_deep_merge(target, source, merge_policies={'key1': 'invalid_policy'})
