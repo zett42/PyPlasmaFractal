@@ -5,7 +5,7 @@ from typing import *
 from enum import Enum, auto
 
 from mylib.function_registry import *
-from mylib.json_helper import convert_json_scalar, type_safe_json_merge
+from mylib.json_merge import convert_json_scalar, json_deep_merge
 
 
 class NoiseAlgorithm(Enum):
@@ -272,7 +272,7 @@ class PlasmaFractalParams:
         Only sets attributes from the dictionary that already exist in the instance.
         Makes sure that the types of the values match the types of the attributes.
         """
-        merged = type_safe_json_merge(self.to_dict(), source, convert_scalar=convert_json_scalar)
+        merged = json_deep_merge(self.to_dict(), source, convert_scalar=convert_json_scalar)
         
         for key, value in merged.items():
             setattr(self, key, value)

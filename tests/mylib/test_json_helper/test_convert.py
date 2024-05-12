@@ -1,6 +1,6 @@
 import pytest
 from enum import Enum
-from mylib.json_helper import convert_json_scalar
+from mylib.json_merge import convert_json_scalar
 
 class Color(Enum):
     RED = 1

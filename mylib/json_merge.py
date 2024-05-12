@@ -7,12 +7,12 @@ class MergePolicy(Enum):
     MERGE_EXTEND = auto()
     OVERWRITE = auto()
 
-def type_safe_json_merge(target: Any, 
-                         source: Any, 
-                         merge_policies: Dict[str, MergePolicy] = {},
-                         default_merge_policy: MergePolicy = MergePolicy.MERGE_EXISTING,
-                         convert_scalar: Callable[[Any, Any], Any] = None,
-                         path: str = '') -> Any:
+def json_deep_merge(target: Any, 
+                    source: Any, 
+                    merge_policies: Dict[str, MergePolicy] = {},
+                    default_merge_policy: MergePolicy = MergePolicy.MERGE_EXISTING,
+                    convert_scalar: Callable[[Any, Any], Any] = None,
+                    path: str = '') -> Any:
     """
     Recursively merges two JSON-like structures (`target` and `source`) according to specified merge policies.
 
@@ -46,7 +46,7 @@ def type_safe_json_merge(target: Any,
             new_path = f"{path}.{key}" if path else key
             if policy == MergePolicy.MERGE_EXTEND or key in target:
                 # If the key is not in the target, it will be added, otherwise it will be merged
-                target[key] = type_safe_json_merge(target.get(key, {}), source[key], merge_policies, default_merge_policy, convert_scalar, new_path)
+                target[key] = json_deep_merge(target.get(key, {}), source[key], merge_policies, default_merge_policy, convert_scalar, new_path)
                 
         return target
 
@@ -58,7 +58,7 @@ def type_safe_json_merge(target: Any,
         # Merge up to the minimum length of the two lists
         for i in range(min(len(target), len(source))):
             new_path = f"{path}[{i}]"
-            target[i] = type_safe_json_merge(target[i], source[i], merge_policies, default_merge_policy, convert_scalar, new_path)
+            target[i] = json_deep_merge(target[i], source[i], merge_policies, default_merge_policy, convert_scalar, new_path)
             
         return target
 
