@@ -35,6 +35,9 @@ class BlendFunction(Enum):
     
     
 class WarpFunction(Enum):
+    """
+    Enumeration of feedback warp functions.
+    """
     Offset = auto()
     Polar = auto()
     Swirl = auto()
