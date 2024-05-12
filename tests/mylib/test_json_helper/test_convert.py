@@ -10,10 +10,12 @@ class Color(Enum):
 def test_str_to_enum():
     assert convert_json_scalar("RED", Color.BLUE) == Color.RED
     assert convert_json_scalar("YELLOW", Color.RED) == Color.RED
+    # Test invalid Enum conversion: should return the target as default if source doesn't match any Enum member
+    assert convert_json_scalar("YELLOW", Color.RED) == Color.RED   
 
 def test_enum_to_str():
     assert convert_json_scalar(Color.GREEN, "unknown") == "GREEN"
-
+    
 def test_str_to_int():
     assert convert_json_scalar("123", 456) == 123
 

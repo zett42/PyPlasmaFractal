@@ -76,40 +76,67 @@ def type_safe_json_merge(target: Any,
 
 
 def convert_json_scalar(source: Any, target: Any) -> Any:
-    
-    # Convert Enums to/from strings
-    if isinstance(target, Enum):
-        if isinstance(source, str):
-            try:
+    """
+    Safely converts scalar values between different data types for JSON-like data handling.
+
+    This function is designed to handle type conversions gracefully, avoiding exceptions during data migrations. 
+    It supports conversions between enums, strings, booleans, and numbers, reflecting common JSON data types and Python structures. 
+    If a conversion is not feasible or fails, the function returns the target value unchanged, preserving the existing data structure.
+
+    Supported conversions include:
+    - Enum to string and string to Enum, based on Enum member names.
+    - String to boolean ("true", "false") and vice versa.
+    - Numeric values and their string representations.
+    - Boolean to string conversion.
+
+    Parameters:
+    - source (Any): The value to be converted.
+    - target (Any): The target value whose type indicates the desired conversion.
+
+    Returns:
+    - Any: The converted value if conversion is possible and successful; otherwise, returns the target unchanged.
+
+    Examples:
+    - convert_json_scalar("OPEN", StatusEnum) -> might return StatusEnum.OPEN if "OPEN" is a valid Enum member.
+    - convert_json_scalar(StatusEnum.CLOSED, str) -> returns "CLOSED".
+    - convert_json_scalar("true", bool) -> returns True.
+    - convert_json_scalar("100", int) -> returns 100.
+    - convert_json_scalar(200, str) -> returns "200".
+    """
+    try:
+        if isinstance(target, Enum):
+            if isinstance(source, str):
+                # Try to convert string to Enum, if the string is a valid Enum name
                 return type(target)[source]
-            except KeyError:
-                return target
-    elif isinstance(source, Enum):
-        if isinstance(target, str):
-            return source.name
+            return target  # Return target if conversion is not applicable
 
-    elif isinstance(target, bool) and isinstance(source, str):
-        # Convert "true" and "false" to their boolean counterparts
-        lower_source = source.lower()
-        if lower_source == "true":
-            return True
-        elif lower_source == "false":
-            return False
-        else:
-            return target
-        
-    # Combined check for numeric and string conversion opportunities
-    elif (isinstance(target, numbers.Number) and isinstance(source, str)) or \
-       (isinstance(target, str) and isinstance(source, numbers.Number)):
-        try:
-            # Perform the conversion based on the type of target
+        elif isinstance(source, Enum):
+            if isinstance(target, str):
+                # Convert Enum to string using the Enum's name
+                return source.name
+
+        elif isinstance(target, bool) and isinstance(source, str):
+            # Safely convert string to boolean
+            lower_source = source.strip().lower()
+            if lower_source == "true":
+                return True
+            elif lower_source == "false":
+                return False
+            return target  # Return target if string is not a boolean value
+
+        elif isinstance(target, numbers.Number) and isinstance(source, str):
+            # Convert string to a number if possible
             return type(target)(source)
-        except ValueError:
-            # Return target if conversion fails
-            return target
+        elif isinstance(target, str) and isinstance(source, numbers.Number):
+            # Convert number to string
+            return str(source)
 
-    elif isinstance(target, str) and isinstance(source, bool):
-        # Convert boolean to string
-        return str(source)
-       
-    return target  # Return target if no conversion is possible
+        elif isinstance(target, str) and isinstance(source, bool):
+            # Convert boolean to string explicitly
+            return str(source)
+
+    except (ValueError, KeyError, TypeError):
+        # Handle any exception silently and return the target
+        return target
+
+    return target  # Return target if no conversion rules apply or if exceptions were caught
