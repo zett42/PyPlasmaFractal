@@ -14,7 +14,7 @@ def json_deep_merge(target: Any,
                     source: Any, 
                     merge_policies: Dict[str, MergePolicy] = None,
                     default_merge_policy: MergePolicy = MergePolicy.MERGE_EXTEND,
-                    handle_type_mismatch: Callable[[Any, Any], Any] = None,
+                    handle_type_mismatch: Callable[[str, Any, Any], Any] = None,
                     path: str = '') -> Any:
     """
     Recursively merges two JSON-like structures (`target` and `source`) based on defined merging policies and 
@@ -43,7 +43,7 @@ def json_deep_merge(target: Any,
             structures with specific merging policies as values. Supports dot and bracket notation for paths.
         default_merge_policy (MergePolicy, optional): The default merge policy to apply when no specific policy 
             is provided for a path.
-        handle_type_mismatch (Callable[[Any, Any], Any], optional): A function that is called when a type mismatch 
+        handle_type_mismatch (Callable[[Str, Any, Any], Any], optional): A function that is called when a type mismatch 
             occurs during merging. This function should either resolve the mismatch or raise an exception.
         path (str, optional): Used internally to track the current path during recursion. Initially empty.
 

@@ -94,15 +94,17 @@ def test_complex_type_mismatch_unhandled():
 def test_type_mismatch_handler():
     target = 100
     source = '200'
-    def handle_type_mismatch(target, source):
+    
+    def handle_type_mismatch(path, target, source):
         return int(source)
+    
     result = json_deep_merge(target, source, handle_type_mismatch=handle_type_mismatch)
     assert result == 200
 
 def test_type_mismatch_in_lists():
     target = [1, 2, 'a']
     source = ['x', 5, 6]
-    result = json_deep_merge(target, source, handle_type_mismatch=lambda t, s: t if isinstance(t, str) else s)
+    result = json_deep_merge(target, source, handle_type_mismatch=lambda p, t, s: t if isinstance(t, str) else s)
     assert result == ['x', 5, 'a']  # Uses the mismatch handler to resolve conflicts
 
 def test_nested_structure_merge():
