@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+from typing import *
 
 from mylib.config_file_manager import EnumJSONEncoder
 
@@ -13,16 +14,16 @@ class Preset:
         relative_file_path (str): The relative path to the preset file.
         is_predefined (bool): True if this is a built-in application preset, False otherwise.
     """
-    def __init__(self, directory: str, relative_file_path: str, is_predefined: bool):
+    def __init__(self, directory: str, relative_file_path: str, is_predefined: bool) -> None:
         self.directory = directory
         self.relative_file_path = relative_file_path
         self.is_predefined = is_predefined
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"Preset(directory='{self.directory}', relative_file_path='{self.relative_file_path}', is_predefined={self.is_predefined})"
 
 
-def list_presets(app_dir: str, user_dir: str):
+def list_presets(app_dir: str, user_dir: str) -> list[Preset]:
     """
     List all preset files from the application's built-in directory and the user's directory,
     marking them as predefined or user-defined and including their full paths.
@@ -57,7 +58,7 @@ def list_presets(app_dir: str, user_dir: str):
     return all_presets
 
 
-def load_preset(preset: Preset) -> dict:
+def load_preset(preset: Preset) -> Any:
     """
     Load the configuration from a preset file based on the provided Preset object.
     
@@ -77,7 +78,7 @@ def load_preset(preset: Preset) -> dict:
         return json.loads(text)
 
 
-def save_preset(file_path: str, data: dict):
+def save_preset(file_path: str, data: dict) -> None:
     """
     Save the configuration data to a preset file based on the provided Preset object.
     
@@ -97,7 +98,7 @@ def save_preset(file_path: str, data: dict):
     logging.info(f'Preset saved successfully to "{file_path}"')
 
 
-def delete_preset(file_path: str):
+def delete_preset(file_path: str) -> None:
     """
     Delete a preset file based on the provided file path.
     

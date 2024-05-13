@@ -116,8 +116,7 @@ def handle_type_mismatch_gracefully(path: str, target: Any, source: Any) -> Any:
     the type of `target` or vice versa, and falls back to the original `target` if conversion is not feasible.
 
     This function is designed to be used as the `handle_type_mismatch` parameter in `json_deep_merge`. It supports
-    conversions between common scalar types (e.g., strings to numbers, enums to strings) and handles cases where
-    `target` or `source` may be an enumeration.
+    conversions between common scalar types (e.g., strings to numbers, enums to strings).
 
     Args:
         target (Any): The value that `source` should potentially be converted to match in type.
@@ -127,9 +126,8 @@ def handle_type_mismatch_gracefully(path: str, target: Any, source: Any) -> Any:
         Any: The converted value if possible, otherwise returns `target` as a safe fallback.
 
     Note:
-        This function ignores conversion errors internally and will default to returning `target` whenever a 
-        conversion attempt fails. This ensures that the operation does not raise exceptions but also means that 
-        in some cases, mismatches may be silently bypassed.
+        If a conversion is not possible, the function will log a warning and return the original `target` value.
+        The function never raises an exception.
     """
     try:
         

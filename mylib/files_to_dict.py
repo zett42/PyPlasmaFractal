@@ -1,21 +1,22 @@
 import os
 
-def read_directory_files_to_dict(directory_path, recursive=False):
+def read_directory_files_to_dict(directory_path: str, recursive: bool = False) -> dict[str, str]:
     """
-    Optimized function to read files from a directory. Optionally reads recursively from subdirectories,
-    mapping paths to their content using a more efficient single loop.
+    Reads text files in a directory and returns a dictionary where the keys are the relative paths of the files
+    and the values are the contents of the files.
 
     Args:
-        directory_path (str): The path to the root directory from which to start reading files.
-        recursive (bool): If True, reads files recursively from subdirectories. Defaults to False.
+        directory_path (str): The path to the directory.
+        recursive (bool, optional): Whether to recursively process subdirectories. Defaults to False.
 
     Returns:
-        dict: A dictionary where each key is a path (relative if recursive, filename only if not) to a file and
-              the value is the content of that file.
+        dict[str, str]: A dictionary where the keys are the relative paths of the files and the values are
+        the contents of the files.
 
     Raises:
-        FileNotFoundError: If the directory does not exist or cannot be accessed.
-        Exception: For other issues like reading files.
+        FileNotFoundError: If the specified directory does not exist.
+        Exception: If there is an error reading a file.
+
     """
     if not os.path.exists(directory_path):
         raise FileNotFoundError(f"The directory {directory_path} does not exist.")

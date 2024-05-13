@@ -11,7 +11,7 @@ class AnimationTimer:
         _paused (bool): Indicates whether time accumulation is paused.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """
         Initializes the animation timer with zero accumulated time, sets the last recorded time to the current time,
         and initializes with a speed multiplier of 1.0 and not paused.
@@ -21,7 +21,7 @@ class AnimationTimer:
         self._speed = 1.0
         self._paused = False
 
-    def update(self, paused: bool = None, speed: float = None):
+    def update(self, paused: bool = None, speed: float = None) -> float:
         """
         Updates the accumulated time by calculating the time elapsed since the last update,
         optionally adjusting the speed and pausing or unpausing the time accumulation.
@@ -49,17 +49,17 @@ class AnimationTimer:
         return self.accumulated_time
 
     @property
-    def value(self):
+    def value(self) -> float:
         """Returns the current accumulated time."""
         return self.accumulated_time
 
     @property
-    def speed(self):
+    def speed(self) -> float:
         """Returns the current speed multiplier."""
         return self._speed
 
     @speed.setter
-    def speed(self, new_speed):
+    def speed(self, new_speed: float) -> None:
         """
         Sets the speed of time accumulation.
 
@@ -74,12 +74,12 @@ class AnimationTimer:
         self._speed = new_speed
 
     @property
-    def paused(self):
+    def paused(self) -> bool:
         """Returns whether the timer is currently paused."""
         return self._paused
 
     @paused.setter
-    def paused(self, pause):
+    def paused(self, pause: bool) -> None:
         """
         Pauses or unpauses the time accumulation.
 
@@ -92,7 +92,7 @@ class AnimationTimer:
                 # Reset the last time when resuming to avoid jumps in accumulated time
                 self.last_time = time.perf_counter()
 
-    def reset(self):
+    def reset(self) -> None:
         """Resets the accumulated time to zero and updates the last recorded time to the current time."""
         self.accumulated_time = 0.0
         self.last_time = time.perf_counter()

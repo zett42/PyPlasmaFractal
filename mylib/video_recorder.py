@@ -37,7 +37,7 @@ class VideoRecorder:
         recorder.stop_recording()
     """
     
-    def __init__(self):
+    def __init__(self) -> None:
         """
         Initializes a new instance of the VideoRecorder.
         """        
@@ -71,7 +71,7 @@ class VideoRecorder:
         return self.frame_count / self.fps if self.fps else 0.0
 
 
-    def start_recording(self, file_path: str, width: int, height: int, fps=60):
+    def start_recording(self, file_path: str, width: int, height: int, fps: int = 60) -> None:
         """
         Starts the video recording by initializing the video writer with specified dimensions.
 
@@ -116,7 +116,7 @@ class VideoRecorder:
             raise VideoRecorderException("Failed to initialize video writer.") from e
 
 
-    def capture_frame(self, texture: moderngl.Texture):
+    def capture_frame(self, texture: moderngl.Texture) -> None:
         """
         Captures a single frame from the provided texture and writes it to the video.
 
@@ -156,7 +156,7 @@ class VideoRecorder:
             raise VideoRecorderException("Failed to capture frame.") from e
 
 
-    def stop_recording(self):
+    def stop_recording(self) -> None:
         """
         Stops the video recording and finalizes the video file.
 
@@ -177,7 +177,7 @@ class VideoRecorder:
             self.writer = None
 
 
-    def __del__(self):
+    def __del__(self) -> None:
         """
         Ensures that resources are cleaned up when the VideoRecorder instance is destroyed.
         This destructor method calls stop_recording to ensure that the video writer is properly

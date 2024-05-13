@@ -2,7 +2,8 @@ import moderngl
 import numpy as np
 
 class TextureRenderer:
-    def __init__(self, ctx):
+    
+    def __init__(self, ctx: moderngl.Context) -> None:
         """
         Initializes the texture renderer with a ModernGL context.
         
@@ -14,7 +15,8 @@ class TextureRenderer:
         self.program = self.create_shader_program()
         self.vao = ctx.simple_vertex_array(self.program, self.vbo, 'in_vert', 'in_tex')
 
-    def create_fullscreen_quad(self):
+
+    def create_fullscreen_quad(self) -> moderngl.Buffer:
         """
         Creates a VBO for a fullscreen quad with texture coordinates, covering the viewport.
         
@@ -32,7 +34,8 @@ class TextureRenderer:
         
         return self.ctx.buffer(vertices.tobytes())
 
-    def create_shader_program(self):
+
+    def create_shader_program(self) -> moderngl.Program:
         """
         Creates a shader program for rendering textures.
         
@@ -60,7 +63,8 @@ class TextureRenderer:
         '''
         return self.ctx.program(vertex_shader=vertex_shader_code, fragment_shader=fragment_shader_code)
 
-    def render(self, texture):
+
+    def render(self, texture: moderngl.Texture) -> None:
         """
         Renders the texture to the screen using the prepared VBO and shader program.
         

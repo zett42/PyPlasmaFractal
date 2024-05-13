@@ -33,7 +33,7 @@ class ConfigFileManager:
                                                       the file does not exist and 'must_exist' is set to True.
     """
 
-    def __init__(self, directory: str, filename='config.json', save_function=None, load_function=None):
+    def __init__(self, directory: str, filename='config.json', save_function=None, load_function=None) -> None:
         """
         Initializes the ConfigFileManager with the necessary details for configuration file management.
 
@@ -61,18 +61,18 @@ class ConfigFileManager:
 
 
     @staticmethod
-    def _default_save(obj: Any):
+    def _default_save(obj: Any) -> str:
         """ Default JSON save function. """
         return json.dumps(obj, indent=4, cls=EnumJSONEncoder)
 
 
     @staticmethod
-    def _default_load(json_str: str):
+    def _default_load(json_str: str) -> Any:
         """ Default JSON load function. """
         return json.loads(json_str)
 
 
-    def save_config(self, config_object: Any, filename:str=None):
+    def save_config(self, config_object: Any, filename:str=None) -> None:
         """
         Saves the configuration object to a file within the specified directory.
 
@@ -94,7 +94,7 @@ class ConfigFileManager:
             file.write(serialized_data)
 
 
-    def load_config(self, filename:str=None, must_exist:bool=False):
+    def load_config(self, filename:str=None, must_exist:bool=False) -> Any:
         """
         Loads a configuration object from a file in the specified directory.
 

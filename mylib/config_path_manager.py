@@ -1,7 +1,8 @@
 import appdirs
+from typing import Optional
 
 class ConfigPathManager:
-    def __init__(self, app_name: str, app_author: str, app_specific_path: None):
+    def __init__(self, app_name: str, app_author: str, app_specific_path: Optional[str]):
         """
         Initialize the ConfigPathManager with the application name, author, and the specific path for the application.
         
@@ -15,28 +16,28 @@ class ConfigPathManager:
         self._app_specific_path = app_specific_path
 
     @property
-    def app_name(self):
+    def app_name(self) -> str:
         """
         Return the name of the application.
         """
         return self._app_name
 
     @property
-    def app_author(self):
+    def app_author(self) -> str:
         """
         Return the author of the application.
         """
         return self._app_author
 
     @property
-    def app_specific_path(self):
+    def app_specific_path(self) -> Optional[str]:
         """
         Return the app-specific path.
         """
         return self._app_specific_path
 
     @property
-    def user_specific_path(self):
+    def user_specific_path(self) -> str:
         """
         Return the user-specific path as determined by appdirs.
         """

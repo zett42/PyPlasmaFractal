@@ -236,7 +236,7 @@ def _apply_template_args(content: str, args: Dict[str, object]) -> str:
 
 #------------------------------------------------------------------------------------------------------------------------------
 
-def make_file_source_resolver(base_directory: str):
+def make_file_source_resolver(base_directory: str) -> Callable[[str], str]:
     """
     Create a callable that fetches shader source code from files relative to a specified base directory.
 
@@ -265,7 +265,7 @@ def make_file_source_resolver(base_directory: str):
 
 #------------------------------------------------------------------------------------------------------------------------------
 
-def make_dict_source_resolver(shader_dict: Dict[str, str]):
+def make_dict_source_resolver(shader_dict: Dict[str, str]) -> Callable[[str], str]:
     """
     Creates a callable to retrieve shader source codes based on filenames from a dictionary.
 
@@ -275,7 +275,7 @@ def make_dict_source_resolver(shader_dict: Dict[str, str]):
     Returns:
         Callable[[str], str]: A function that takes a filename and returns the shader source code.
     """
-    def get_shader_from_dict(filename: str):
+    def get_shader_from_dict(filename: str) -> str:
 
         if filename in shader_dict:
             return shader_dict[filename]

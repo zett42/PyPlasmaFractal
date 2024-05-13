@@ -1,5 +1,5 @@
 import logging
-from typing import *
+from typing import Tuple
 import moderngl
 
 class FeedbackTextureManager:
@@ -9,9 +9,9 @@ class FeedbackTextureManager:
     def __init__(self, 
                  ctx: moderngl.Context, 
                  width: int = 800, height: int = 600, 
-                 dtype='f4', 
-                 repeat_x=False, repeat_y=False, 
-                 filter_x: int = moderngl.NEAREST, filter_y: int = moderngl.NEAREST):
+                 dtype: str = 'f4', 
+                 repeat_x: bool = False, repeat_y: bool = False, 
+                 filter_x: int = moderngl.NEAREST, filter_y: int = moderngl.NEAREST) -> None:
         """
         Initializes two textures and framebuffers for the feedback effect.
         
@@ -38,7 +38,7 @@ class FeedbackTextureManager:
 
 
     @property
-    def aspect_ratio(self):
+    def aspect_ratio(self) -> float:
         """
         Returns the aspect ratio of the texture.
         """

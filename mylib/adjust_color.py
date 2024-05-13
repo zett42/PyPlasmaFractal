@@ -1,6 +1,8 @@
 import colorsys
+from typing import Tuple
 
-def modify_rgba_color_hsv(color_rgba, hue_shift, saturation_factor, value_factor):
+def modify_rgba_color_hsv(color_rgba: Tuple[float, float, float, float], 
+                          hue_shift: float, saturation_factor: float, value_factor: float) -> Tuple[float, float, float, float]:
     """
     Modify the given RGBA color using HSV color space.
 

@@ -16,7 +16,7 @@ class Icons:
 
 
     @staticmethod
-    def merge_font(fonts_dir: str, font_file_name: str = 'MaterialDesignIconsDesktop.ttf', font_size: int = 28):
+    def merge_font(fonts_dir: str, font_file_name: str = 'MaterialDesignIconsDesktop.ttf', font_size: int = 28) -> None:
         """
         Merge the Material Design Icons font with default fonts in an imgui application using the glyph ranges
         determined from the icon code points.
@@ -50,7 +50,7 @@ class Icons:
 
 
     @staticmethod
-    def _determine_glyph_ranges():
+    def _determine_glyph_ranges() -> List[Tuple[int, int]]:
         """
         Determine glyph ranges from the static icon attributes using Unicode code points. This method calculates
         and compiles the glyph ranges necessary for merging the font.

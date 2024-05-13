@@ -3,7 +3,6 @@ from typing import *
 import moderngl
 
 from mylib.shader_template_system import resolve_shader_template
-import tempfile
 
 class VariantShaderCache:
     """
@@ -19,7 +18,7 @@ class VariantShaderCache:
     - vao_cache (dict): Cache to store VAOs based on program and buffer identifiers.
     """    
     def __init__(self, ctx: moderngl.Context, vertex_shader_name: str, fragment_shader_name: str,
-                 get_shader_source: Callable[[str], str]):
+                 get_shader_source: Callable[[str], str]) -> None:
         """
         Initializes a new instance of VariantShaderCache with the given ModernGL context and shader templates.
 

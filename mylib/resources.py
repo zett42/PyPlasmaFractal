@@ -1,7 +1,7 @@
 import os
 import sys
 
-def resource_path(relative_path):
+def resource_path(relative_path: str) -> str:
     """ Get absolute path to resource, works for dev and for PyInstaller. 
     Assumes that this script is located within a sub directory relative to the main script. """
     base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.dirname(os.path.abspath(__file__))))

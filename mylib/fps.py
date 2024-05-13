@@ -1,7 +1,7 @@
 import time
 
 class FpsCalculator:
-    def __init__(self, smoothing=0.1):
+    def __init__(self, smoothing: float = 0.1) -> None:
         """
         Initializes the FPS calculator with a specified smoothing factor and sets up the timer.
 
@@ -14,7 +14,7 @@ class FpsCalculator:
         self.is_first_frame = True
         self.last_time = time.perf_counter()
 
-    def update(self):
+    def update(self) -> None:
         """
         Update the FPS based on the elapsed time since the last frame using an internal high-resolution timer.
         """
@@ -33,7 +33,7 @@ class FpsCalculator:
         else:
             self.ema_fps = (current_fps * self.smoothing) + (self.ema_fps * (1 - self.smoothing))
 
-    def get_fps(self):
+    def get_fps(self) -> float:
         """
         Get the current smoothed FPS value.
         
