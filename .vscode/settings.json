@@ -5,7 +5,21 @@
         "**/.hg": true,
         "**/CVS": true,
         "**/.DS_Store": true,
-        "**/Thumbs.db": true
+        "**/Thumbs.db": true,
+        ".vscode": true,
+        ".pytest_cache": true,
+        "__pycache__": true,
+        "tests/mylib/__pycache__": true,
+        "imgui.ini": true,
+        "pytest.ini": true,
+        "requirements.txt": true,
+        "mylib/__pycache__": true,
+        "mylib/__init__.py": true,
+        ".gitignore": true,
+        "_experiments/__pycache__": true,
+        ".venv": true,
+        "build": true,
+        "dist": true
     },
     "hide-files.files": [
         ".vscode",
@@ -18,7 +32,10 @@
         "mylib/__pycache__",
         "mylib/__init__.py",
         ".gitignore",
-        "_experiments/__pycache__"
+        "_experiments/__pycache__",
+        ".venv",
+        "build",
+        "dist"
     ],
     "python.testing.pytestArgs": [
         "tests"
