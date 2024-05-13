@@ -20,18 +20,6 @@ def get_pyinstaller_version(template_path):
     else:
         raise ValueError("PyInstaller version not found in the template.")
 
-def get_pyinstaller_path(requirements_path):
-    if os.path.exists(requirements_path):
-        with open(requirements_path, 'r') as file:
-            content = file.read()
-        match = re.search(r'pyinstaller @ file:///([^\s]+)', content)
-        if match:
-            path = match.group(1).replace("/", os.sep)
-            if os.path.exists(path):
-                print(f"PyInstaller already built at {path}")
-                return path
-    return None
-
 def is_pyinstaller_installed():
     try:
         dist = pkg_resources.get_distribution('pyinstaller')
