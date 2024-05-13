@@ -6,7 +6,9 @@ import platform
 from typing import *
 import imgui
 
-from mylib.config_path_manager import ConfigPathManager
+from mylib.config.config_path_manager import ConfigPathManager
+from mylib.config.json_file_storage import JsonFileStorage
+from mylib.config.source_manager import StorageSourceManager
 from mylib.function_registry import FunctionRegistry
 from mylib.icons import Icons
 from mylib.notification_manager import NotificationManager
@@ -14,8 +16,6 @@ from mylib.window_fade_manager import WindowFadeManager
 from plasma_fractal_params import BlendFunctionRegistry, NoiseAlgorithm, PlasmaFractalParams, WarpFunctionRegistry
 import mylib.imgui_helper as ih
 from mylib.adjust_color import modify_rgba_color_hsv
-from mylib.presets_manager import Preset
-import mylib.presets_manager as presets_manager
 
 from enum import Enum, auto
 
@@ -63,6 +63,10 @@ class PlasmaFractalGUI:
         self.app_presets_directory = os.path.join(path_manager.app_specific_path, 'presets')
         self.user_presets_directory = os.path.join(path_manager.user_specific_path, 'presets')
         self.preset_error_message = None
+        
+        self.app_storage     = JsonFileStorage(self.app_presets_directory)
+        self.user_storage    = JsonFileStorage(self.user_presets_directory)
+        self.storage_manager = StorageSourceManager(self.app_storage, self.user_storage)        
 
         # Initialize recording state
         self.is_recording = False
@@ -295,7 +299,7 @@ class PlasmaFractalGUI:
             imgui.same_line()
             self.preset_delete_ui(params)
             imgui.same_line()
-            self.presets_open_folder_ui(params)
+            self.presets_open_folder_ui()
         
         imgui.spacing()
         self.preset_save_ui(params)
@@ -307,11 +311,8 @@ class PlasmaFractalGUI:
         """
         Displays the available presets in a list box.
 
-        Parameters:
-        - width (int): The width of the list box.
-
         Returns:
-        None
+            None
         """
         width = imgui.get_content_region_available_width()
 
@@ -320,23 +321,22 @@ class PlasmaFractalGUI:
         imgui.spacing()
 
         if imgui.begin_list_box("##AvailablePresets", width, 450):
-
+            
             for i, preset in enumerate(self.preset_list):
-
-                # Remove the file extension from the display name
-                base_name, _ = os.path.splitext(preset.relative_file_path)
-                display_name = f"* {base_name}" if preset.is_predefined else base_name
-
+                
+                display_name = f"* {preset.name}" if preset.source == StorageSourceManager.Source.APP else preset.name
+                
                 opened, _ = imgui.selectable(display_name, self.selected_preset_index == i, flags=imgui.SELECTABLE_ALLOW_DOUBLE_CLICK)
 
                 if opened:
                     self.selected_preset_index = i
-                    self.current_preset_name = base_name
+                    self.current_preset_name = preset.name
 
                     if imgui.is_mouse_double_clicked(0):
                         self.apply_preset(params, preset)
 
             imgui.end_list_box()
+
 
 
     def preset_load_ui(self, params):
@@ -376,7 +376,7 @@ class PlasmaFractalGUI:
 
         if imgui.button("Save"):
             
-            full_path = self.get_full_preset_path(self.current_preset_name)
+            full_path = self.get_full_preset_save_path(self.current_preset_name)
             preset_exists = os.path.exists(full_path)
 
             if preset_exists:
@@ -398,9 +398,8 @@ class PlasmaFractalGUI:
         """
         Handles the logic for deleting a preset.
         """
-
         # Make sure we don't delete predefined presets, only user-defined ones
-        if not self.get_current_preset().is_predefined:
+        if self.get_current_preset().source == StorageSourceManager.Source.USER:
 
             if imgui.button("Delete"):
                 imgui.open_popup("Confirm Deletion")
@@ -410,20 +409,14 @@ class PlasmaFractalGUI:
                 self.delete_selected_preset()
  
 
-    def presets_open_folder_ui(self, params: PlasmaFractalParams):
+    def presets_open_folder_ui(self):
         """
         Opens the folder where the user presets are stored.
         """            
         if imgui.button("Open Folder"):
-
             current_preset = self.get_current_preset()
-
-            # Get current preset's directory path
-            directory = self.app_presets_directory if current_preset.is_predefined else self.user_presets_directory
-            preset_subdir = os.path.dirname(current_preset.relative_file_path)
-            preset_dir = os.path.join(directory, preset_subdir)
-
-            self.open_folder(preset_dir)
+            directory = self.user_presets_directory if current_preset.source == StorageSourceManager.Source.USER else self.app_presets_directory
+            self.open_folder(directory)
 
 
     def handle_preset_error(self):
@@ -489,47 +482,42 @@ class PlasmaFractalGUI:
 
     #.......................... Preset file management methods ...........................................................................
 
-    def get_current_preset(self) -> Preset:
+    def get_current_preset(self) -> StorageSourceManager.Item:
         """
         Returns the currently selected preset, or None if no preset is selected.
         """
-        if self.selected_preset_index >= 0:
-            return self.preset_list[self.selected_preset_index]
-
-        return None
+        return self.preset_list[self.selected_preset_index] if self.selected_preset_index >= 0 else None
 
 
     def update_presets_list(self):
         """
-        If necessary, this method fetches presets from application-specific and user-specific directories, updating
-        the internal list of presets that will show in the UI.
+        Updates the internal list of presets from both app-specific and user-specific directories.
         """
-        self.preset_list = presets_manager.list_presets(self.app_presets_directory, self.user_presets_directory)
+        self.preset_list = self.storage_manager.list_items()
+        
+        self.selected_preset_index = -1
 
-        self.selected_preset_index = -1  # Reset selection
 
-
-    def apply_preset(self, params: PlasmaFractalParams, selected_preset: Preset):
+    def apply_preset(self, params: PlasmaFractalParams, selected_preset: StorageSourceManager.Item):
         """
         Loads the preset data from a file and updates the current fractal parameters accordingly.
 
         Args:
             params (PlasmaFractalParams): The fractal parameters to be updated.
-            selected_preset (Preset): The preset selected by the user for application.
+            selected_preset (StorageSourceManager.Item): The preset selected by the user for application.
         """
         self.preset_error_message = None
 
         try:
-            preset_data = presets_manager.load_preset(selected_preset)
-            #logging.debug(f"Loaded preset data: {preset_data}")
-                
-            params.apply_defaults()       
+            storage = self.app_storage if selected_preset.source == StorageSourceManager.Source.APP else self.user_storage
+            preset_data = storage.load(selected_preset.name)
+            
+            params.apply_defaults()
             params.merge_dict(preset_data)
-            #logging.debug(f"Preset data merged into params: {params.to_dict()}")
 
             self.notifications.push_notification(self.Notification.NEW_PRESET_LOADED)
 
-            logging.info(f'Preset "{selected_preset.relative_file_path}" applied successfully.')
+            logging.info(f'Preset "{selected_preset.name}" applied successfully.')
 
         except Exception as e:
             self.preset_error_message = f"Failed to apply preset: {str(e)}"
@@ -538,18 +526,19 @@ class PlasmaFractalGUI:
 
     def save_preset(self, params: PlasmaFractalParams):
         """
-        Saves the current plasma fractal settings as a preset file in the user-specific directory, under the current preset name, 
-        overwriting an existing file if necessary.
+        Saves the current plasma fractal settings as a preset file in the user-specific directory.
+
+        Args:
+            params (PlasmaFractalParams): The fractal parameters to save.
         """
         self.preset_error_message = None
 
         try:
-            data = params.to_dict()
-            full_path = self.get_full_preset_path(self.current_preset_name)
+            logging.debug(f'Saving preset: "{self.current_preset_name}" to "{self.user_presets_directory}"')
             
-            presets_manager.save_preset(full_path, data)
+            data = params.to_dict()
+            self.user_storage.save(data, self.current_preset_name)
 
-            # Update the list of presets to reflect the new file
             self.update_presets_list()
 
         except Exception as e:
@@ -561,25 +550,22 @@ class PlasmaFractalGUI:
         """
         Deletes the selected preset from the filesystem and updates the UI.
         """
-        assert( self.selected_preset_index != -1, "No preset is selected." )
+        assert self.selected_preset_index != -1, "No preset is selected."
 
-        self.preset_error_message = None 
-
-        full_path = self.get_full_preset_path(self.current_preset_name)
+        self.preset_error_message = None
 
         try:
-            presets_manager.delete_preset(full_path)
+            self.user_storage.delete(self.get_current_preset().name)
         except Exception as e:
             self.preset_error_message = f"Failed to delete preset: {str(e)}"
             logging.error(self.preset_error_message)
 
-        # Update the list of presets to reflect the deletion
         self.update_presets_list()
 
 
-    def get_full_preset_path(self, preset_name: str) -> str:
+    def get_full_preset_save_path(self, preset_name: str) -> str:
         """
-        Returns the full path to a preset file given its name.
+        Returns the full save path for a preset.
         """
         file_name = preset_name + '.json' if not preset_name.lower().endswith('.json') else preset_name
         return os.path.join(self.user_presets_directory, file_name)

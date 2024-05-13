@@ -1,6 +1,6 @@
 import pytest
 from enum import Enum, auto
-from mylib.json_merge import MergePolicy, json_deep_merge
+from mylib.config.json_merge import MergePolicy, json_deep_merge
 
 def test_dict_merge_with_default_policy():
     target = {'key1': 'value1'}

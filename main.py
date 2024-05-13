@@ -18,7 +18,6 @@ Major dependencies:
 - imgui: Enables the creation and management of an interactive GUI.
 """
 
-import json
 import logging
 import sys
 import time
@@ -27,7 +26,9 @@ import os
 import imgui
 from imgui.integrations.glfw import GlfwRenderer
 
-from mylib.config_path_manager import ConfigPathManager
+from mylib.config.config_path_manager import ConfigPathManager
+from mylib.config.json_file_storage import JsonFileStorage
+from mylib.config.storage import StorageItemNotFoundError
 from mylib.format_exception import format_exception_ansi_colors
 from mylib.frame_rate_limiter import FrameRateLimiter
 from mylib.fps import FpsCalculator
@@ -38,7 +39,6 @@ from mylib.feedback_texture import FeedbackTextureManager
 from mylib.video_recorder import VideoRecorder
 from mylib.window_config_manager import WindowConfigManager
 from mylib.animation_timer import AnimationTimer
-from mylib.config_file_manager import ConfigFileManager
 from mylib.icons import Icons
 
 from plasma_fractal_renderer import PlasmaFractalRenderer
@@ -46,6 +46,8 @@ from plasma_fractal_params import PlasmaFractalParams
 from plasma_fractal_gui import PlasmaFractalGUI
 
 glfw = None  # Global variable to store the GLFW module reference, which is imported later in the code
+
+CONFIG_FILE_NAME = 'fractal_config.json'
 
 #---------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -123,12 +125,26 @@ class PyPlasmaFractalApp:
         """
         Loads or initializes the application's render configuration.
         """  
-        self.fractal_config_manager = ConfigFileManager(directory=self.path_manager.user_specific_path, filename='fractal_config.json')
-        
-        data = self.fractal_config_manager.load_config()
-        self.params = PlasmaFractalParams.from_dict(data) or PlasmaFractalParams()
+        logging.info(f'Loading configuration from {CONFIG_FILE_NAME} in directory "{self.path_manager.user_specific_path}"')
+
+        storage = JsonFileStorage(self.path_manager.user_specific_path)
+        try:
+            data = storage.load(CONFIG_FILE_NAME)
+            self.params = PlasmaFractalParams.from_dict(data)
+        except StorageItemNotFoundError:
+            self.params = PlasmaFractalParams()
+        # TODO: unexpected exception handling
 
         logging.debug(f"PlasmaFractalParams:\n{self.params.to_dict()}")
+
+
+    def save_config(self):
+        
+        logging.info('Saving configuration to "{CONFIG_FILE_NAME}" in directory "{self.path_manager.user_specific_path}"')
+        
+        # TODO: exception handling
+        storage = JsonFileStorage(self.path_manager.user_specific_path)
+        storage.save(self.params.to_dict(), CONFIG_FILE_NAME)
 
 
     def initialize_glfw(self):
@@ -398,26 +414,21 @@ class PyPlasmaFractalApp:
             self.gui.recording_time = self.recorder.recording_time
 
 
-    def save_current_window_size_pos(self):
-        """
-        Cleans up GLFW resources and saves the window configuration before exiting.
-        """
-        width, height = glfw.get_window_size(self.window)  # Gets the client area size
-        pos_x, pos_y = glfw.get_window_pos(self.window)
-
-        self.window_config_manager.save_config(width, height, pos_x, pos_y)
-
-
     def finalize(self):
         """
-        Finalizes the application by releasing resources and saving the fractal configuration.
+        Save the fractal params and release resources.
         """
-        # Save fractal configuration first to ensure it is saved even if an exception occurs during cleanup      
-        self.fractal_config_manager.save_config(self.params.to_dict())
+        self.save_config()
 
-        self.save_current_window_size_pos()       
+        logging.info('Saving window configuration')
+        width, height = glfw.get_window_size(self.window)  # Gets the client area size
+        pos_x, pos_y = glfw.get_window_pos(self.window)
+        self.window_config_manager.save_config(width, height, pos_x, pos_y)
 
+        logging.info('Releasing ModernGL resources')
         self.ctx.release()
+
+        logging.info('Terminating GLFW')
         glfw.terminate()
 
 
