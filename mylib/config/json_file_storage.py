@@ -18,7 +18,7 @@ class JsonFileStorage(Storage):
     A class that provides storage operations for JSON files.
     """
 
-    def __init__(self, directory: str) -> None:
+    def __init__(self, directory: str, list_extension: bool = True) -> None:
         """
         Initialize a JsonFileStorage object from a directory path.
 
@@ -30,6 +30,7 @@ class JsonFileStorage(Storage):
 
         """
         self.directory = Path(directory)
+        self.list_extension = list_extension
         try:
             self.directory.mkdir(parents=True, exist_ok=True)
         except Exception as e:
@@ -115,7 +116,8 @@ class JsonFileStorage(Storage):
             StorageItemListingError: If the files in the directory cannot be listed.
         """
         try:
-            return [file.name for file in self.directory.glob('*.json')]
+            return [file.name if self.list_extension else file.stem for file in self.directory.glob('*.json')]
+
         except Exception as e:
             raise StorageItemListingError(str(self.directory), "Could not list files from directory") from e
 

@@ -62,8 +62,8 @@ class PlasmaFractalGUI:
         self.selected_preset_index = -1
         self.current_preset_name = "new_file"
         self.preset_error_message = None
-        self.app_storage     = JsonFileStorage(Path(path_manager.app_specific_path) / 'presets')
-        self.user_storage    = JsonFileStorage(Path(path_manager.app_specific_path) / 'presets')
+        self.app_storage     = JsonFileStorage(Path(path_manager.app_specific_path)  / 'presets', list_extension=False)
+        self.user_storage    = JsonFileStorage(Path(path_manager.user_specific_path) / 'presets', list_extension=False)
         self.storage_manager = StorageSourceManager(self.app_storage, self.user_storage)        
 
         # Initialize recording state
