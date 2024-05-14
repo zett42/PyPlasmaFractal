@@ -140,7 +140,7 @@ class PyPlasmaFractalApp:
 
     def save_config(self):
         
-        logging.info('Saving configuration to "{CONFIG_FILE_NAME}" in directory "{self.path_manager.user_specific_path}"')
+        logging.info(f'Saving configuration to "{CONFIG_FILE_NAME}" in directory "{self.path_manager.user_specific_path}"')
         
         # TODO: exception handling
         storage = JsonFileStorage(self.path_manager.user_specific_path)

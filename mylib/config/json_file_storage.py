@@ -18,22 +18,22 @@ class JsonFileStorage(Storage):
     A class that provides storage operations for JSON files.
     """
 
-    def __init__(self, base_dir: str) -> None:
+    def __init__(self, directory: str) -> None:
         """
         Initialize a JsonFileStorage object from a directory path.
 
         Args:
-            base_dir (str): The base directory where the JSON files will be stored.
+            directory (str): The base directory where the JSON files will be stored.
 
         Raises:
             StorageCreateDirectoryError: If the directory cannot be created.
 
         """
-        self.base_dir = Path(base_dir)
+        self.directory = Path(directory)
         try:
-            self.base_dir.mkdir(parents=True, exist_ok=True)
+            self.directory.mkdir(parents=True, exist_ok=True)
         except Exception as e:
-            raise StorageCreateDirectoryError(str(self.base_dir), "Could not create directory") from e
+            raise StorageCreateDirectoryError(str(self.directory), "Could not create directory") from e
 
 
     def load(self, filename: str) -> Dict[str, Any]:
@@ -51,8 +51,8 @@ class JsonFileStorage(Storage):
             StorageItemLoadError: If the JSON file cannot be loaded.
         """
         # Add the .json extension to the filename, if missing
-        filename = filename if filename.lower().endswith('.json') else filename + '.json'
-        path = self.base_dir / filename
+        filename = self._ensure_extension(filename)
+        path = self.directory / filename
         try:
             with path.open('r') as file:
                 return json.load(file)
@@ -74,8 +74,8 @@ class JsonFileStorage(Storage):
             StorageItemSaveError: If the JSON file cannot be saved.
         """
         # Add the .json extension to the filename, if missing
-        filename = filename if filename.lower().endswith('.json') else filename + '.json'        
-        path = self.base_dir / filename
+        filename = self._ensure_extension(filename)        
+        path = self.directory / filename
         try:
             with path.open('w') as file:
                 json.dump(data, file, indent=4, cls=EnumJSONEncoder)
@@ -94,7 +94,8 @@ class JsonFileStorage(Storage):
             StorageItemNotFoundError: If the specified file is not found.
             StorageItemDeletionError: If the file cannot be deleted.
         """
-        path = self.base_dir / filename
+        filename = self._ensure_extension(filename)
+        path = self.directory / filename
         try:
             path.unlink()
         except FileNotFoundError as e:
@@ -114,6 +115,34 @@ class JsonFileStorage(Storage):
             StorageItemListingError: If the files in the directory cannot be listed.
         """
         try:
-            return [file.name for file in self.base_dir.glob('*.json')]
+            return [file.name for file in self.directory.glob('*.json')]
         except Exception as e:
-            raise StorageItemListingError(str(self.base_dir), "Could not list files from directory") from e
+            raise StorageItemListingError(str(self.directory), "Could not list files from directory") from e
+
+
+    def exists(self, filename: str) -> bool:
+        """
+        Check if a JSON file exists in the storage directory.
+
+        Args:
+            name (str): The name of the JSON file to check.
+
+        Returns:
+            bool: True if the file exists, False otherwise.
+        """
+        filename = self._ensure_extension(filename)
+        return (self.directory / filename).exists()
+    
+    
+    @staticmethod
+    def _ensure_extension(filename: str) -> str:
+        """
+        Ensure that the filename has a .json extension.
+
+        Args:
+            filename (str): The filename to check.
+
+        Returns:
+            str: The filename with .json extension.
+        """
+        return filename if filename.lower().endswith('.json') else filename + '.json'

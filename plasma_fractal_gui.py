@@ -2,6 +2,7 @@
 import logging
 import math
 import os
+from pathlib import Path
 import platform
 from typing import *
 import imgui
@@ -370,17 +371,14 @@ class PlasmaFractalGUI:
         # As we don't need a label, just specify an ID for the title.
         if ih.input_text("##PresetName", self, 'current_preset_name'):
             # Remove the extension from the file name
-            self.current_preset_name, _ = os.path.splitext(self.current_preset_name)  
+            self.current_preset_name = Path(self.current_preset_name).stem  
 
         imgui.same_line()
 
         if imgui.button("Save"):
             
-            full_path = self.get_full_preset_save_path(self.current_preset_name)
-            preset_exists = os.path.exists(full_path)
-
-            if preset_exists:
-                # If the preset already exists, show a confirmation dialog before saving
+            # If the preset already exists, trigger the confirmation dialog before saving
+            if self.storage_manager.user_storage.exists(self.current_preset_name):
                 imgui.open_popup(confirm_dlg_title)
             else:
                 self.save_preset(params)
@@ -388,7 +386,7 @@ class PlasmaFractalGUI:
         # Shows the confirmation dialog if triggered by open_popup().
         # Note: this needs to be on the same level as the button, otherwise the popup won't work
         if self.confirm_dialog(f'A preset with this name already exists:\n"{self.current_preset_name}"\n\nDo you want to overwrite it?',
-                            confirm_dlg_title):
+                               confirm_dlg_title):
 
             logging.info(f"Confirmed to overwrite existing preset: {self.current_preset_name}")
             self.save_preset(params)
@@ -415,8 +413,8 @@ class PlasmaFractalGUI:
         """            
         if imgui.button("Open Folder"):
             current_preset = self.get_current_preset()
-            directory = self.user_presets_directory if current_preset.source == StorageSourceManager.Source.USER else self.app_presets_directory
-            self.open_folder(directory)
+            storage = self.storage_manager.get_storage(current_preset.source)
+            self.open_folder(storage.directory)
 
 
     def handle_preset_error(self):
@@ -509,7 +507,7 @@ class PlasmaFractalGUI:
         self.preset_error_message = None
 
         try:
-            storage = self.app_storage if selected_preset.source == StorageSourceManager.Source.APP else self.user_storage
+            storage = self.storage_manager.get_storage(selected_preset.source)          
             preset_data = storage.load(selected_preset.name)
             
             params.apply_defaults()
@@ -561,14 +559,6 @@ class PlasmaFractalGUI:
             logging.error(self.preset_error_message)
 
         self.update_presets_list()
-
-
-    def get_full_preset_save_path(self, preset_name: str) -> str:
-        """
-        Returns the full save path for a preset.
-        """
-        file_name = preset_name + '.json' if not preset_name.lower().endswith('.json') else preset_name
-        return os.path.join(self.user_presets_directory, file_name)
 
 
     #.......................... Recording methods ...........................................................................

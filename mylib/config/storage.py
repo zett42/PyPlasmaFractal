@@ -22,6 +22,11 @@ class Storage(ABC):
     @abstractmethod
     def list(self) -> List[str]:
         pass
+    
+    @abstractmethod
+    def exists(self, name: str) -> bool:
+        pass
+    
 
 class StorageError(Exception):
     """Base class for all storage-related exceptions."""
