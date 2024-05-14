@@ -7,9 +7,9 @@ from collections import namedtuple
 
 from mylib.named_tuples import Vec2
 from mylib.resources import resource_path
-from mylib.shader_cache import VariantShaderCache
-from mylib.shader_template_system import make_dict_source_resolver
-from mylib.files_to_dict import read_directory_files_to_dict
+from mylib.gfx.shader_cache import VariantShaderCache
+from mylib.gfx.shader_template_system import make_dict_source_resolver
+from mylib.config.files_to_dict import read_directory_files_to_dict
 from plasma_fractal_params import BlendFunctionRegistry, PlasmaFractalParams, WarpFunctionRegistry
 
 

@@ -2,7 +2,7 @@ import logging
 from typing import *
 import moderngl
 
-from mylib.shader_template_system import resolve_shader_template
+from mylib.gfx.shader_template_system import resolve_shader_template
 
 class VariantShaderCache:
     """

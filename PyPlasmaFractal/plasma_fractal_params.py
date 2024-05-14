@@ -4,7 +4,7 @@ import logging
 from typing import *
 from enum import Enum, auto
 
-from mylib.function_registry import *
+from mylib.gfx.function_registry import *
 from mylib.config.json_merge import MergePolicy, handle_type_mismatch_gracefully, json_deep_merge
 
 

@@ -11,13 +11,13 @@ import imgui
 from mylib.config.config_path_manager import ConfigPathManager
 from mylib.config.json_file_storage import JsonFileStorage
 from mylib.config.source_manager import StorageSourceManager
-from mylib.function_registry import FunctionRegistry
-from mylib.icons import Icons
-from mylib.notification_manager import NotificationManager
-from mylib.window_fade_manager import WindowFadeManager
-from plasma_fractal_params import BlendFunctionRegistry, NoiseAlgorithm, PlasmaFractalParams, WarpFunctionRegistry
-import mylib.imgui_helper as ih
-from mylib.adjust_color import modify_rgba_color_hsv
+from mylib.gfx.function_registry import FunctionRegistry
+from mylib.gui.icons import Icons
+from mylib.gui.notification_manager import NotificationManager
+from mylib.gui.window_fade_manager import WindowFadeManager
+from plasma_fractal_params import BlendFunctionRegistry, PlasmaFractalParams, WarpFunctionRegistry
+import mylib.gui.imgui_helper as ih
+from mylib.color.adjust_color import modify_rgba_color_hsv
 
 class PlasmaFractalGUI:
     """

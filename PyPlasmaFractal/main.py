@@ -29,17 +29,17 @@ from imgui.integrations.glfw import GlfwRenderer
 from mylib.config.config_path_manager import ConfigPathManager
 from mylib.config.json_file_storage import JsonFileStorage
 from mylib.config.storage import StorageItemNotFoundError
-from mylib.format_exception import format_exception_ansi_colors
-from mylib.frame_rate_limiter import FrameRateLimiter
-from mylib.fps import FpsCalculator
+from mylib.python_utils.format_exception import format_exception_ansi_colors
+from mylib.gfx.frame_rate_limiter import FrameRateLimiter
+from mylib.gfx.fps import FpsCalculator
 from mylib.named_tuples import Size
 from mylib.resources import resource_path
-from mylib.texture_renderer import TextureRenderer
-from mylib.feedback_texture import FeedbackTextureManager
-from mylib.video_recorder import VideoRecorder
-from mylib.window_config_manager import WindowConfigManager
-from mylib.animation_timer import AnimationTimer
-from mylib.icons import Icons
+from mylib.gfx.texture_renderer import TextureRenderer
+from mylib.gfx.feedback_texture import FeedbackTextureManager
+from mylib.recording.video_recorder import VideoRecorder
+from mylib.gui.window_config_manager import WindowConfigManager
+from mylib.gfx.animation_timer import AnimationTimer
+from mylib.gui.icons import Icons
 
 from plasma_fractal_renderer import PlasmaFractalRenderer
 from plasma_fractal_params import PlasmaFractalParams

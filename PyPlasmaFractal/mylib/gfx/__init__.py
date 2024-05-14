@@ -1,0 +1,1 @@
+# __init__.py is a special Python file that is executed when a package is imported. It is used to define the package's contents and behavior.
