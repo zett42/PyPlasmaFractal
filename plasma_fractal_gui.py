@@ -48,6 +48,7 @@ class PlasmaFractalGUI:
      
         self.animation_paused = False
         
+        # Initialize the visibility state for the different settings tabs
         self.noise_settings_open = True
         self.fractal_settings_open = True
         self.output_settings_open = True
@@ -56,16 +57,13 @@ class PlasmaFractalGUI:
         self.feedback_warp_octave_settings_open = True
         self.feedback_warp_effect_settings_open = True
 
+        # Initialize preset management
         self.preset_list = []
         self.selected_preset_index = -1
         self.current_preset_name = "new_file"
-
-        self.app_presets_directory = os.path.join(path_manager.app_specific_path, 'presets')
-        self.user_presets_directory = os.path.join(path_manager.user_specific_path, 'presets')
         self.preset_error_message = None
-        
-        self.app_storage     = JsonFileStorage(self.app_presets_directory)
-        self.user_storage    = JsonFileStorage(self.user_presets_directory)
+        self.app_storage     = JsonFileStorage(Path(path_manager.app_specific_path) / 'presets')
+        self.user_storage    = JsonFileStorage(Path(path_manager.app_specific_path) / 'presets')
         self.storage_manager = StorageSourceManager(self.app_storage, self.user_storage)        
 
         # Initialize recording state
@@ -529,10 +527,11 @@ class PlasmaFractalGUI:
         self.preset_error_message = None
 
         try:
-            logging.debug(f'Saving preset: "{self.current_preset_name}" to "{self.user_presets_directory}"')
+            storage = self.user_storage
+            logging.info(f'Saving preset: "{self.current_preset_name}" to "{storage.directory}"')
             
             data = params.to_dict()
-            self.user_storage.save(data, self.current_preset_name)
+            storage.save(data, self.current_preset_name)
 
             self.update_presets_list()
 
