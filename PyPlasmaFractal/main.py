@@ -26,24 +26,34 @@ import os
 import imgui
 from imgui.integrations.glfw import GlfwRenderer
 
-from .mylib.config.config_path_manager import ConfigPathManager
-from .mylib.config.json_file_storage import JsonFileStorage
-from .mylib.config.storage import StorageItemNotFoundError
-from .mylib.python_utils.format_exception import format_exception_ansi_colors
-from .mylib.gfx.frame_rate_limiter import FrameRateLimiter
-from .mylib.gfx.fps import FpsCalculator
-from .mylib.named_tuples import Size
-from .mylib.resources import resource_path
-from .mylib.gfx.texture_renderer import TextureRenderer
-from .mylib.gfx.feedback_texture import FeedbackTextureManager
-from .mylib.recording.video_recorder import VideoRecorder
-from .mylib.gui.window_config_manager import WindowConfigManager
-from .mylib.gfx.animation_timer import AnimationTimer
-from .mylib.gui.icons import Icons
+# Ensure the package root is in sys.path so that the local modules can be imported when PyInstaller runs the script
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+sys.path.insert(0, parent_dir)  # Add parent directory to sys.path
 
-from .plasma_fractal_renderer import PlasmaFractalRenderer
-from .plasma_fractal_params import PlasmaFractalParams
-from .plasma_fractal_gui import PlasmaFractalGUI
+# Debug print statements
+print("Current directory:", current_dir)
+print("Parent directory:", parent_dir)
+print("sys.path:", sys.path)
+
+from PyPlasmaFractal.mylib.config.config_path_manager import ConfigPathManager
+from PyPlasmaFractal.mylib.config.json_file_storage import JsonFileStorage
+from PyPlasmaFractal.mylib.config.storage import StorageItemNotFoundError
+from PyPlasmaFractal.mylib.python_utils.format_exception import format_exception_ansi_colors
+from PyPlasmaFractal.mylib.gfx.frame_rate_limiter import FrameRateLimiter
+from PyPlasmaFractal.mylib.gfx.fps import FpsCalculator
+from PyPlasmaFractal.mylib.named_tuples import Size
+from PyPlasmaFractal.mylib.resources import resource_path
+from PyPlasmaFractal.mylib.gfx.texture_renderer import TextureRenderer
+from PyPlasmaFractal.mylib.gfx.feedback_texture import FeedbackTextureManager
+from PyPlasmaFractal.mylib.recording.video_recorder import VideoRecorder
+from PyPlasmaFractal.mylib.gui.window_config_manager import WindowConfigManager
+from PyPlasmaFractal.mylib.gfx.animation_timer import AnimationTimer
+from PyPlasmaFractal.mylib.gui.icons import Icons
+
+from PyPlasmaFractal.plasma_fractal_renderer import PlasmaFractalRenderer
+from PyPlasmaFractal.plasma_fractal_params import PlasmaFractalParams
+from PyPlasmaFractal.plasma_fractal_gui import PlasmaFractalGUI
 
 glfw = None  # Global variable to store the GLFW module reference, which is imported later in the code
 
