@@ -1,12 +1,11 @@
 import pytest
 from typing import *
 from enum import Enum, auto
-import mylib.imgui_helper as ih
+import PyPlasmaFractal.mylib.gui.imgui_helper as ih
 
 #------------------------------------------------------------------------------------------------------------------------------------------
 # Test setup classes
 
-# Assuming the same enum and class definitions
 class Color(Enum):
     RED = auto()
     GREEN = auto()
@@ -37,7 +36,7 @@ def test_collapsing_header(test_obj, mocker):
     expected_value = True
 
     # Mock the imgui.collapsing_header function
-    mocker.patch('mylib.imgui_helper.imgui.collapsing_header', return_value=(expected_value, None))
+    mocker.patch('PyPlasmaFractal.mylib.gui.imgui_helper.imgui.collapsing_header', return_value=(expected_value, None))
 
     # Assume the initial value is False
     test_obj.active = False
@@ -58,7 +57,7 @@ def test_slider_int(test_obj, mocker):
     expected_value = 50
 
     # Mock the imgui.slider_int function
-    mocker.patch('mylib.imgui_helper.imgui.slider_int', return_value=(True, expected_value))
+    mocker.patch('PyPlasmaFractal.mylib.gui.imgui_helper.imgui.slider_int', return_value=(True, expected_value))
     
     # Invoke the slider_int function
     ih.slider_int('Int Slider', test_obj, 'value', min_value=0, max_value=100)
@@ -73,7 +72,7 @@ def test_slider_int_with_list(test_obj, mocker):
     expected_value = 50
 
     # Mock the slider_int function to simulate slider interaction
-    mocker.patch('mylib.imgui_helper.imgui.slider_int', return_value=(True, expected_value))
+    mocker.patch('PyPlasmaFractal.mylib.gui.imgui_helper.imgui.slider_int', return_value=(True, expected_value))
     
     # Invoke the slider_int function for indexed interaction if applicable
     test_index = 1
@@ -88,7 +87,7 @@ def test_slider_float(test_obj, mocker):
     expected_value = 50.5  
 
     # Mock the imgui.slider_float function
-    mocker.patch('mylib.imgui_helper.imgui.slider_float', return_value=(True, expected_value))
+    mocker.patch('PyPlasmaFractal.mylib.gui.imgui_helper.imgui.slider_float', return_value=(True, expected_value))
     
     # Invoke the slider_float function
     ih.slider_float('Float Slider', test_obj, 'value', min_value=0.0, max_value=100.0)
@@ -103,7 +102,7 @@ def test_slider_float_with_list(test_obj, mocker):
     expected_value = 50.5  
 
     # Mock the imgui.slider_float function
-    mocker.patch('mylib.imgui_helper.imgui.slider_float', return_value=(True, expected_value))
+    mocker.patch('PyPlasmaFractal.mylib.gui.imgui_helper.imgui.slider_float', return_value=(True, expected_value))
     
     # Invoke the slider_float function with an index argument
     test_index = 1
@@ -119,7 +118,7 @@ def test_slider_float_with_dict(test_obj, mocker):
     expected_value = 50.5  
 
     # Mock the imgui.slider_float function
-    mocker.patch('mylib.imgui_helper.imgui.slider_float', return_value=(True, expected_value))
+    mocker.patch('PyPlasmaFractal.mylib.gui.imgui_helper.imgui.slider_float', return_value=(True, expected_value))
     
     # Invoke the slider_float function with a dictionary attribute
     test_key = 'value2'
@@ -135,7 +134,7 @@ def test_slider_float_direct_index(test_obj, mocker):
     expected_value = 50.5  
 
     # Mock the imgui.slider_float function
-    mocker.patch('mylib.imgui_helper.imgui.slider_float', return_value=(True, expected_value))
+    mocker.patch('PyPlasmaFractal.mylib.gui.imgui_helper.imgui.slider_float', return_value=(True, expected_value))
     
     # Define the index to interact directly with test_obj's float_values attribute
     test_index = 1
@@ -154,7 +153,7 @@ def test_checkbox(test_obj, mocker):
     expected_value = True
 
     # Mock the imgui.checkbox function
-    mocker.patch('mylib.imgui_helper.imgui.checkbox', return_value=(True, expected_value))
+    mocker.patch('PyPlasmaFractal.mylib.gui.imgui_helper.imgui.checkbox', return_value=(True, expected_value))
     
     # Assume the initial value is False
     test_obj.active = False
@@ -172,7 +171,7 @@ def test_checkbox_with_list(test_obj, mocker):
     expected_value = True
 
     # Mock the checkbox function to simulate checkbox being checked
-    mocker.patch('mylib.imgui_helper.imgui.checkbox', return_value=(True, expected_value))
+    mocker.patch('PyPlasmaFractal.mylib.gui.imgui_helper.imgui.checkbox', return_value=(True, expected_value))
     
     # Invoke the checkbox function for indexed interaction if applicable
     test_index = 2
@@ -187,8 +186,8 @@ def test_enum_combo(test_obj, mocker):
     expected_enum_index = list(Color).index(expected_value)
 
     # Mock imgui methods
-    mocker.patch('mylib.imgui_helper.imgui.set_next_item_width')
-    combo_mock = mocker.patch('mylib.imgui_helper.imgui.combo', return_value=(True, expected_enum_index))
+    mocker.patch('PyPlasmaFractal.mylib.gui.imgui_helper.imgui.set_next_item_width')
+    combo_mock = mocker.patch('PyPlasmaFractal.mylib.gui.imgui_helper.imgui.combo', return_value=(True, expected_enum_index))
     
     # Run the test
     ih.enum_combo('Choose Color', test_obj, 'color')
@@ -205,7 +204,7 @@ def test_enum_combo_with_list(test_obj, mocker):
     expected_enum_index = list(Color).index(expected_value)
 
     # Mock the combo function to simulate user selecting the second option in an indexed attribute
-    mocked_combo = mocker.patch('mylib.imgui_helper.imgui.combo', return_value=(True, expected_enum_index))
+    mocked_combo = mocker.patch('PyPlasmaFractal.mylib.gui.imgui_helper.imgui.combo', return_value=(True, expected_enum_index))
     
     # Run the test
     test_index = 1
@@ -222,7 +221,7 @@ def test_input_text(test_obj, mocker):
     new_text = "updated text"
 
     # Mock the imgui.input_text function to simulate user input
-    mocker.patch('mylib.imgui_helper.imgui.input_text', return_value=(True, new_text))
+    mocker.patch('PyPlasmaFractal.mylib.gui.imgui_helper.imgui.input_text', return_value=(True, new_text))
     
     # Invoke the input_text function
     ih.input_text("String Input", test_obj, "text", buffer_size=256)
@@ -237,7 +236,7 @@ def test_input_int(test_obj, mocker):
     new_value = 20  # New value after interaction
 
     # Mock the imgui.input_int function to simulate user input
-    mocker.patch('mylib.imgui_helper.imgui.input_int', return_value=(True, new_value))
+    mocker.patch('PyPlasmaFractal.mylib.gui.imgui_helper.imgui.input_int', return_value=(True, new_value))
     
     # Invoke the input_int function
     ih.input_int("Integer Input", test_obj, "int_attr", step=1, step_fast=10)

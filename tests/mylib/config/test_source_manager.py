@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import MagicMock
-from mylib.config.storage import Storage
-from mylib.config.source_manager import StorageSourceManager
+from PyPlasmaFractal.mylib.config.storage import Storage
+from PyPlasmaFractal.mylib.config.source_manager import StorageSourceManager
 
 
 @pytest.fixture

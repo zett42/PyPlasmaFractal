@@ -26,24 +26,24 @@ import os
 import imgui
 from imgui.integrations.glfw import GlfwRenderer
 
-from mylib.config.config_path_manager import ConfigPathManager
-from mylib.config.json_file_storage import JsonFileStorage
-from mylib.config.storage import StorageItemNotFoundError
-from mylib.python_utils.format_exception import format_exception_ansi_colors
-from mylib.gfx.frame_rate_limiter import FrameRateLimiter
-from mylib.gfx.fps import FpsCalculator
-from mylib.named_tuples import Size
-from mylib.resources import resource_path
-from mylib.gfx.texture_renderer import TextureRenderer
-from mylib.gfx.feedback_texture import FeedbackTextureManager
-from mylib.recording.video_recorder import VideoRecorder
-from mylib.gui.window_config_manager import WindowConfigManager
-from mylib.gfx.animation_timer import AnimationTimer
-from mylib.gui.icons import Icons
+from .mylib.config.config_path_manager import ConfigPathManager
+from .mylib.config.json_file_storage import JsonFileStorage
+from .mylib.config.storage import StorageItemNotFoundError
+from .mylib.python_utils.format_exception import format_exception_ansi_colors
+from .mylib.gfx.frame_rate_limiter import FrameRateLimiter
+from .mylib.gfx.fps import FpsCalculator
+from .mylib.named_tuples import Size
+from .mylib.resources import resource_path
+from .mylib.gfx.texture_renderer import TextureRenderer
+from .mylib.gfx.feedback_texture import FeedbackTextureManager
+from .mylib.recording.video_recorder import VideoRecorder
+from .mylib.gui.window_config_manager import WindowConfigManager
+from .mylib.gfx.animation_timer import AnimationTimer
+from .mylib.gui.icons import Icons
 
-from plasma_fractal_renderer import PlasmaFractalRenderer
-from plasma_fractal_params import PlasmaFractalParams
-from plasma_fractal_gui import PlasmaFractalGUI
+from .plasma_fractal_renderer import PlasmaFractalRenderer
+from .plasma_fractal_params import PlasmaFractalParams
+from .plasma_fractal_gui import PlasmaFractalGUI
 
 glfw = None  # Global variable to store the GLFW module reference, which is imported later in the code
 
@@ -97,7 +97,7 @@ class PyPlasmaFractalApp:
         logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
     
         # Ignore debug messages from this module
-        logger = logging.getLogger('mylib.shader_template_system')
+        logger = logging.getLogger('.mylib.shader_template_system')
         logger.setLevel(logging.INFO)        
         
 

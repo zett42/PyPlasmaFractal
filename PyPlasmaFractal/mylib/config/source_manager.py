@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import List, Optional
 
-from mylib.config.storage import Storage
+from PyPlasmaFractal.mylib.config.storage import Storage
 
 class StorageSourceManager:
     """

@@ -1,6 +1,6 @@
 import pytest
 from typing import *
-from mylib.shader_template_system import resolve_shader_template
+from PyPlasmaFractal.mylib.gfx.shader_template_system import resolve_shader_template
 
 # Test data setup for various test scenarios
 mock_sources = {

@@ -8,7 +8,7 @@
             "name": "Debug PyPlasmaFractal",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}\\PyPlasmaFractal\\main.py",
+            "module": "PyPlasmaFractal.main",
             "console": "integratedTerminal"
         }
     ]

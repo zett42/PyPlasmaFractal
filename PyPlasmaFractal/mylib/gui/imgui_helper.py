@@ -7,7 +7,7 @@ import os
 import imgui
 from typing import *
 
-from mylib.gui.trim_string import trim_path_with_ellipsis
+from PyPlasmaFractal.mylib.gui.trim_string import trim_path_with_ellipsis
 
 IndexType = Union[int, Hashable]
 

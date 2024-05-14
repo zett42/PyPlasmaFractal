@@ -1,6 +1,6 @@
 import pytest
 from enum import Enum
-from mylib.config.json_merge import handle_type_mismatch_gracefully
+from PyPlasmaFractal.mylib.config.json_merge import handle_type_mismatch_gracefully
 
 class Color(Enum):
     RED = 1

@@ -3,8 +3,8 @@ from unittest.mock import patch
 import pytest
 from pathlib import Path
 
-from mylib.config.storage import *
-from mylib.config.json_file_storage import *
+from PyPlasmaFractal.mylib.config.storage import *
+from PyPlasmaFractal.mylib.config.json_file_storage import *
 
 @pytest.fixture
 def temp_storage(tmp_path):

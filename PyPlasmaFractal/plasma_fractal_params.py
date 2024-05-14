@@ -1,11 +1,8 @@
-from json import JSONEncoder
-import json
-import logging
 from typing import *
 from enum import Enum, auto
 
-from mylib.gfx.function_registry import *
-from mylib.config.json_merge import MergePolicy, handle_type_mismatch_gracefully, json_deep_merge
+from PyPlasmaFractal.mylib.gfx.function_registry import *
+from PyPlasmaFractal.mylib.config.json_merge import MergePolicy, handle_type_mismatch_gracefully, json_deep_merge
 
 
 class NoiseAlgorithm(Enum):
