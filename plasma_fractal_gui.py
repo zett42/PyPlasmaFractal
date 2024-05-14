@@ -1,4 +1,5 @@
-﻿import datetime
+﻿from enum import Enum, auto
+import datetime
 import logging
 import math
 import os
@@ -17,8 +18,6 @@ from mylib.window_fade_manager import WindowFadeManager
 from plasma_fractal_params import BlendFunctionRegistry, NoiseAlgorithm, PlasmaFractalParams, WarpFunctionRegistry
 import mylib.imgui_helper as ih
 from mylib.adjust_color import modify_rgba_color_hsv
-
-from enum import Enum, auto
 
 class PlasmaFractalGUI:
     """
@@ -325,7 +324,7 @@ class PlasmaFractalGUI:
             
             for i, preset in enumerate(self.preset_list):
                 
-                display_name = f"* {preset.name}" if preset.source == StorageSourceManager.Source.APP else preset.name
+                display_name = f"* {preset.name}" if preset.storage == self.storage_manager.app_storage else preset.name
                 
                 opened, _ = imgui.selectable(display_name, self.selected_preset_index == i, flags=imgui.SELECTABLE_ALLOW_DOUBLE_CLICK)
 
@@ -397,7 +396,7 @@ class PlasmaFractalGUI:
         Handles the logic for deleting a preset.
         """
         # Make sure we don't delete predefined presets, only user-defined ones
-        if self.get_current_preset().source == StorageSourceManager.Source.USER:
+        if self.get_current_preset().storage == self.storage_manager.user_storage:
 
             if imgui.button("Delete"):
                 imgui.open_popup("Confirm Deletion")
@@ -413,8 +412,7 @@ class PlasmaFractalGUI:
         """            
         if imgui.button("Open Folder"):
             current_preset = self.get_current_preset()
-            storage = self.storage_manager.get_storage(current_preset.source)
-            self.open_folder(storage.directory)
+            self.open_folder(current_preset.storage.directory)
 
 
     def handle_preset_error(self):
@@ -491,7 +489,7 @@ class PlasmaFractalGUI:
         """
         Updates the internal list of presets from both app-specific and user-specific directories.
         """
-        self.preset_list = self.storage_manager.list_items()
+        self.preset_list = self.storage_manager.list()
         
         self.selected_preset_index = -1
 
@@ -507,8 +505,7 @@ class PlasmaFractalGUI:
         self.preset_error_message = None
 
         try:
-            storage = self.storage_manager.get_storage(selected_preset.source)          
-            preset_data = storage.load(selected_preset.name)
+            preset_data = selected_preset.storage.load(selected_preset.name)
             
             params.apply_defaults()
             params.merge_dict(preset_data)

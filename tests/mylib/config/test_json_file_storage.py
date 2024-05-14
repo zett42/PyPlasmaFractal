@@ -15,8 +15,8 @@ def temp_storage(tmp_path):
 def test_init_storage_success(tmp_path):
     
     storage = JsonFileStorage(str(tmp_path))
-    assert storage.base_dir == tmp_path
-    assert storage.base_dir.exists()
+    assert storage.directory == tmp_path
+    assert storage.directory.exists()
 
 
 def test_init_storage_failure(monkeypatch):
@@ -36,7 +36,7 @@ def test_save_json(temp_storage):
     filename = "test.json"
     
     temp_storage.save(data, filename)
-    saved_path = temp_storage.base_dir / filename
+    saved_path = temp_storage.directory / filename
     assert saved_path.exists()
     
     with saved_path.open('r') as file:
