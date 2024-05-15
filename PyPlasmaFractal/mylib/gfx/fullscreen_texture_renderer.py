@@ -1,8 +1,11 @@
 import moderngl
 import numpy as np
 
-class TextureRenderer:
-    
+class FullscreenTextureRenderer:
+    """
+    A class for rendering fullscreen textures using ModernGL.
+    """
+
     def __init__(self, ctx: moderngl.Context) -> None:
         """
         Initializes the texture renderer with a ModernGL context.
@@ -64,14 +67,15 @@ class TextureRenderer:
         return self.ctx.program(vertex_shader=vertex_shader_code, fragment_shader=fragment_shader_code)
 
 
-    def render(self, texture: moderngl.Texture) -> None:
+    def render(self, texture: moderngl.Texture, destination: moderngl.Framebuffer) -> None:
         """
         Renders the texture to the screen using the prepared VBO and shader program.
         
         Parameters:
         - texture: The texture to render.
+        - destination: The framebuffer to render to.
         """
-        with self.ctx.scope(self.ctx.screen):    # Use the screen framebuffer
+        with self.ctx.scope(destination):         # Use the destination framebuffer
 
             self.ctx.clear(0.0, 0.0, 0.0)
 

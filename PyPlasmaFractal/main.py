@@ -44,8 +44,8 @@ from PyPlasmaFractal.mylib.gfx.frame_rate_limiter import FrameRateLimiter
 from PyPlasmaFractal.mylib.gfx.fps import FpsCalculator
 from PyPlasmaFractal.mylib.named_tuples import Size
 from PyPlasmaFractal.mylib.resources import resource_path
-from PyPlasmaFractal.mylib.gfx.texture_renderer import TextureRenderer
-from PyPlasmaFractal.mylib.gfx.feedback_texture import FeedbackTextureManager
+from PyPlasmaFractal.mylib.gfx.fullscreen_texture_renderer import FullscreenTextureRenderer
+from PyPlasmaFractal.mylib.gfx.texture_render_manager import PingpongTextureRenderManager
 from PyPlasmaFractal.mylib.recording.video_recorder import VideoRecorder
 from PyPlasmaFractal.mylib.gui.window_config_manager import WindowConfigManager
 from PyPlasmaFractal.mylib.gfx.animation_timer import AnimationTimer
@@ -250,7 +250,7 @@ class PyPlasmaFractalApp:
         width, height = glfw.get_framebuffer_size(window)
 
         # TODO: Check if dtype='f2' (16-bit float instead of 32-bit) is sufficient
-        self.feedback_manager = FeedbackTextureManager(self.ctx, width=width, height=height, dtype='f4', filter_x=moderngl.LINEAR, filter_y=moderngl.LINEAR, repeat_x=True, repeat_y=True)
+        self.feedback_manager = PingpongTextureRenderManager(self.ctx, width=width, height=height, dtype='f4', filter_x=moderngl.LINEAR, filter_y=moderngl.LINEAR, repeat_x=True, repeat_y=True)
 
 
     def setup_imgui(self, window):
@@ -282,7 +282,7 @@ class PyPlasmaFractalApp:
         Main rendering loop that continuously updates and displays the fractal visuals.
         """
         main_renderer = PlasmaFractalRenderer(self.ctx)
-        texture_to_screen = TextureRenderer(self.ctx)
+        texture_to_screen = FullscreenTextureRenderer(self.ctx)
         fps_limiter = FrameRateLimiter(self.desired_fps)                     
 
         while not glfw.window_should_close(self.window):
@@ -299,7 +299,7 @@ class PyPlasmaFractalApp:
             if not self.gui.animation_paused:
                 self.render_frame(main_renderer, elapsed_time)
 
-            texture_to_screen.render(self.feedback_manager.current_texture)
+            texture_to_screen.render(self.feedback_manager.current_texture, self.ctx.screen)
 
             self.handle_recording()
 
