@@ -252,7 +252,7 @@ class PyPlasmaFractalApp:
         width, height = glfw.get_framebuffer_size(window)
 
         # TODO: Check if dtype='f2' (16-bit float instead of 32-bit) is sufficient
-        self.feedback_manager = PingpongTextureRenderManager(self.ctx, width=width, height=height, dtype='f4', filter_x=moderngl.LINEAR, filter_y=moderngl.LINEAR, repeat_x=True, repeat_y=True)
+        self.feedback_manager = PingpongTextureRenderManager(self.ctx, width=width, height=height, dtype='f4', filter_x=moderngl.LINEAR, filter_y=moderngl.LINEAR) #, repeat_x=True, repeat_y=True)
 
 
     def setup_imgui(self, window):
@@ -324,8 +324,9 @@ class PyPlasmaFractalApp:
         # Swap the textures so the previous frame will be used for feedback  
         self.feedback_manager.swap_textures()
         
-        # Apply Gaussian blur to the previous frame (now current for feedback)
-        gaussian_blur.apply_blur(2.0)
+        if self.params.enableFeedbackBlur:
+            # Apply Gaussian blur to the previous frame, utilizing the (yet unused) destination texture as intermediate storage
+            gaussian_blur.apply_blur(self.params.feedbackBlurRadius)
             
         # Clear the feedback textures if a new preset has been loaded, to ensure we start with a clean state
         if self.gui.notifications.pull_notification(PlasmaFractalGUI.Notification.NEW_PRESET_LOADED):

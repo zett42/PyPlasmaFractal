@@ -53,6 +53,7 @@ class PlasmaFractalGUI:
         self.fractal_settings_open = True
         self.output_settings_open = True
         self.feedback_general_settings_open = True
+        self.feedback_blur_settings_open = True
         self.feedback_warp_noise_settings_open = True
         self.feedback_warp_octave_settings_open = True
         self.feedback_warp_effect_settings_open = True
@@ -209,6 +210,11 @@ class PlasmaFractalGUI:
             self.function_settings(header="Feedback Mix Settings", header_attr='feedback_general_settings_open', 
                                    registry=BlendFunctionRegistry, function_attr='feedback_function', params_attr='feedback_params', 
                                    params=params)
+
+            if ih.collapsing_header("Feedback Blur Settings", self, attr='feedback_blur_settings_open'):
+                                   
+                ih.checkbox("Enable Blur", params, 'enableFeedbackBlur')
+                ih.slider_int("Blur Radius", params, 'feedbackBlurRadius', min_value=1, max_value=10)
       
             if ih.collapsing_header("Warp Noise Settings", self, attr='feedback_warp_noise_settings_open'):
 

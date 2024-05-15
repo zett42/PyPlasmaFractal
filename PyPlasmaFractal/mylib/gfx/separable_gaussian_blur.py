@@ -14,7 +14,6 @@ class SeparableGaussianBlur:
         self.vao = ctx.simple_vertex_array(self.shader, self.vbo, 'in_vert', 'in_tex')
         self.precomputed_weights = {}
 
-
     def _create_shader(self):
         
         vertex_shader_src = """
@@ -40,16 +39,18 @@ class SeparableGaussianBlur:
 
         void main() {{
             vec4 tmp = vec4(0.0);
+            float sumWeight = 0.0;
             for (int i = -int(radius); i <= int(radius); i++) {{
                 float weight = weights[{self.max_radius} + i];
                 vec2 offset = vec2(float(i) * offsetX, float(i) * offsetY);
                 tmp += texture(inputTexture, texCoord + offset) * weight;
+                sumWeight += weight;
             }}
-            fragColor = tmp;
+            fragColor = tmp / sumWeight;  // Normalize the final color to avoid any discrepancies
         }}
         """
-        return self.ctx.program(vertex_shader=vertex_shader_src, fragment_shader=fragment_shader_src)
 
+        return self.ctx.program(vertex_shader=vertex_shader_src, fragment_shader=fragment_shader_src)
 
     def _create_fullscreen_quad(self):
         
@@ -64,7 +65,6 @@ class SeparableGaussianBlur:
         
         return self.ctx.buffer(vertices.tobytes())
     
-    
     def _precompute_gaussian_weights(self, radius):
         
         if radius in self.precomputed_weights:
@@ -72,7 +72,7 @@ class SeparableGaussianBlur:
 
         sigma = radius / 3.0
         size = 2 * int(radius) + 1
-        weights = np.array([np.exp(-0.5 * (i / sigma)**2) / (sigma * np.sqrt(2 * np.pi)) for i in range(size)])
+        weights = np.array([np.exp(-0.5 * (i / sigma)**2) / (sigma * np.sqrt(2 * np.pi)) for i in range(-int(radius), int(radius) + 1)])
         weights /= weights.sum()  # Normalize weights
 
         # Pad weights to the fixed size
@@ -84,7 +84,6 @@ class SeparableGaussianBlur:
         self.precomputed_weights[radius] = padded_weights
         
         return padded_weights
-    
     
     def apply_blur(self, blur_radius: float):
         

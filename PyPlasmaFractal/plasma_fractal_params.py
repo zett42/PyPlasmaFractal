@@ -207,6 +207,10 @@ class PlasmaFractalParams:
         self.feedback_function = BlendFunction.Linear
         self.feedback_params = BlendFunctionRegistry.get_all_param_defaults(use_string_keys=True)   # Convert enum key to string to simplify serialization
         
+        # Feedback blur settings
+        self.enableFeedbackBlur = False
+        self.feedbackBlurRadius = 2
+        
         # Warp settings for feedback
         self.warpFunction = WarpFunction.Offset
         self.warpParams = WarpFunctionRegistry.get_all_param_defaults(use_string_keys=True)   # Convert enum key to string to simplify serialization
