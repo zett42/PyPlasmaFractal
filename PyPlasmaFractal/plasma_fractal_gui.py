@@ -364,7 +364,7 @@ class PlasmaFractalGUI:
         Returns:
             None
         """
-        confirm_dlg_title = "Confirm Overwrite"
+        confirm_dlg_title = "Confirm Overwrite Preset"
 
         # As we don't need a label, just specify an ID for the title.
         if ih.input_text("##PresetName", self, 'current_preset_name'):
