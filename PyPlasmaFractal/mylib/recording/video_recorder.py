@@ -71,7 +71,7 @@ class VideoRecorder:
         return self.frame_count / self.fps if self.fps else 0.0
 
 
-    def start_recording(self, file_path: str, width: int, height: int, fps: int = 60) -> None:
+    def start_recording(self, file_path: str, width: int, height: int, fps: int = 60, quality: int = 10) -> None:
         """
         Starts the video recording by initializing the video writer with specified dimensions.
 
@@ -111,7 +111,7 @@ class VideoRecorder:
         logging.debug(f"Starting video recording to '{file_path}' at {width}x{height} with {fps} FPS.")
 
         try:
-            self.writer = imageio.get_writer(self.file_path, fps=self.fps, codec='libx264', quality=10)
+            self.writer = imageio.get_writer(self.file_path, fps=self.fps, codec='libx264', quality=quality)
         except Exception as e:
             raise VideoRecorderException("Failed to initialize video writer.") from e
 

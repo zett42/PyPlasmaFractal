@@ -76,6 +76,7 @@ class PlasmaFractalGUI:
         self.recording_height = None
         self.recording_fps = 60
         self.recording_duration = 30
+        self.recording_quality = 8
         self.recording_time = None
         self.recording_error_message = None
 
@@ -598,6 +599,9 @@ class PlasmaFractalGUI:
             # Frame rates combo box
             common_frame_rates = [24, 30, 60, 120]
             ih.list_combo("Frame Rate", obj=self, attr='recording_fps', items=common_frame_rates)
+            
+            # Recording quality input
+            ih.slider_int("Quality", self, 'recording_quality', min_value=1, max_value=10)
 
             # Recording Duration input
             imgui.spacing()

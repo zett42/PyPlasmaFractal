@@ -381,7 +381,7 @@ class PyPlasmaFractalApp:
 
             if notifyData['is_recording']:
 
-                logging.debug(f"Starting recording with file name: {self.gui.recording_file_name}, size: {self.gui.recording_width}x{self.gui.recording_height}, fps: {self.gui.recording_fps}")
+                logging.debug(f"Starting recording with file name: {self.gui.recording_file_name}, size: {self.gui.recording_width}x{self.gui.recording_height}, fps: {self.gui.recording_fps}, quality: {self.gui.recording_quality}")
 
                 # Temporarily resize feedback texture to recording size
                 self.feedback_manager.resize(*self.recorder.get_aligned_dimensions(self.gui.recording_width, self.gui.recording_height))
@@ -391,7 +391,8 @@ class PyPlasmaFractalApp:
 
                 video_path = os.path.join(self.user_videos_directory, self.gui.recording_file_name)
                 try:
-                    self.recorder.start_recording(video_path, self.feedback_manager.width, self.feedback_manager.height, fps=self.gui.recording_fps)
+                    self.recorder.start_recording(video_path, self.feedback_manager.width, self.feedback_manager.height, fps=self.gui.recording_fps, 
+                                                  quality=self.gui.recording_quality)
                 except Exception as e:
                     logging.error(f"The recording could not be started: {e}")
                     self.gui.notifications.push_notification(PlasmaFractalGUI.Notification.RECORDING_ERROR, str(e))
