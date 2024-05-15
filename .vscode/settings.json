@@ -19,7 +19,17 @@
         "_experiments/__pycache__": true,
         ".venv": true,
         "build": true,
-        "dist": true
+        "dist": true,
+        "PyPlasmaFractal/__pycache__": true,
+        "pyinstaller-src": true,
+        "_experiments": true,
+        "PyPlasmaFractal/mylib/gfx/__pycache__": true,
+        "PyPlasmaFractal/mylib/__pycache__": true,
+        "PyPlasmaFractal/mylib/config/__pycache__": true,
+        "PyPlasmaFractal/mylib/color/__pycache__": true,
+        "PyPlasmaFractal/mylib/gui/__pycache__": true,
+        "PyPlasmaFractal/mylib/python_utils/__pycache__": true,
+        "PyPlasmaFractal/mylib/recording/__pycache__": true
     },
     "hide-files.files": [
         ".vscode",
@@ -35,7 +45,17 @@
         "_experiments/__pycache__",
         ".venv",
         "build",
-        "dist"
+        "dist",
+        "PyPlasmaFractal/__pycache__",
+        "pyinstaller-src",
+        "_experiments",
+        "PyPlasmaFractal/mylib/gfx/__pycache__",
+        "PyPlasmaFractal/mylib/__pycache__",
+        "PyPlasmaFractal/mylib/config/__pycache__",
+        "PyPlasmaFractal/mylib/color/__pycache__",
+        "PyPlasmaFractal/mylib/gui/__pycache__",
+        "PyPlasmaFractal/mylib/python_utils/__pycache__",
+        "PyPlasmaFractal/mylib/recording/__pycache__"
     ],
     "python.testing.pytestArgs": [
         "tests"
