@@ -613,9 +613,7 @@ class PlasmaFractalGUI:
                 self.recording_duration = 0
 
             # Start/Stop recording toggle button
-            imgui.spacing()
-            if imgui.button("Start Recording" if not self.is_recording else "Stop Recording"):
-                self.start_recording() if not self.is_recording else self.stop_recording()
+            self.handle_recording_button()
 
             # Automatic stop check
             self.handle_automatic_stop()
@@ -655,6 +653,28 @@ class PlasmaFractalGUI:
                     imgui.spacing()
                     if imgui.button("Open Folder"):
                         self.open_folder(self.recording_directory)
+                        
+    def handle_recording_button(self):
+        """
+        Checks if the recording file already exists and shows a confirmation dialog if it does.
+        """
+        dialog_title = "Confirm Overwrite Recording"
+
+        imgui.spacing()
+        if imgui.button("Start Recording" if not self.is_recording else "Stop Recording"):           
+            if self.is_recording:
+                self.stop_recording()
+                return
+            
+            if (Path(self.recording_directory) / self.recording_file_name).exists():
+                imgui.open_popup(dialog_title)
+            else:
+                self.start_recording()
+
+        if self.confirm_dialog(f'A recording with this name already exists:\n"{self.recording_file_name}"\n\nDo you want to overwrite it?',
+                               dialog_title):
+            logging.info(f"Confirmed to overwrite existing recording file: {self.recording_file_name}")
+            self.start_recording()                  
 
     def start_recording(self):
 
