@@ -7,7 +7,7 @@
 #include "transforms.glsl"
 
 // Applies a simple offset to texture coordinates based on noise derivatives.
-vec4 warpOffsetDeriv(sampler2D texture, vec2 texPos, vec4 newColor, vec4 noiseWithDerivatives, float time, float params[MAX_WARP_PARAMS]) {
+vec4 warpOffsetDeriv(sampler2D tex, vec2 texPos, vec4 newColor, vec4 noiseWithDerivatives, float time, float params[MAX_WARP_PARAMS]) {
 
     float amplitude = params[0] * 0.01;
 
@@ -18,7 +18,7 @@ vec4 warpOffsetDeriv(sampler2D texture, vec2 texPos, vec4 newColor, vec4 noiseWi
 
     vec2 newPos = texPos + offset;
 
-    return texture(texture, newPos);    
+    return texture(tex, newPos);    
 }
 
 // Applies a swirling effect to texture coordinates based on noise and its derivatives.
@@ -39,7 +39,7 @@ vec4 warpOffsetDeriv(sampler2D texture, vec2 texPos, vec4 newColor, vec4 noiseWi
 // Returns:
 // - vec2: The new texture coordinates after applying the swirling effect.
 
-vec4 warpSwirl(sampler2D texture, vec2 texPos, vec4 newColor, vec4 noiseWithDerivatives, float time, float params[MAX_WARP_PARAMS]) {
+vec4 warpSwirl(sampler2D tex, vec2 texPos, vec4 newColor, vec4 noiseWithDerivatives, float time, float params[MAX_WARP_PARAMS]) {
 
     float radiusScale = params[0];
     float angleScale  = params[1];
@@ -70,7 +70,7 @@ vec4 warpSwirl(sampler2D texture, vec2 texPos, vec4 newColor, vec4 noiseWithDeri
     // Calculate new texture coordinates
     vec2 newPos = center + normalizedDistance * radiusScale * vec2(cos(newAngle), sin(newAngle));
 
-    return texture(texture, newPos);    
+    return texture(tex, newPos);    
 }
 
 /// @brief Transforms a position vector using noise-induced warping for procedural animation effects.
@@ -89,7 +89,7 @@ vec4 warpSwirl(sampler2D texture, vec2 texPos, vec4 newColor, vec4 noiseWithDeri
 ///               - params[3]: The midpoint for scaling the isolation effect, adjusting the center point of the sigmoid function.
 ///
 /// @return Returns a new 2D position vector that has been distorted by the noise-based warping effect.
-vec4 warpSwirlSigmoid(sampler2D texture, vec2 texPos, vec4 newColor, vec4 noiseWithDerivatives, float time, float params[MAX_WARP_PARAMS]) {
+vec4 warpSwirlSigmoid(sampler2D tex, vec2 texPos, vec4 newColor, vec4 noiseWithDerivatives, float time, float params[MAX_WARP_PARAMS]) {
 
     float radiusScale = params[0];
     float angleScale  = params[1];
@@ -123,7 +123,7 @@ vec4 warpSwirlSigmoid(sampler2D texture, vec2 texPos, vec4 newColor, vec4 noiseW
     // Calculate new texture coordinates
     vec2 newPos = center + normalizedDistance * radiusScale * vec2(cos(newAngle), sin(newAngle));
   
-    return texture(texture, newPos);   
+    return texture(tex, newPos);   
 }
 
 // Applies a dynamic swirling and warping effect to texture coordinates based on controlled feedback mechanisms.
@@ -157,7 +157,7 @@ vec4 warpSwirlSigmoid(sampler2D texture, vec2 texPos, vec4 newColor, vec4 noiseW
 // Returns:
 // - vec4: The color from the texture sampled at the newly calculated coordinates after applying the swirling and warping effects.
 
-vec4 warpSwirlSigmoidDistorted(sampler2D texture, vec2 texPos, vec4 newColor, vec4 noiseWithDerivatives, float time, float params[MAX_WARP_PARAMS]) {
+vec4 warpSwirlSigmoidDistorted(sampler2D tex, vec2 texPos, vec4 newColor, vec4 noiseWithDerivatives, float time, float params[MAX_WARP_PARAMS]) {
  
     float radiusScale = params[0];
     float angleScale  = params[1];
@@ -196,7 +196,7 @@ vec4 warpSwirlSigmoidDistorted(sampler2D texture, vec2 texPos, vec4 newColor, ve
 
     vec2 newPos = center + normalizedDistance * radiusScale * vec2(cos(newAngle), sin(newAngle));
 
-    return texture(texture, newPos);   
+    return texture(tex, newPos);   
 }
 
 // Modifies texture coordinates using noise and derivatives to create fractal-like patterns in feedback effects.
@@ -221,7 +221,7 @@ vec4 warpSwirlSigmoidDistorted(sampler2D texture, vec2 texPos, vec4 newColor, ve
 // Returns:
 // - vec2: New texture coordinates after applying duplication and dynamic transformations.
 
-vec4 warpInfiniteMirror(sampler2D texture, vec2 texPos, vec4 newColor, vec4 noiseWithDerivatives, float time, float params[MAX_WARP_PARAMS]) {
+vec4 warpInfiniteMirror(sampler2D tex, vec2 texPos, vec4 newColor, vec4 noiseWithDerivatives, float time, float params[MAX_WARP_PARAMS]) {
     
     float duplicationScale = params[0] * 4.0; // Scaled duplication scale
     float influenceRadius = params[1];
@@ -253,13 +253,13 @@ vec4 warpInfiniteMirror(sampler2D texture, vec2 texPos, vec4 newColor, vec4 nois
     // Calculate new texture coordinates
     vec2 newPos = mix(texPos, 2.0 * rotatedPos - center, influence);
 
-    return texture(texture, newPos);    
+    return texture(tex, newPos);    
 }
 
 // This is just a playground function for developing new effects. It can be used to test new ideas and techniques.
 // NOTE: texPos is the texture coordinates, noiseWithDerivatives is a vec4 containing the noise value and its derivatives,
 // and param1, param2, param3, and param4 are user-controllable parameters that can be used in the function, with a range of [0, 1].
-vec4 warpTest(sampler2D texture, vec2 texPos, vec4 newColor, vec4 noiseWithDerivatives, float time, float params[MAX_WARP_PARAMS]) {
+vec4 warpTest(sampler2D tex, vec2 texPos, vec4 newColor, vec4 noiseWithDerivatives, float time, float params[MAX_WARP_PARAMS]) {
 
     float displacementScale = params[0] * 0.05;
     float falloffRate = params[1] * 10.;  // New parameter to control the falloff rate
@@ -277,5 +277,5 @@ vec4 warpTest(sampler2D texture, vec2 texPos, vec4 newColor, vec4 noiseWithDeriv
 
     vec2 newPos = texPos + displacement;
 
-    return texture(texture, newPos);
+    return texture(tex, newPos);
 }

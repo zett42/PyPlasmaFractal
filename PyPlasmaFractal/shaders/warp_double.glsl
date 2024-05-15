@@ -19,13 +19,13 @@
 // Returns:
 // - vec2: The new texture coordinates after applying the noise-based offset.
 
-vec4 warpOffset(sampler2D texture, vec2 texPos, vec4 newColor, vec2 noise, float time, float params[MAX_WARP_PARAMS]) {
+vec4 warpOffset(sampler2D tex, vec2 texPos, vec4 newColor, vec2 noise, float time, float params[MAX_WARP_PARAMS]) {
     
     float amplitude = params[0];
 
     vec2 newPos = texPos + noise * amplitude / 20.0;
 
-    return texture(texture, newPos);
+    return texture(tex, newPos);
 }
 
 
@@ -51,7 +51,7 @@ vec4 warpOffset(sampler2D texture, vec2 texPos, vec4 newColor, vec2 noise, float
 // Returns:
 // - vec2: The new texture coordinates after the polar offset has been applied.
 
-vec4 warpPolar(sampler2D texture, vec2 texPos, vec4 newColor, vec2 noise, float time, float params[MAX_WARP_PARAMS]) {
+vec4 warpPolar(sampler2D tex, vec2 texPos, vec4 newColor, vec2 noise, float time, float params[MAX_WARP_PARAMS]) {
 
     float radiusScale = params[0];
     float angleScale  = params[1];
@@ -68,5 +68,5 @@ vec4 warpPolar(sampler2D texture, vec2 texPos, vec4 newColor, vec2 noise, float 
     // Apply offset to the original texture coordinates
     vec2 newPos = texPos + offset;
 
-    return texture(texture, newPos);    
+    return texture(tex, newPos);    
 }
