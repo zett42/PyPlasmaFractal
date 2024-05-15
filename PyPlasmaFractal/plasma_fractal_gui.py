@@ -111,7 +111,7 @@ class PlasmaFractalGUI:
             with imgui.begin("Control Panel"):
 
                 # Fade the control panel in or out based on mouse activity
-                self.fade_manager.update(imgui.get_mouse_pos(), imgui.get_window_position(), imgui.get_window_size())
+                self.fade_manager.update(imgui.get_mouse_pos(), imgui.is_window_focused(imgui.FOCUS_ANY_WINDOW))
 
                 # Display the current FPS value
                 if self.actual_fps:

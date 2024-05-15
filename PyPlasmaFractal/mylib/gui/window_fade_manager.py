@@ -3,11 +3,11 @@ import time
 from enum import Enum, auto
 from typing import Tuple
 
-class MouseState(Enum):
-    """Defines the possible states of the mouse interaction."""
-    Active   = auto()  # Mouse is moving
-    Inactive = auto()  # Mouse is not moving
-    Idle     = auto()  # Mouse is not moving for a certain period of time
+class ActivityState(Enum):
+    """Defines the possible states of the user interaction."""
+    Active   = auto()  # User is currently active
+    Inactive = auto()  # User is currently inactive
+    Idle     = auto()  # User is inactive for a certain period of time
 
 class FadeState(Enum):
     """Defines the states for window fade transitions."""
@@ -20,7 +20,7 @@ class WindowFadeManager:
     """Manages the fading of a window based on mouse activity."""
 
     def __init__(self, 
-                 fade_delay: float = 5.0, 
+                 fade_delay: float = 3.0, 
                  fade_out_duration: float = 1.0, fade_in_duration: float = 0.25, 
                  alpha_active: float = 1.0, alpha_inactive: float = 0.0):
         """
@@ -45,7 +45,7 @@ class WindowFadeManager:
         self.state = FadeState.Active
 
 
-    def update(self, mouse_pos: Tuple[float, float], window_pos: Tuple[float, float] = None, window_size: Tuple[float, float] = None) -> float:
+    def update(self, mouse_pos: Tuple[float, float], is_focused: bool = False) -> float:
         """
         Update the fading state based on the current mouse position and time elapsed since the last update.
         
@@ -56,31 +56,33 @@ class WindowFadeManager:
         
         Parameters:
             mouse_pos (Tuple[float, float]): The current position of the mouse, used to determine activity.
-            window_pos (Tuple[float, float], optional): The position of the window. If not provided, the current window position is used.
-            window_size (Tuple[float, float], optional): The size of the window. If not provided, the current window size is used.
+            is_focused (bool): Indicates if the window is currently focused (True) or not (False). 
 
         Returns:
             float: The current alpha value of the window, ranging from 0.0 to 1.0.
         """
         current_time = time.time()
         
-        mouse_state = self._get_mouse_state(current_time, mouse_pos, window_pos, window_size)
+        if is_focused:
+            activity_state = ActivityState.Active
+        else:
+            activity_state = self._get_mouse_state(current_time, mouse_pos)
 
         if self.state == FadeState.Active:
-            self._handle_active(mouse_state, current_time)
+            self._handle_active(activity_state, current_time)
         elif self.state == FadeState.FadingIn:
             self._handle_fading_in(current_time)
         elif self.state == FadeState.FadingOut:
-            self._handle_fading_out(mouse_state, current_time)
+            self._handle_fading_out(activity_state, current_time)
         elif self.state == FadeState.Inactive:
-            self._handle_inactive(mouse_state, current_time)
+            self._handle_inactive(activity_state, current_time)
 
         return self.alpha
 
 
-    def _handle_active(self, mouse_state: MouseState, current_time: float) -> None:
+    def _handle_active(self, activity_state: ActivityState, current_time: float) -> None:
         """Handle the Active state of the window based on mouse activity."""
-        if mouse_state == MouseState.Idle:
+        if activity_state == ActivityState.Idle:
             self._start_fade(FadeState.FadingOut, current_time)
 
 
@@ -90,17 +92,17 @@ class WindowFadeManager:
             self.state = FadeState.Active
 
 
-    def _handle_fading_out(self, mouse_state: MouseState, current_time: float) -> None:
+    def _handle_fading_out(self, activity_state: ActivityState, current_time: float) -> None:
         """Handle the FadingOut state of the window based on mouse activity."""
-        if mouse_state == MouseState.Active:
+        if activity_state == ActivityState.Active:
             self._start_fade(FadeState.FadingIn, current_time)
         elif self._process_fade(current_time, self.start_alpha, self.alpha_inactive, self.start_time, self.fade_out_duration):
             self.state = FadeState.Inactive
 
 
-    def _handle_inactive(self, mouse_state: MouseState, current_time: float) -> None:
+    def _handle_inactive(self, activity_state: ActivityState, current_time: float) -> None:
         """Handle the Inactive state of the window based on mouse activity."""
-        if mouse_state == MouseState.Active:
+        if activity_state == ActivityState.Active:
             self._start_fade(FadeState.FadingIn, current_time)
 
 
@@ -111,36 +113,25 @@ class WindowFadeManager:
         self.start_alpha = self._alpha
 
 
-    def _get_mouse_state(self, current_time: float, 
-                        mouse_pos: Tuple[float, float], 
-                        window_pos: Tuple[float, float] = None, 
-                        window_size: Tuple[float, float] = None) -> MouseState:
+    def _get_mouse_state(self, current_time: float, mouse_pos: Tuple[float, float]) -> ActivityState:
         """
         Determine the mouse state based on its position, last movement time, and window rect.
 
         Parameters:
         current_time (float): The current time as a float timestamp.
         mouse_pos (Tuple[float, float]): The current position of the mouse.
-        window_pos (Tuple[float, float]): The position (x, y) of the top-left corner of the window.
-        window_size (Tuple[float, float]): The size (width, height) of the window.
 
         Returns:
-        MouseState: The current state of the mouse (Active, Inactive, Idle).
-        """
-        if window_pos is not None and window_size is not None:
-            window_rect = (window_pos[0], window_pos[1], window_pos[0] + window_size[0], window_pos[1] + window_size[1])
-            if window_rect[0] <= mouse_pos[0] <= window_rect[2] and \
-               window_rect[1] <= mouse_pos[1] <= window_rect[3]:
-                return MouseState.Active
-        
+        ActivityState: The current state of the mouse (Active, Inactive, Idle).
+        """       
         if mouse_pos != self.last_mouse_pos:
             self.last_mouse_pos = mouse_pos
             self.last_time_mouse_moved = current_time
-            return MouseState.Active
+            return ActivityState.Active
         elif current_time - self.last_time_mouse_moved >= self.fade_delay:
-            return MouseState.Idle
+            return ActivityState.Idle
         else:
-            return MouseState.Inactive
+            return ActivityState.Inactive
 
 
     def _process_fade(self, current_time: float, start_alpha: float, end_alpha: float, start_time: float, duration: float) -> bool:
