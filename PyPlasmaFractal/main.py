@@ -26,6 +26,8 @@ import os
 import imgui
 from imgui.integrations.glfw import GlfwRenderer
 
+from PyPlasmaFractal.mylib.gfx.separable_gaussian_blur import SeparableGaussianBlur
+
 # Ensure the package root is in sys.path so that the local modules can be imported when PyInstaller runs the script
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
@@ -283,6 +285,7 @@ class PyPlasmaFractalApp:
         """
         main_renderer = PlasmaFractalRenderer(self.ctx)
         texture_to_screen = FullscreenTextureRenderer(self.ctx)
+        gaussian_blur = SeparableGaussianBlur(self.ctx, self.feedback_manager)
         fps_limiter = FrameRateLimiter(self.desired_fps)                     
 
         while not glfw.window_should_close(self.window):
@@ -297,7 +300,7 @@ class PyPlasmaFractalApp:
             elapsed_time = self.handle_time()
 
             if not self.gui.animation_paused:
-                self.render_frame(main_renderer, elapsed_time)
+                self.render_frame(main_renderer, gaussian_blur, elapsed_time)
 
             texture_to_screen.render(self.feedback_manager.current_texture, self.ctx.screen)
 
@@ -312,15 +315,18 @@ class PyPlasmaFractalApp:
                 fps_limiter.end_frame()
                 
             self.fps_calculator.update()
-            
     
-    def render_frame(self, main_renderer, elapsed_time):
+    
+    def render_frame(self, main_renderer, gaussian_blur, elapsed_time):
         """
         Render a single frame of the fractal visuals.
         """
         # Swap the textures so the previous frame will be used for feedback  
         self.feedback_manager.swap_textures()
         
+        # Apply Gaussian blur to the previous frame (now current for feedback)
+        gaussian_blur.apply_blur(1.0)
+            
         # Clear the feedback textures if a new preset has been loaded, to ensure we start with a clean state
         if self.gui.notifications.pull_notification(PlasmaFractalGUI.Notification.NEW_PRESET_LOADED):
             self.feedback_manager.clear()
