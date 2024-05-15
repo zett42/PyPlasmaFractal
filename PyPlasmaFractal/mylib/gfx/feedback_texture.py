@@ -47,7 +47,7 @@ class FeedbackTextureManager:
 
     def render_to_texture(self, vao: moderngl.VertexArray) -> None:
         """
-        Renders to the current destination texture using the other texture as a source.
+        Renders to the current destination texture.
         
         Parameters:
         - vao: The vertex array object to render.
@@ -61,7 +61,14 @@ class FeedbackTextureManager:
             # Render the object
             vao.render(moderngl.TRIANGLES)
         
-        # Swap index for next render call
+        
+    def swap_textures(self) -> None:
+        """
+        Swaps the current destination texture with the texture of the previous frame.
+
+        Returns:
+            None
+        """
         self.current_render_index = 1 - self.current_render_index
 
 

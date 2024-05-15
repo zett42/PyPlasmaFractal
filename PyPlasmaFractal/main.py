@@ -297,13 +297,7 @@ class PyPlasmaFractalApp:
             elapsed_time = self.handle_time()
 
             if not self.gui.animation_paused:
-
-                # Clear the feedback textures if a new preset has been loaded, to ensure we start with a clean state
-                if self.gui.notifications.pull_notification(PlasmaFractalGUI.Notification.NEW_PRESET_LOADED):
-                    self.feedback_manager.clear()
-
-                main_renderer.update_params(self.params, self.feedback_manager.previous_texture, elapsed_time, self.feedback_manager.aspect_ratio)
-                self.feedback_manager.render_to_texture(main_renderer.current_vao)
+                self.render_frame(main_renderer, elapsed_time)
 
             texture_to_screen.render(self.feedback_manager.current_texture)
 
@@ -318,7 +312,23 @@ class PyPlasmaFractalApp:
                 fps_limiter.end_frame()
                 
             self.fps_calculator.update()
+            
+    
+    def render_frame(self, main_renderer, elapsed_time):
+        """
+        Render a single frame of the fractal visuals.
+        """
+        # Swap the textures so the previous frame will be used for feedback  
+        self.feedback_manager.swap_textures()
+        
+        # Clear the feedback textures if a new preset has been loaded, to ensure we start with a clean state
+        if self.gui.notifications.pull_notification(PlasmaFractalGUI.Notification.NEW_PRESET_LOADED):
+            self.feedback_manager.clear()
 
+        # Update the main renderer with the current parameters and render to the destination texture
+        main_renderer.update_params(self.params, self.feedback_manager.previous_texture, elapsed_time, self.feedback_manager.aspect_ratio)
+        self.feedback_manager.render_to_texture(main_renderer.current_vao)
+        
 
     def handle_window_resize(self):
         """
