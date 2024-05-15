@@ -590,8 +590,10 @@ class PlasmaFractalGUI:
 
             if self.recording_resolution == 'Custom':
                 # Input fields for custom resolution
-                ih.input_int("Width", self, 'recording_width', step=1, step_fast=10)
+                ih.input_int("Width", self, 'recording_width',  step=1, step_fast=10)
                 ih.input_int("Height", self, 'recording_height', step=1, step_fast=10)
+                self.recording_width = max(2, self.recording_width)
+                self.recording_height = max(2, self.recording_height)
             else:
                 # Update resolution from predefined resolutions
                 self.recording_width, self.recording_height = common_resolutions[self.recording_resolution]
@@ -607,6 +609,7 @@ class PlasmaFractalGUI:
             imgui.spacing()
             ih.input_int("Duration (sec)", self, 'recording_duration', step=1, step_fast=10)
             if self.recording_duration < 0:
+                # Value of 0 means no limit (manual stop required)
                 self.recording_duration = 0
 
             # Start/Stop recording toggle button
