@@ -59,7 +59,7 @@ class SeparableGaussianBlur:
 
         uniform sampler2D inputTexture;
         uniform sampler2D weightsTexture;
-        uniform float maxRadius;
+        uniform float radius;
         uniform float radiusPower;
         uniform vec2 offset;
         out vec4 fragColor;
@@ -72,7 +72,7 @@ class SeparableGaussianBlur:
 
             // Calculate the blur radius based on brightness and apply radius power
             brightness = pow(1.0 - brightness, radiusPower);
-            float radius = max(brightness * maxRadius, 0.5);  // Minimum radius of 0.5 to avoid overly small blur
+            float radius = max(brightness * radius, 0.5);  // Minimum radius of 0.5 to avoid overly small blur
             int intRadius = int(radius);
 
             // Initialize accumulation variables
@@ -191,7 +191,7 @@ class SeparableGaussianBlur:
             raise ValueError(f"Blur radius {radius} exceeds maximum radius {self.max_radius}")
         
         # Set the shader uniforms that are constant for the entire blur operation
-        self.shader['maxRadius'].value = radius
+        self.shader['radius'].value = radius
         self.shader['radiusPower'].value = radius_power
 
         # Bind the weights texture to the shader
