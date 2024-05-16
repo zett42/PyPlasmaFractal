@@ -56,31 +56,40 @@ class SeparableGaussianBlur:
 
         fragment_shader_src = f"""
         #version 330
+
         uniform sampler2D inputTexture;
         uniform sampler2D weightsTexture;
         uniform float maxRadius;
         uniform float radiusPower;
-        uniform float offsetX;
-        uniform float offsetY;
+        uniform vec2 offset;
         out vec4 fragColor;
         in vec2 texCoord;
 
         void main() {{
+            // Fetch the initial color and calculate its brightness
             vec4 color = texture(inputTexture, texCoord);
             float brightness = dot(color.rgb, vec3(0.299, 0.587, 0.114)); // Luminance formula
-            brightness = pow(1.0 - brightness, radiusPower);            
-            float radius = max(brightness * maxRadius, 0.5);  // Adding a minimum radius threshold
+
+            // Calculate the blur radius based on brightness and apply radius power
+            brightness = pow(1.0 - brightness, radiusPower);
+            float radius = max(brightness * maxRadius, 0.5);  // Minimum radius of 0.5 to avoid overly small blur
             int intRadius = int(radius);
-            
+
+            // Initialize accumulation variables
             vec4 tmp = vec4(0.0);
             float sumWeight = 0.0;
+
+            // Accumulate weighted color samples
             for (int i = -intRadius; i <= intRadius; i++) {{
                 float weight = texelFetch(weightsTexture, ivec2({self.max_radius} + i, intRadius), 0).r;
-                vec2 offset = vec2(float(i) * offsetX, float(i) * offsetY);
-                tmp += texture(inputTexture, texCoord + offset) * weight;
+                vec2 offsetCoord = vec2(float(i)) * offset;
+                vec2 clampedCoord = clamp(texCoord + offsetCoord, vec2(0.0), vec2(1.0));
+                tmp += texture(inputTexture, clampedCoord) * weight;
                 sumWeight += weight;
             }}
-            fragColor = tmp / sumWeight;  // Normalize the final color to avoid any discrepancies
+
+            // Normalize the final color to avoid any discrepancies
+            fragColor = tmp / sumWeight;
         }}
         """
 
@@ -192,14 +201,13 @@ class SeparableGaussianBlur:
                       (0.0, 1.0 / self.texture_manager.height)]  # Vertical offsets
 
         # Apply the blur in both directions
-        for offsetX, offsetY in directions:
+        for current_direction in directions:
             
             # Bind the source texture to the shader
             self.texture_manager.previous_texture.use(location=0)
             
             # Set the shader uniforms for the current direction
-            self.shader['offsetX'].value = offsetX
-            self.shader['offsetY'].value = offsetY
+            self.shader['offset'].value = current_direction
             
             # Render to the texture and swap the textures to apply the blur in both directions
             self.texture_manager.render_to_texture(self.vao)
