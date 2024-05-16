@@ -54,7 +54,7 @@ class SeparableGaussianBlur:
         }        
         """
 
-        fragment_shader_src = f"""
+        fragment_shader_src = """
         #version 330
 
         uniform sampler2D inputTexture;
@@ -65,33 +65,33 @@ class SeparableGaussianBlur:
         out vec4 fragColor;
         in vec2 texCoord;
 
-        void main() {{
+        void main() {
             // Fetch the initial color and calculate its brightness
             vec4 color = texture(inputTexture, texCoord);
             float brightness = dot(color.rgb, vec3(0.299, 0.587, 0.114)); // Luminance formula
 
             // Calculate the blur radius based on brightness and apply radius power
             brightness = pow(1.0 - brightness, radiusPower);
-            float radius = max(brightness * radius, 0.01);  // Minimum radius to avoid overly small blur
-            int intRadius = int(radius);
+            float dynamicRadius = max(brightness * radius, 0.01);  // Minimum radius to avoid overly small blur
+            int intRadius = int(dynamicRadius);
 
             // Initialize accumulation variables
             vec4 tmp = vec4(0.0);
             float sumWeight = 0.0;
 
             // Accumulate weighted color samples
-            for (int i = -intRadius; i <= intRadius; i++) {{
-                float weight = texelFetch(weightsTexture, ivec2({self.max_radius} + i, intRadius), 0).r;
+            for (int i = -intRadius; i <= intRadius; i++) {
+                float weight = texelFetch(weightsTexture, ivec2(MAX_RADIUS + i, intRadius), 0).r;
                 vec2 offsetCoord = vec2(float(i)) * offset;
                 vec2 clampedCoord = clamp(texCoord + offsetCoord, vec2(0.0), vec2(1.0));
                 tmp += texture(inputTexture, clampedCoord) * weight;
                 sumWeight += weight;
-            }}
+            }
 
             // Normalize the final color to avoid any discrepancies
             fragColor = tmp / sumWeight;
-        }}
-        """
+        }
+        """.replace('MAX_RADIUS', str(self.max_radius))
 
         return self.ctx.program(vertex_shader=vertex_shader_src, fragment_shader=fragment_shader_src)
 
@@ -188,7 +188,7 @@ class SeparableGaussianBlur:
             None
         """
         if radius > self.max_radius:
-            raise ValueError(f"Blur radius {radius} exceeds maximum radius {self.max_radius}")
+            raise ValueError(f"Blur radius {radius} exceeds maximum radius MAX_RADIUS")
         
         # Set the shader uniforms that are constant for the entire blur operation
         self.shader['radius'].value = radius
