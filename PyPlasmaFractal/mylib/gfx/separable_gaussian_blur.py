@@ -121,7 +121,9 @@ class SeparableGaussianBlur:
         all_weights = np.array(all_weights, dtype='f4')
         
         texture = self.ctx.texture((2 * self.max_radius + 1, self.max_radius + 1), 1, all_weights.tobytes(), dtype='f4')
-        #texture.filter = (moderngl.NEAREST, moderngl.NEAREST)
+        
+        # Set NEAREST filter for more exact texture lookups
+        texture.filter = (moderngl.NEAREST, moderngl.NEAREST)
                
         return texture
 
