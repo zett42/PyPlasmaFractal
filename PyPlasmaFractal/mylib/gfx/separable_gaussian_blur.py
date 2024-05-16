@@ -72,7 +72,7 @@ class SeparableGaussianBlur:
 
             // Calculate the blur radius based on brightness and apply radius power
             brightness = pow(1.0 - brightness, radiusPower);
-            float radius = max(brightness * radius, 0.5);  // Minimum radius of 0.5 to avoid overly small blur
+            float radius = max(brightness * radius, 0.01);  // Minimum radius to avoid overly small blur
             int intRadius = int(radius);
 
             // Initialize accumulation variables
