@@ -210,6 +210,7 @@ class PlasmaFractalParams:
         # Feedback blur settings
         self.enableFeedbackBlur = False
         self.feedbackBlurRadius = 2
+        self.feedbackBlurRadiusPower = 1.0
         
         # Warp settings for feedback
         self.warpFunction = WarpFunction.Offset

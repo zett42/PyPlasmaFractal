@@ -288,7 +288,7 @@ class PyPlasmaFractalApp:
         gaussian_blur = SeparableGaussianBlur(self.ctx, self.feedback_manager)
         fps_limiter = FrameRateLimiter(self.desired_fps)     
         
-        first_frame = True                
+        self.first_frame = True                
 
         while not glfw.window_should_close(self.window):
 
@@ -302,7 +302,7 @@ class PyPlasmaFractalApp:
             elapsed_time = self.handle_time()
 
             if not self.gui.animation_paused:
-                self.render_frame(main_renderer, gaussian_blur, elapsed_time, first_frame)
+                self.render_frame(main_renderer, gaussian_blur, elapsed_time)
 
             texture_to_screen.render(self.feedback_manager.current_texture, self.ctx.screen)
 
@@ -318,25 +318,26 @@ class PyPlasmaFractalApp:
                 
             self.fps_calculator.update()
             
-            first_frame = False
+            self.first_frame = False
     
     
-    def render_frame(self, main_renderer, gaussian_blur, elapsed_time, first_frame):
+    def render_frame(self, main_renderer, gaussian_blur, elapsed_time):
         """
         Render a single frame of the fractal visuals.
         """
         # Check if the first frame is being rendered to avoid issues with uninitialized feedback textures
-        if not first_frame:
+        if not self.first_frame:
             # Swap the textures so the previous frame will be used for feedback  
             self.feedback_manager.swap_textures()
         
             if self.params.enableFeedbackBlur:
                 # Apply Gaussian blur to the previous frame, utilizing the (yet unused) destination texture as intermediate storage
-                gaussian_blur.apply_blur(self.params.feedbackBlurRadius)
+                gaussian_blur.apply_blur(self.params.feedbackBlurRadius, self.params.feedbackBlurRadiusPower)
             
         # Clear the feedback textures if a new preset has been loaded, to ensure we start with a clean state
         if self.gui.notifications.pull_notification(PlasmaFractalGUI.Notification.NEW_PRESET_LOADED):
             self.feedback_manager.clear()
+            self.first_frame = True
 
         # Update the main renderer with the current parameters and render to the destination texture
         main_renderer.update_params(self.params, self.feedback_manager.previous_texture, elapsed_time, self.feedback_manager.aspect_ratio)
@@ -360,6 +361,7 @@ class PyPlasmaFractalApp:
                 # During recording, the feedback textures should not be resized, since the video size is fixed
                 if not self.recorder.is_recording:
                     self.feedback_manager.resize(self.requested_framebuffer_size.width, self.requested_framebuffer_size.height)
+                    self.first_frame = True
                 
                 self.resize_requested = False
 

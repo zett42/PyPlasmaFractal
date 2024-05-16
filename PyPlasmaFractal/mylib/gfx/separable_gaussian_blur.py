@@ -34,6 +34,7 @@ class SeparableGaussianBlur:
         uniform sampler2D inputTexture;
         uniform sampler2D weightsTexture;
         uniform float maxRadius;
+        uniform float radiusPower;
         uniform float offsetX;
         uniform float offsetY;
         out vec4 fragColor;
@@ -42,7 +43,8 @@ class SeparableGaussianBlur:
         void main() {{
             vec4 color = texture(inputTexture, texCoord);
             float brightness = dot(color.rgb, vec3(0.299, 0.587, 0.114)); // Luminance formula
-            float radius = max((1.0 - brightness) * maxRadius, 0.5);  // Adding a minimum radius threshold
+            brightness = pow(1.0 - brightness, radiusPower);            
+            float radius = max(brightness * maxRadius, 0.5);  // Adding a minimum radius threshold
             int intRadius = int(radius);
             
             vec4 tmp = vec4(0.0);
@@ -113,7 +115,7 @@ class SeparableGaussianBlur:
         return padded_weights
 
 
-    def apply_blur(self, radius: float):
+    def apply_blur(self, radius: float, radius_power=1.0):
         
         if radius > self.max_radius:
             raise ValueError(f"Blur radius {radius} exceeds maximum radius {self.max_radius}")
@@ -127,5 +129,6 @@ class SeparableGaussianBlur:
             self.weights_texture.use(location=1)
             self.shader['offsetX'].value = offsetX
             self.shader['offsetY'].value = offsetY
+            self.shader['radiusPower'].value = radius_power  # Set the non-linearity factor
             self.texture_manager.render_to_texture(self.vao)
             self.texture_manager.swap_textures()

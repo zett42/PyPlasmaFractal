@@ -215,6 +215,7 @@ class PlasmaFractalGUI:
                                    
                 ih.checkbox("Enable Blur", params, 'enableFeedbackBlur')
                 ih.slider_int("Blur Radius", params, 'feedbackBlurRadius', min_value=1, max_value=10)
+                ih.slider_float("Blur Radius Power", params, 'feedbackBlurRadiusPower', min_value=0.01, max_value=20, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)
       
             if ih.collapsing_header("Warp Noise Settings", self, attr='feedback_warp_noise_settings_open'):
 
