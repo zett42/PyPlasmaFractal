@@ -20,7 +20,7 @@ class WindowFadeManager:
     """Manages the fading of a window based on mouse activity."""
 
     def __init__(self, 
-                 fade_delay: float = 3.0, 
+                 fade_delay: float = 2.0, 
                  fade_out_duration: float = 1.0, fade_in_duration: float = 0.25, 
                  alpha_active: float = 1.0, alpha_inactive: float = 0.0):
         """
