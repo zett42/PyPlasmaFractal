@@ -286,7 +286,9 @@ class PyPlasmaFractalApp:
         main_renderer = PlasmaFractalRenderer(self.ctx)
         texture_to_screen = FullscreenTextureRenderer(self.ctx)
         gaussian_blur = SeparableGaussianBlur(self.ctx, self.feedback_manager)
-        fps_limiter = FrameRateLimiter(self.desired_fps)                     
+        fps_limiter = FrameRateLimiter(self.desired_fps)     
+        
+        first_frame = True                
 
         while not glfw.window_should_close(self.window):
 
@@ -300,7 +302,7 @@ class PyPlasmaFractalApp:
             elapsed_time = self.handle_time()
 
             if not self.gui.animation_paused:
-                self.render_frame(main_renderer, gaussian_blur, elapsed_time)
+                self.render_frame(main_renderer, gaussian_blur, elapsed_time, first_frame)
 
             texture_to_screen.render(self.feedback_manager.current_texture, self.ctx.screen)
 
@@ -315,18 +317,22 @@ class PyPlasmaFractalApp:
                 fps_limiter.end_frame()
                 
             self.fps_calculator.update()
+            
+            first_frame = False
     
     
-    def render_frame(self, main_renderer, gaussian_blur, elapsed_time):
+    def render_frame(self, main_renderer, gaussian_blur, elapsed_time, first_frame):
         """
         Render a single frame of the fractal visuals.
         """
-        # Swap the textures so the previous frame will be used for feedback  
-        self.feedback_manager.swap_textures()
+        # Check if the first frame is being rendered to avoid issues with uninitialized feedback textures
+        if not first_frame:
+            # Swap the textures so the previous frame will be used for feedback  
+            self.feedback_manager.swap_textures()
         
-        if self.params.enableFeedbackBlur:
-            # Apply Gaussian blur to the previous frame, utilizing the (yet unused) destination texture as intermediate storage
-            gaussian_blur.apply_blur(self.params.feedbackBlurRadius)
+            if self.params.enableFeedbackBlur:
+                # Apply Gaussian blur to the previous frame, utilizing the (yet unused) destination texture as intermediate storage
+                gaussian_blur.apply_blur(self.params.feedbackBlurRadius)
             
         # Clear the feedback textures if a new preset has been loaded, to ensure we start with a clean state
         if self.gui.notifications.pull_notification(PlasmaFractalGUI.Notification.NEW_PRESET_LOADED):
