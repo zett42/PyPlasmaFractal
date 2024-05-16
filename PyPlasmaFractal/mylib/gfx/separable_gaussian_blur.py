@@ -178,7 +178,13 @@ class SeparableGaussianBlur:
         """
         if radius > self.max_radius:
             raise ValueError(f"Blur radius {radius} exceeds maximum radius {self.max_radius}")
-        self.shader['maxRadius'].value = radius  # Pass the user-specified radius to the shader
+        
+        # Set the shader uniforms that are constant for the entire blur operation
+        self.shader['maxRadius'].value = radius
+        self.shader['radiusPower'].value = radius_power
+
+        # Bind the weights texture to the shader
+        self.weights_texture.use(location=1)
 
         directions = [(1.0 / self.texture_manager.width, 0.0),   # Horizontal offsets
                       (0.0, 1.0 / self.texture_manager.height)]  # Vertical offsets
@@ -186,14 +192,12 @@ class SeparableGaussianBlur:
         # Apply the blur in both directions
         for offsetX, offsetY in directions:
             
-            # Bind the textures
+            # Bind the source texture to the shader
             self.texture_manager.previous_texture.use(location=0)
-            self.weights_texture.use(location=1)
             
-            # Set the shader uniforms
+            # Set the shader uniforms for the current direction
             self.shader['offsetX'].value = offsetX
             self.shader['offsetY'].value = offsetY
-            self.shader['radiusPower'].value = radius_power  # Set the non-linearity factor
             
             # Render to the texture and swap the textures to apply the blur in both directions
             self.texture_manager.render_to_texture(self.vao)
