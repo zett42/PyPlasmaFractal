@@ -1,0 +1,204 @@
+{
+    "description": "Feedback warp functions",
+    "functions": {
+      "Offset": {
+        "display_name": "Offset",
+        "fractal_noise_variant": "Double",
+        "params": [
+          {
+            "display_name": "Amplitude",
+            "logarithmic": true,
+            "default": 0.05
+          }
+        ]
+      },
+      "Polar": {
+        "display_name": "Polar",
+        "fractal_noise_variant": "Double",
+        "params": [
+          {
+            "display_name": "Radial Strength",
+            "logarithmic": true,
+            "default": 0.02
+          },
+          {
+            "display_name": "Rotation Factor",
+            "logarithmic": true,
+            "default": 0.1
+          }
+        ]
+      },
+      "Swirl": {
+        "display_name": "Swirl",
+        "fractal_noise_variant": "Deriv",
+        "params": [
+          {
+            "display_name": "Radial Strength",
+            "logarithmic": true,
+            "default": 0.02
+          },
+          {
+            "display_name": "Swirl Strength",
+            "logarithmic": true,
+            "default": 0.08
+          },
+          {
+            "display_name": "Isolation Factor",
+            "logarithmic": true,
+            "default": 0.0
+          }
+        ]
+      },
+      "SwirlSigmoid": {
+        "display_name": "Swirl Sigmoid",
+        "fractal_noise_variant": "Deriv",
+        "params": [
+          {
+            "display_name": "Radial Strength",
+            "logarithmic": true,
+            "default": 0.02
+          },
+          {
+            "display_name": "Swirl Strength",
+            "logarithmic": true,
+            "default": 0.08
+          },
+          {
+            "display_name": "Transition Sharpness",
+            "logarithmic": true,
+            "default": 0.0
+          },
+          {
+            "display_name": "Transition Point",
+            "logarithmic": false,
+            "default": 0.5
+          }
+        ]
+      },
+      "SwirlSigmoidDistorted": {
+        "display_name": "Swirl Sigmoid Distorted",
+        "fractal_noise_variant": "Deriv",
+        "params": [
+          {
+            "display_name": "Radial Strength",
+            "logarithmic": true,
+            "default": 0.02
+          },
+          {
+            "display_name": "Swirl Strength",
+            "logarithmic": true,
+            "default": 0.08
+          },
+          {
+            "display_name": "Transition Sharpness",
+            "logarithmic": true,
+            "default": 0.0
+          },
+          {
+            "display_name": "Transition Point",
+            "logarithmic": false,
+            "default": 0.5
+          },
+          {
+            "display_name": "Error Scale",
+            "logarithmic": true,
+            "default": 0.0
+          },
+          {
+            "display_name": "Error Threshold",
+            "logarithmic": true,
+            "default": 0.0
+          },
+          {
+            "display_name": "Error Midpoint",
+            "logarithmic": false,
+            "default": 0.5
+          },
+          {
+            "display_name": "Error Strength",
+            "logarithmic": true,
+            "default": 0.3
+          },
+          {
+            "display_name": "Error Speed",
+            "logarithmic": true,
+            "default": 0.3
+          }
+        ]
+      },
+      "OffsetDeriv": {
+        "display_name": "Offset Derivatives",
+        "fractal_noise_variant": "Deriv",
+        "params": [
+          {
+            "display_name": "Amplitude",
+            "logarithmic": true,
+            "default": 0.02
+          }
+        ]
+      },
+      "InfiniteMirror": {
+        "display_name": "Infinite Mirror",
+        "fractal_noise_variant": "Deriv",
+        "params": [
+          {
+            "display_name": "Duplication Scale",
+            "logarithmic": true,
+            "default": 0.5
+          },
+          {
+            "display_name": "Influence Radius",
+            "logarithmic": true,
+            "default": 0.5
+          },
+          {
+            "display_name": "Non-Linearity",
+            "logarithmic": true,
+            "default": 0.0
+          },
+          {
+            "display_name": "Base Rotation",
+            "logarithmic": true,
+            "default": 0.0
+          },
+          {
+            "display_name": "Time Modulation",
+            "logarithmic": true,
+            "default": 0.0
+          },
+          {
+            "display_name": "Frequency",
+            "logarithmic": true,
+            "default": 2.0
+          }
+        ]
+      },
+      "Test": {
+        "display_name": "Test",
+        "fractal_noise_variant": "Deriv",
+        "params": [
+          {
+            "display_name": "Param1",
+            "logarithmic": true,
+            "default": 0.1
+          },
+          {
+            "display_name": "Param2",
+            "logarithmic": true,
+            "default": 0.1
+          },
+          {
+            "display_name": "Param3",
+            "logarithmic": true,
+            "default": 0.0
+          },
+          {
+            "display_name": "Param4",
+            "logarithmic": true,
+            "default": 0.0
+          }
+        ]
+      }
+    }
+  }
+  

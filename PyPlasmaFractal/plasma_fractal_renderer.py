@@ -12,7 +12,7 @@ from PyPlasmaFractal.mylib.gfx.shader_cache import VariantShaderCache
 from PyPlasmaFractal.mylib.gfx.shader_template_system import make_dict_source_resolver
 from PyPlasmaFractal.mylib.config.files_to_dict import read_directory_files_to_dict
 from PyPlasmaFractal.types import ShaderFunctionType
-from .plasma_fractal_params import PlasmaFractalParams, WarpFunctionRegistry
+from .plasma_fractal_params import PlasmaFractalParams
 
 
 class PlasmaFractalRenderer:
@@ -103,6 +103,7 @@ class PlasmaFractalRenderer:
             view_scale = Vec2(1.0, 1.0 / aspect_ratio)  
 
         blend_function_registry = shader_function_registries[ShaderFunctionType.BLEND]
+        warp_function_registry  = shader_function_registries[ShaderFunctionType.WARP]
 
         # Parameters that define how the fragment shader is generated from templates
         fragment_template_params = {
@@ -112,7 +113,7 @@ class PlasmaFractalRenderer:
             'FB_WARP_FRACTAL_NOISE_VARIANT': params.get_current_warp_function_info().fractal_noise_variant.name,
             'FB_WARP_NOISE_FUNC': params.warpNoiseAlgorithm.name,
             'FB_WARP_XFORM_FUNC': params.warpFunction.name,
-            'MAX_WARP_PARAMS': WarpFunctionRegistry.max_param_count(),
+            'MAX_WARP_PARAMS': warp_function_registry.max_param_count(),
             'MAX_FEEDBACK_PARAMS': blend_function_registry.max_param_count(),
         }
         self.program, _ = self.shader_cache.get_or_create_program(fragment_template_params=fragment_template_params)
@@ -160,7 +161,7 @@ class PlasmaFractalRenderer:
             self.program['u_warpScale'] = (params.warpScale * view_scale.x, params.warpScale * view_scale.y)
 
             # Assign the parameters to their respective shader uniforms
-            self.set_params_uniform(params.get_current_warp_params(), 'u_warpParams', WarpFunctionRegistry.max_param_count())
+            self.set_params_uniform(params.get_current_warp_params(), 'u_warpParams', warp_function_registry.max_param_count())
             self.set_params_uniform(params.get_current_feedback_params(), 'u_feedbackParams', blend_function_registry.max_param_count())
 
             feedback_texture.use(location=0)

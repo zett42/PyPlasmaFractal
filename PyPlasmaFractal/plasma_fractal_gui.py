@@ -19,7 +19,7 @@ from PyPlasmaFractal.mylib.gui.window_fade_manager import WindowFadeManager
 import PyPlasmaFractal.mylib.gui.imgui_helper as ih
 from PyPlasmaFractal.mylib.color.adjust_color import modify_rgba_color_hsv
 from PyPlasmaFractal.types import ShaderFunctionType
-from .plasma_fractal_params import PlasmaFractalParams, WarpFunctionRegistry
+from .plasma_fractal_params import PlasmaFractalParams, FunctionRegistry
 
 class PlasmaFractalGUI:
     """
@@ -212,7 +212,7 @@ class PlasmaFractalGUI:
         """
         with ih.resized_items(-160):
 
-            self.function_settings_dynamic(header="Feedback Mix Settings", header_attr='feedback_general_settings_open', 
+            self.function_settings(header="Feedback Mix Settings", header_attr='feedback_general_settings_open', 
                                    registry=self.blend_function_registry, function_attr='feedback_function', params_attr='feedback_params', 
                                    params=params)
       
@@ -232,57 +232,11 @@ class PlasmaFractalGUI:
                 ih.slider_float("Time Offset/Octave", params, 'warpTimeOffsetIncrement', min_value=0.0, max_value=20.0)
 
             self.function_settings(header="Warp Function Settings", header_attr='feedback_warp_effect_settings_open', 
-                                   registry=WarpFunctionRegistry, function_attr='warpFunction', params_attr='warpParams',
+                                   registry=self.warp_function_registry, function_attr='warpFunction', params_attr='warpParams',
                                    params=params)
 
 
     def function_settings(self, 
-                          header: str, 
-                          header_attr: str, 
-                          registry: FunctionRegistry,
-                          function_attr: str,
-                          params_attr: str,
-                          params: PlasmaFractalParams):
-        """
-        Display the settings for a specific function.
-
-        Args:
-            header (str): The header text to display for the collapsible section.
-            header_attr (str): The attribute name in the object to store the collapsed state.
-            registry (FunctionRegistry): The registry of available functions.
-            function_attr (str): The attribute name in the object to store the selected function.
-            params (PlasmaFractalParams): The object containing the overall parameters.
-
-        Returns:
-            None
-        """
-        if ih.collapsing_header(header, self, attr=header_attr):
-            
-            # Dropdown for the available functions
-            # Make sure to create a unique identifier by appending the header to the label
-            ih.enum_combo(f"Function##{header}", obj=params, attr=function_attr)
-            
-            selected_function = getattr(params, function_attr)
-            
-            # Get the current function info
-            function_info = registry.get_function_info(selected_function)
-            
-            # Get the parameters for the selected function
-            function_params_dict = getattr(params, params_attr)
-            function_params = function_params_dict[selected_function.name] 
-            
-            # Generate sliders for the function's parameters
-            for index, param_info in enumerate(function_info.params):
-
-                changed, new_value = imgui.slider_float(f"{param_info.display_name}##{header}", 
-                                                        function_params[index], 
-                                                        param_info.min, 
-                                                        param_info.max, 
-                                                        flags=imgui.SLIDER_FLAGS_LOGARITHMIC if param_info.logarithmic else 0)
-                if changed:
-                    function_params[index] = new_value
-
-    def function_settings_dynamic(self, 
                           header: str, 
                           header_attr: str, 
                           registry: FunctionRegistryDynamic,

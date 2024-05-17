@@ -35,7 +35,7 @@ def mock_storage():
                 "display_name": "Example Single Param",
                 "params": [
                     {
-                        "name": "Single Param",
+                        "display_name": "Single Param",
                         "logarithmic": False,
                         "min": 0.0,
                         "max": 1.0,
@@ -47,14 +47,14 @@ def mock_storage():
                 "display_name": "Example Two Params",
                 "params": [
                     {
-                        "name": "First Param",
+                        "display_name": "First Param",
                         "logarithmic": False,
                         "min": 0.0,
                         "max": 1.0,
                         "default": 0.2
                     },
                     {
-                        "name": "Second Param",
+                        "display_name": "Second Param",
                         "logarithmic": True,
                         "min": 0.0,
                         "max": 2.0,
@@ -72,7 +72,7 @@ def mock_storage():
                 "display_name": "New Function",
                 "params": [
                     {
-                        "name": "New Param",
+                        "display_name": "New Param",
                         "logarithmic": True,
                         "min": 0.0,
                         "max": 1.0,
@@ -90,7 +90,7 @@ def mock_storage():
                 "display_name": "Duplicate Example Single Param",
                 "params": [
                     {
-                        "name": "Duplicate Param",
+                        "display_name": "Duplicate Param",
                         "logarithmic": False,
                         "min": 0.0,
                         "max": 1.0,
@@ -111,7 +111,7 @@ def mock_storage():
 def test_initialization(mock_storage):
     
     registry = FunctionRegistryDynamic(mock_storage, "initial_data")
-    assert registry.data_name == "initial_data"
+    assert registry.name_filter == "initial_data"
     assert len(registry.functions) == 2
 
 
