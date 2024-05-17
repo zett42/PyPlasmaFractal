@@ -5,7 +5,7 @@ import moderngl
 import numpy as np
 from collections import namedtuple
 
-from PyPlasmaFractal.mylib.gfx.function_registry_dynamic import FunctionRegistryDynamic
+from PyPlasmaFractal.mylib.config.function_registry import FunctionRegistry
 from PyPlasmaFractal.mylib.named_tuples import Vec2
 from PyPlasmaFractal.mylib.resources import resource_path
 from PyPlasmaFractal.mylib.gfx.shader_cache import VariantShaderCache
@@ -80,7 +80,7 @@ class PlasmaFractalRenderer:
 
     def update_params(self, 
                       params: PlasmaFractalParams, 
-                      shader_function_registries: Dict[ShaderFunctionType, FunctionRegistryDynamic], 
+                      shader_function_registries: Dict[ShaderFunctionType, FunctionRegistry], 
                       feedback_texture: moderngl.Texture, 
                       time: float, 
                       aspect_ratio: float):

@@ -50,7 +50,7 @@ from PyPlasmaFractal.mylib.recording.video_recorder import VideoRecorder
 from PyPlasmaFractal.mylib.gui.window_config_manager import WindowConfigManager
 from PyPlasmaFractal.mylib.gfx.animation_timer import AnimationTimer
 from PyPlasmaFractal.mylib.gui.icons import Icons
-from PyPlasmaFractal.mylib.gfx.function_registry_dynamic import FunctionRegistryDynamic
+from PyPlasmaFractal.mylib.config.function_registry import FunctionRegistry
 
 from PyPlasmaFractal.plasma_fractal_types import ShaderFunctionType
 from PyPlasmaFractal.plasma_fractal_renderer import PlasmaFractalRenderer
@@ -301,7 +301,7 @@ class PyPlasmaFractalApp:
         }
         
         self.shader_function_registries = {
-            func_type: FunctionRegistryDynamic(JsonFileStorage(shaders_path / dir_name), descriptor_filter)
+            func_type: FunctionRegistry(JsonFileStorage(shaders_path / dir_name), descriptor_filter)
             for func_type, dir_name in function_dirs.items()
         }
         

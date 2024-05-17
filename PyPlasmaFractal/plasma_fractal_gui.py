@@ -11,8 +11,8 @@ import imgui
 from PyPlasmaFractal.mylib.config.config_path_manager import ConfigPathManager
 from PyPlasmaFractal.mylib.config.json_file_storage import JsonFileStorage
 from PyPlasmaFractal.mylib.config.source_manager import StorageSourceManager
-from PyPlasmaFractal.mylib.gfx.function_registry import FunctionRegistry
-from PyPlasmaFractal.mylib.gfx.function_registry_dynamic import FunctionRegistryDynamic
+from PyPlasmaFractal.mylib.config.function_registry import FunctionRegistry
+from PyPlasmaFractal.mylib.config.function_registry import FunctionRegistry
 from PyPlasmaFractal.mylib.gui.icons import Icons
 from PyPlasmaFractal.mylib.gui.notification_manager import NotificationManager
 from PyPlasmaFractal.mylib.gui.window_fade_manager import WindowFadeManager
@@ -274,7 +274,7 @@ class PlasmaFractalGUI:
                                    params=params)
 
 
-    def function_combo(self, combo_label: str, params, params_attr: str, registry: FunctionRegistryDynamic):
+    def function_combo(self, combo_label: str, params, params_attr: str, registry: FunctionRegistry):
         """
         Displays a combo box for selecting a function from the registry by display name,
         and updates the specified parameter in params with the selected function key.
@@ -283,7 +283,7 @@ class PlasmaFractalGUI:
             combo_label (str): The label to display for the combo box.
             params (object): The object to update with the selected function key.
             params_attr (str): The attribute of the params object to update.
-            registry (FunctionRegistryDynamic): The function registry containing the functions.
+            registry (FunctionRegistry): The function registry containing the functions.
         """
         # Retrieve all function keys and their display names
         function_keys = registry.get_function_keys()
@@ -313,7 +313,7 @@ class PlasmaFractalGUI:
     def function_settings(self, 
                           header: str, 
                           header_attr: str, 
-                          registry: FunctionRegistryDynamic,
+                          registry: FunctionRegistry,
                           function_attr: str,
                           params_attr: str,
                           params: PlasmaFractalParams):

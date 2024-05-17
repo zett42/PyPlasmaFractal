@@ -64,13 +64,13 @@ class FunctionInfo(DynamicAttributes):
         super().__init__(attributes, mandatory_attrs = ['display_name', 'params'])
 
 
-class FunctionRegistryDynamic:
+class FunctionRegistry:
     """
     A class for storing and managing function information.
     """
     def __init__(self, storage: Storage, name_filter: str = "*"):
         """
-        Initialize the FunctionRegistryDynamic instance.
+        Initialize the FunctionRegistry instance.
 
         Args:
             storage (Storage): Storage instance for loading and saving functions.

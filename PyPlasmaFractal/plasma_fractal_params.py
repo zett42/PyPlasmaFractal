@@ -1,6 +1,6 @@
 from typing import *
 
-from PyPlasmaFractal.mylib.gfx.function_registry import *
+from PyPlasmaFractal.mylib.config.function_registry import *
 from PyPlasmaFractal.mylib.config.json_merge import MergePolicy, handle_type_mismatch_gracefully, json_deep_merge
 from PyPlasmaFractal.plasma_fractal_types import ShaderFunctionType
 
