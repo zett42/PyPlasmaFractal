@@ -7,7 +7,7 @@ from collections import namedtuple
 
 from PyPlasmaFractal.mylib.config.function_registry import FunctionRegistry
 from PyPlasmaFractal.mylib.named_tuples import Vec2
-from PyPlasmaFractal.mylib.resources import resource_path
+from PyPlasmaFractal.plasma_fractal_resources import resource_path
 from PyPlasmaFractal.mylib.gfx.shader_cache import VariantShaderCache
 from PyPlasmaFractal.mylib.gfx.shader_template_system import make_dict_source_resolver
 from PyPlasmaFractal.mylib.config.files_to_dict import read_directory_files_to_dict

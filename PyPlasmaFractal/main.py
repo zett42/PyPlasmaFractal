@@ -43,7 +43,7 @@ from PyPlasmaFractal.mylib.python_utils.format_exception import format_exception
 from PyPlasmaFractal.mylib.gfx.frame_rate_limiter import FrameRateLimiter
 from PyPlasmaFractal.mylib.gfx.fps import FpsCalculator
 from PyPlasmaFractal.mylib.named_tuples import Size
-from PyPlasmaFractal.mylib.resources import resource_path
+from PyPlasmaFractal.plasma_fractal_resources import resource_path
 from PyPlasmaFractal.mylib.gfx.fullscreen_texture_renderer import FullscreenTextureRenderer
 from PyPlasmaFractal.mylib.gfx.texture_render_manager import PingpongTextureRenderManager
 from PyPlasmaFractal.mylib.recording.video_recorder import VideoRecorder
