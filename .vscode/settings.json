@@ -30,7 +30,17 @@
         "PyPlasmaFractal/mylib/gui/__pycache__": true,
         "PyPlasmaFractal/mylib/python_utils/__pycache__": true,
         "PyPlasmaFractal/mylib/recording/__pycache__": true,
-        "tests/mylib/gfx/__pycache__": true
+        "tests/mylib/gfx/__pycache__": true,
+        "PyPlasmaFractal/mylib/__init__.py": true,
+        "PyPlasmaFractal/mylib/gfx/__init__.py": true,
+        "PyPlasmaFractal/mylib/config/__init__.py": true,
+        "PyPlasmaFractal/mylib/color/__init__.py": true,
+        "PyPlasmaFractal/mylib/gui/__init__.py": true,
+        "PyPlasmaFractal/mylib/python_utils/__init__.py": true,
+        "PyPlasmaFractal/mylib/recording/__init__.py": true,
+        "PyPlasmaFractal/__init.py__": true,
+        "tests/mylib/config/__pycache__": true,
+        "tests/mylib/gui/__pycache__": true
     },
     "hide-files.files": [
         ".vscode",
@@ -57,7 +67,17 @@
         "PyPlasmaFractal/mylib/gui/__pycache__",
         "PyPlasmaFractal/mylib/python_utils/__pycache__",
         "PyPlasmaFractal/mylib/recording/__pycache__",
-        "tests/mylib/gfx/__pycache__"
+        "tests/mylib/gfx/__pycache__",
+        "PyPlasmaFractal/mylib/__init__.py",
+        "PyPlasmaFractal/mylib/gfx/__init__.py",
+        "PyPlasmaFractal/mylib/config/__init__.py",
+        "PyPlasmaFractal/mylib/color/__init__.py",
+        "PyPlasmaFractal/mylib/gui/__init__.py",
+        "PyPlasmaFractal/mylib/python_utils/__init__.py",
+        "PyPlasmaFractal/mylib/recording/__init__.py",
+        "PyPlasmaFractal/__init.py__",
+        "tests/mylib/config/__pycache__",
+        "tests/mylib/gui/__pycache__"
     ],
     "python.testing.pytestArgs": [
         "tests"
