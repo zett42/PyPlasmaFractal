@@ -12,39 +12,7 @@ class NoiseAlgorithm(Enum):
     """
     Perlin3D = auto()
     SimplexPerlin3D = auto()
-
-
-class FractalNoiseVariant(Enum):
-    """
-    Enumeration of fractal noise variants.
-    """
-    Single = auto()
-    Double = auto()
-    Deriv = auto()
-
-
-class BlendFunction(Enum):
-    """
-    Enumeration of feedback blend modes.
-    """
-    Linear = auto()
-    Additive = auto()
-    Sigmoid = auto()
-    
-    
-class WarpFunction(Enum):
-    """
-    Enumeration of feedback warp functions.
-    """
-    Offset = auto()
-    Polar = auto()
-    Swirl = auto()
-    SwirlSigmoid = auto()
-    SwirlSigmoidDistorted = auto()
-    OffsetDeriv = auto()
-    InfiniteMirror = auto()
-    Test = auto()    
-        
+  
     
 class PlasmaFractalParams:
     """
@@ -123,7 +91,7 @@ class PlasmaFractalParams:
 
     def get_current_warp_params(self) -> List[float]:
         """ Return the current warp parameters. """
-        return self.warpParams[self.warpFunction.name]
+        return self.warpParams[self.warpFunction]
 
 
     def apply_defaults(self) -> None:

@@ -1,0 +1,38 @@
+{
+  "description": "Feedback warp functions (fractal_noise_variant: Double)",
+  "functions": {
+    "Offset": {
+      "display_name": "Offset",
+      "fractal_noise_variant": "Double",
+      "params": [
+        {
+          "display_name": "Amplitude",
+          "logarithmic": true,
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.05
+        }
+      ]
+    },
+    "Polar": {
+      "display_name": "Polar",
+      "fractal_noise_variant": "Double",
+      "params": [
+        {
+          "display_name": "Radial Strength",
+          "logarithmic": true,
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.02
+        },
+        {
+          "display_name": "Rotation Factor",
+          "logarithmic": true,
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.1
+        }
+      ]
+    }
+  }
+}

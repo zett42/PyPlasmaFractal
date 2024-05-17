@@ -41,7 +41,7 @@ class FunctionParam(DynamicAttributes):
             KeyError: If any mandatory attribute is missing from attributes.
         """       
         
-        super().__init__(attributes, mandatory_attrs = ['display_name', 'default'])
+        super().__init__(attributes, mandatory_attrs = ['display_name', 'min', 'max', 'default'])
         
 
 class FunctionInfo(DynamicAttributes):

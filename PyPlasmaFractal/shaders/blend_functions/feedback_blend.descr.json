@@ -5,7 +5,7 @@
         "display_name": "Linear",
         "params": [
           {
-            "name": "Feedback Decay",
+            "display_name": "Feedback Decay",
             "logarithmic": false,
             "min": 0.0,
             "max": 0.3,
@@ -17,7 +17,7 @@
         "display_name": "Additive",
         "params": [
           {
-            "name": "Feedback Decay",
+            "display_name": "Feedback Decay",
             "logarithmic": false,
             "min": 0.0,
             "max": 0.3,
@@ -29,20 +29,24 @@
         "display_name": "Sigmoid",
         "params": [
           {
-            "name": "Feedback Decay",
+            "display_name": "Feedback Decay",
             "logarithmic": false,
             "min": 0.0,
             "max": 0.3,
             "default": 0.02
           },
           {
-            "name": "Feedback Steepness",
+            "display_name": "Feedback Steepness",
             "logarithmic": false,
+            "min": 0.0,
+            "max": 1.0,
             "default": 0.1
           },
           {
-            "name": "Feedback Midpoint",
+            "display_name": "Feedback Midpoint",
             "logarithmic": false,
+            "min": 0.0,
+            "max": 1.0,
             "default": 0.5
           }
         ]

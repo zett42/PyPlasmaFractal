@@ -1,33 +1,6 @@
 {
-    "description": "Feedback warp functions",
+    "description": "Feedback warp functions - (fractal_noise_variant: Deriv)",
     "functions": {
-      "Offset": {
-        "display_name": "Offset",
-        "fractal_noise_variant": "Double",
-        "params": [
-          {
-            "display_name": "Amplitude",
-            "logarithmic": true,
-            "default": 0.05
-          }
-        ]
-      },
-      "Polar": {
-        "display_name": "Polar",
-        "fractal_noise_variant": "Double",
-        "params": [
-          {
-            "display_name": "Radial Strength",
-            "logarithmic": true,
-            "default": 0.02
-          },
-          {
-            "display_name": "Rotation Factor",
-            "logarithmic": true,
-            "default": 0.1
-          }
-        ]
-      },
       "Swirl": {
         "display_name": "Swirl",
         "fractal_noise_variant": "Deriv",
@@ -35,16 +8,22 @@
           {
             "display_name": "Radial Strength",
             "logarithmic": true,
+            "min": 0.0,
+            "max": 1.0,
             "default": 0.02
           },
           {
             "display_name": "Swirl Strength",
             "logarithmic": true,
+            "min": 0.0,
+            "max": 1.0,
             "default": 0.08
           },
           {
             "display_name": "Isolation Factor",
             "logarithmic": true,
+            "min": 0.0,
+            "max": 1.0,
             "default": 0.0
           }
         ]
@@ -56,21 +35,29 @@
           {
             "display_name": "Radial Strength",
             "logarithmic": true,
+            "min": 0.0,
+            "max": 1.0,
             "default": 0.02
           },
           {
             "display_name": "Swirl Strength",
             "logarithmic": true,
+            "min": 0.0,
+            "max": 1.0,
             "default": 0.08
           },
           {
             "display_name": "Transition Sharpness",
             "logarithmic": true,
+            "min": 0.0,
+            "max": 1.0,
             "default": 0.0
           },
           {
             "display_name": "Transition Point",
             "logarithmic": false,
+            "min": 0.0,
+            "max": 1.0,
             "default": 0.5
           }
         ]
@@ -82,46 +69,64 @@
           {
             "display_name": "Radial Strength",
             "logarithmic": true,
+            "min": 0.0,
+            "max": 1.0,
             "default": 0.02
           },
           {
             "display_name": "Swirl Strength",
             "logarithmic": true,
+            "min": 0.0,
+            "max": 1.0,
             "default": 0.08
           },
           {
             "display_name": "Transition Sharpness",
             "logarithmic": true,
+            "min": 0.0,
+            "max": 1.0,
             "default": 0.0
           },
           {
             "display_name": "Transition Point",
             "logarithmic": false,
+            "min": 0.0,
+            "max": 1.0,
             "default": 0.5
           },
           {
             "display_name": "Error Scale",
             "logarithmic": true,
+            "min": 0.0,
+            "max": 1.0,
             "default": 0.0
           },
           {
             "display_name": "Error Threshold",
             "logarithmic": true,
+            "min": 0.0,
+            "max": 1.0,
             "default": 0.0
           },
           {
             "display_name": "Error Midpoint",
             "logarithmic": false,
+            "min": 0.0,
+            "max": 1.0,
             "default": 0.5
           },
           {
             "display_name": "Error Strength",
             "logarithmic": true,
+            "min": 0.0,
+            "max": 1.0,
             "default": 0.3
           },
           {
             "display_name": "Error Speed",
             "logarithmic": true,
+            "min": 0.0,
+            "max": 1.0,
             "default": 0.3
           }
         ]
@@ -133,6 +138,8 @@
           {
             "display_name": "Amplitude",
             "logarithmic": true,
+            "min": 0.0,
+            "max": 1.0,
             "default": 0.02
           }
         ]
@@ -144,31 +151,43 @@
           {
             "display_name": "Duplication Scale",
             "logarithmic": true,
+            "min": 0.0,
+            "max": 1.0,
             "default": 0.5
           },
           {
             "display_name": "Influence Radius",
             "logarithmic": true,
+            "min": 0.0,
+            "max": 1.0,
             "default": 0.5
           },
           {
             "display_name": "Non-Linearity",
             "logarithmic": true,
+            "min": 0.0,
+            "max": 1.0,
             "default": 0.0
           },
           {
             "display_name": "Base Rotation",
             "logarithmic": true,
+            "min": 0.0,
+            "max": 1.0,
             "default": 0.0
           },
           {
             "display_name": "Time Modulation",
             "logarithmic": true,
+            "min": 0.0,
+            "max": 1.0,
             "default": 0.0
           },
           {
             "display_name": "Frequency",
             "logarithmic": true,
+            "min": 0.0,
+            "max": 1.0,
             "default": 2.0
           }
         ]
@@ -180,21 +199,29 @@
           {
             "display_name": "Param1",
             "logarithmic": true,
+            "min": 0.0,
+            "max": 1.0,
             "default": 0.1
           },
           {
             "display_name": "Param2",
             "logarithmic": true,
+            "min": 0.0,
+            "max": 1.0,
             "default": 0.1
           },
           {
             "display_name": "Param3",
             "logarithmic": true,
+            "min": 0.0,
+            "max": 1.0,
             "default": 0.0
           },
           {
             "display_name": "Param4",
             "logarithmic": true,
+            "min": 0.0,
+            "max": 1.0,
             "default": 0.0
           }
         ]
