@@ -11,7 +11,7 @@ from PyPlasmaFractal.mylib.resources import resource_path
 from PyPlasmaFractal.mylib.gfx.shader_cache import VariantShaderCache
 from PyPlasmaFractal.mylib.gfx.shader_template_system import make_dict_source_resolver
 from PyPlasmaFractal.mylib.config.files_to_dict import read_directory_files_to_dict
-from PyPlasmaFractal.types import ShaderFunctionType
+from PyPlasmaFractal.plasma_fractal_types import ShaderFunctionType
 from .plasma_fractal_params import PlasmaFractalParams
 
 

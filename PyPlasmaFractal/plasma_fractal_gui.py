@@ -18,7 +18,7 @@ from PyPlasmaFractal.mylib.gui.notification_manager import NotificationManager
 from PyPlasmaFractal.mylib.gui.window_fade_manager import WindowFadeManager
 import PyPlasmaFractal.mylib.gui.imgui_helper as ih
 from PyPlasmaFractal.mylib.color.adjust_color import modify_rgba_color_hsv
-from PyPlasmaFractal.types import ShaderFunctionType
+from PyPlasmaFractal.plasma_fractal_types import ShaderFunctionType
 from .plasma_fractal_params import PlasmaFractalParams, FunctionRegistry
 
 class PlasmaFractalGUI:

@@ -52,7 +52,7 @@ from PyPlasmaFractal.mylib.gfx.animation_timer import AnimationTimer
 from PyPlasmaFractal.mylib.gui.icons import Icons
 from PyPlasmaFractal.mylib.gfx.function_registry_dynamic import FunctionRegistryDynamic
 
-from PyPlasmaFractal.types import ShaderFunctionType
+from PyPlasmaFractal.plasma_fractal_types import ShaderFunctionType
 from PyPlasmaFractal.plasma_fractal_renderer import PlasmaFractalRenderer
 from PyPlasmaFractal.plasma_fractal_params import PlasmaFractalParams
 from PyPlasmaFractal.plasma_fractal_gui import PlasmaFractalGUI
