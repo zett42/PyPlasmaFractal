@@ -91,7 +91,7 @@ class FunctionRegistryDynamic:
         """
         return self.functions[key]
     
-    def get_all_function_keys(self) -> List[str]:
+    def get_function_keys(self) -> List[str]:
         """
         Retrieve a list of all function names in the registry.
         """

@@ -141,7 +141,7 @@ def test_get_function_info(mock_storage):
 def test_get_all_function_keys(mock_storage):
     registry = FunctionRegistryDynamic(mock_storage, "initial_data")
     
-    keys = registry.get_all_function_keys()
+    keys = registry.get_function_keys()
     assert set(keys) == {"ExampleSingleParam", "ExampleTwoParams"}
 
 

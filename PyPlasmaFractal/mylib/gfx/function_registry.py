@@ -43,7 +43,7 @@ class FunctionRegistry:
         return cls.functions[key]
     
     @classmethod
-    def get_all_function_keys(cls) -> List[str]:
+    def get_function_keys(cls) -> List[str]:
         """
         Retrieve a list of all function names in the registry.
         """

@@ -17,8 +17,8 @@ Major dependencies:
 - glfw: Manages window creation, input processing, and system interactions.
 - imgui: Enables the creation and management of an interactive GUI.
 """
-
 import logging
+from pathlib import Path
 import sys
 import time
 import moderngl
@@ -50,7 +50,9 @@ from PyPlasmaFractal.mylib.recording.video_recorder import VideoRecorder
 from PyPlasmaFractal.mylib.gui.window_config_manager import WindowConfigManager
 from PyPlasmaFractal.mylib.gfx.animation_timer import AnimationTimer
 from PyPlasmaFractal.mylib.gui.icons import Icons
+from PyPlasmaFractal.mylib.gfx.function_registry_dynamic import FunctionRegistryDynamic
 
+from PyPlasmaFractal.types import ShaderFunctionType
 from PyPlasmaFractal.plasma_fractal_renderer import PlasmaFractalRenderer
 from PyPlasmaFractal.plasma_fractal_params import PlasmaFractalParams
 from PyPlasmaFractal.plasma_fractal_gui import PlasmaFractalGUI
@@ -83,9 +85,8 @@ class PyPlasmaFractalApp:
         self.is_fullscreen = False
 
         # Setup paths
-        script_dir = resource_path('')
-        self.path_manager = ConfigPathManager(self.app_name, self.app_author, app_specific_path=script_dir)
-
+        self.path_manager = ConfigPathManager(self.app_name, self.app_author, app_specific_path=resource_path(''))
+        
         # Setup video recording
         self.user_videos_directory = os.path.join(self.path_manager.user_specific_path, 'videos')
         os.makedirs(self.user_videos_directory, exist_ok=True)
@@ -96,10 +97,15 @@ class PyPlasmaFractalApp:
         self.fps_calculator = FpsCalculator() 
         self.desired_fps = 60.0
 
+        self.register_selectable_shader_functions()   
+
         # Setup GUI
-        self.gui = PlasmaFractalGUI(self.path_manager)
+        self.gui = PlasmaFractalGUI(self.path_manager, self.shader_function_registries)
         self.gui.recording_directory = self.user_videos_directory
         self.gui.recording_fps = self.desired_fps
+        
+        # Initialized in run()
+        self.params = None
         
         
     def setup_logging(self):
@@ -116,7 +122,7 @@ class PyPlasmaFractalApp:
         Main entry point of the application which orchestrates the initialization,
         main loop execution, and finalization.
         """
-        logging.debug('App started.')
+        logging.debug('App started.')   
 
         self.load_config()
 
@@ -135,14 +141,18 @@ class PyPlasmaFractalApp:
         """
         Loads or initializes the application's render configuration.
         """  
+        
         logging.info(f'Loading configuration from {CONFIG_FILE_NAME} in directory "{self.path_manager.user_specific_path}"')
+
+        self.params = PlasmaFractalParams(self.shader_function_registries)
 
         storage = JsonFileStorage(self.path_manager.user_specific_path)
         try:
             data = storage.load(CONFIG_FILE_NAME)
-            self.params = PlasmaFractalParams.from_dict(data)
+            self.params.merge_dict(data)
         except StorageItemNotFoundError:
-            self.params = PlasmaFractalParams()
+            # No configuration file found, use default values
+            pass
         # TODO: unexpected exception handling
 
         logging.debug(f"PlasmaFractalParams:\n{self.params.to_dict()}")
@@ -277,6 +287,24 @@ class PyPlasmaFractalApp:
         self.im_gui_renderer.refresh_font_texture()
 
 
+    def register_selectable_shader_functions(self):
+        """
+        Registers user-selectable shader functions.
+        """
+        shaders_path = Path(resource_path('shaders'))
+        descriptor_filter = '*.descr.json'
+        
+        function_dirs = {
+            ShaderFunctionType.NOISE: 'noise_functions',
+            ShaderFunctionType.BLEND: 'blend_functions',
+            ShaderFunctionType.WARP : 'warp_functions'
+        }
+        
+        self.shader_function_registries = {
+            func_type: FunctionRegistryDynamic(JsonFileStorage(shaders_path / dir_name), descriptor_filter)
+            for func_type, dir_name in function_dirs.items()
+        }
+        
     def main_loop(self):
         """
         Main rendering loop that continuously updates and displays the fractal visuals.
@@ -314,7 +342,7 @@ class PyPlasmaFractalApp:
             self.fps_calculator.update()
             
     
-    def render_frame(self, main_renderer, elapsed_time):
+    def render_frame(self, main_renderer: PlasmaFractalRenderer, elapsed_time: float):
         """
         Render a single frame of the fractal visuals.
         """
@@ -326,7 +354,10 @@ class PyPlasmaFractalApp:
             self.feedback_manager.clear()
 
         # Update the main renderer with the current parameters and render to the destination texture
-        main_renderer.update_params(self.params, self.feedback_manager.previous_texture, elapsed_time, self.feedback_manager.aspect_ratio)
+        main_renderer.update_params(self.params, self.shader_function_registries, self.feedback_manager.previous_texture, 
+                                    elapsed_time, self.feedback_manager.aspect_ratio)
+        
+        # Render the fractal to the destination texture
         self.feedback_manager.render_to_texture(main_renderer.current_vao)
         
 

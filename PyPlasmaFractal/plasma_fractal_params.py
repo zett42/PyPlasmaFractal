@@ -3,6 +3,7 @@ from enum import Enum, auto
 
 from PyPlasmaFractal.mylib.gfx.function_registry import *
 from PyPlasmaFractal.mylib.config.json_merge import MergePolicy, handle_type_mismatch_gracefully, json_deep_merge
+from PyPlasmaFractal.types import ShaderFunctionType
 
 
 class NoiseAlgorithm(Enum):
@@ -42,39 +43,8 @@ class WarpFunction(Enum):
     SwirlSigmoidDistorted = auto()
     OffsetDeriv = auto()
     InfiniteMirror = auto()
-    Test = auto()  
-    
-    
-# Right now we don't need a custom class for BlendFunctionInfo, so just define an alias for consistency.
-BlendFunctionInfo = FunctionInfo    
-    
-class BlendFunctionRegistry(FunctionRegistry):
-    """
-    A class that statically stores information about feedback blend functions.
-    """
-    functions = {
-        BlendFunction.Linear: BlendFunctionInfo(
-            display_name="Linear",
-            params=[
-                FunctionParam("Feedback Decay", logarithmic=False, min=0.0, max=0.3, default=0.01)
-            ]
-        ),
-        BlendFunction.Additive: BlendFunctionInfo(
-            display_name="Additive",
-            params=[
-                FunctionParam("Feedback Decay", logarithmic=False, min=0.0, max=0.3, default=0.01)
-            ]
-        ),
-        BlendFunction.Sigmoid: BlendFunctionInfo(
-            display_name="Sigmoid",
-            params=[
-                FunctionParam("Feedback Decay",     logarithmic=False, min=0.0, max=0.3, default=0.02),
-                FunctionParam("Feedback Steepness", logarithmic=False, default=0.1),
-                FunctionParam("Feedback Midpoint",  logarithmic=False, default=0.5)
-            ]
-        )
-    }
-    
+    Test = auto()    
+  
     
 class WarpFunctionInfo(FunctionInfo):
     """
@@ -175,10 +145,17 @@ class PlasmaFractalParams:
     This class stores various attributes that define the settings for a plasma fractal.
     """
     
-    def __init__(self):
+    def __init__(self, shader_function_registries: Dict[ShaderFunctionType, FunctionRegistry]):
         """
         Initializes a new instance of the PlasmaFractalParams class with default values.
-        """     
+        """ 
+
+        # Initialize private variables (not serialized)
+        self._shader_function_registries = shader_function_registries
+        self._noise_function_registry = shader_function_registries[ShaderFunctionType.NOISE]
+        self._blend_function_registry = shader_function_registries[ShaderFunctionType.BLEND]
+        self._warp_function_registry  = shader_function_registries[ShaderFunctionType.WARP]
+
         # NOISE
         
         # General noise settings
@@ -204,12 +181,15 @@ class PlasmaFractalParams:
         self.enable_feedback = False
 
         # Feedback blend function settings
-        self.feedback_function = BlendFunction.Linear
-        self.feedback_params = BlendFunctionRegistry.get_all_param_defaults(use_string_keys=True)   # Convert enum key to string to simplify serialization
+        self.feedback_function = "Linear"
+        self.feedback_params = self._blend_function_registry.get_all_param_defaults()
         
         # Warp settings for feedback
         self.warpFunction = WarpFunction.Offset
         self.warpParams = WarpFunctionRegistry.get_all_param_defaults(use_string_keys=True)   # Convert enum key to string to simplify serialization
+        #TODO:
+        #self.warpParams = self.warp_function_registry.get_all_param_defaults()
+
         self.warpSpeed = 1.0
         self.warpNoiseAlgorithm = NoiseAlgorithm.Perlin3D
         self.warpScale = 1.0
@@ -223,13 +203,13 @@ class PlasmaFractalParams:
         self.warpTimeOffsetIncrement = 12.0
          
          
-    def get_current_feedback_function_info(self) -> BlendFunctionInfo:
+    def get_current_feedback_function_info(self) -> FunctionInfo:
         """ Return the current BlendFunctionInfo instance. """
-        return BlendFunctionRegistry.get_function_info(self.feedback_function)
+        return self._blend_function_registry.get_function_info(self.feedback_function)
 
     def get_current_feedback_params(self) -> List[float]:
         """ Return the current feedback parameters. """
-        return self.feedback_params[self.feedback_function.name]
+        return self.feedback_params[self.feedback_function]
              
     
     def get_current_warp_function_info(self) -> WarpFunctionInfo:
@@ -244,7 +224,8 @@ class PlasmaFractalParams:
         """
         Reset all attributes to their default values.
         """
-        self.__init__()
+        self.__init__(self._shader_function_registries)
+    
     
     #............ Serialization helpers ........................................................................
 
@@ -256,16 +237,7 @@ class PlasmaFractalParams:
         dict: A dictionary representation of the instance.
         """
         return {key: value for key, value in self.__dict__.items() if not key.startswith('_')}
-
-    @classmethod
-    def from_dict(cls, data: dict) -> 'PlasmaFractalParams':
-        """
-        Create a new instance from a dictionary.
-        """
-        instance = cls()           # Create a new instance with defaults
-        instance.merge_dict(data)  # Merge the dictionary into the instance
-        return instance
-              
+             
     def merge_dict(self, source: dict) -> None:
         """
         Update the instance with the values from a dictionary.

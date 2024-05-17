@@ -12,12 +12,14 @@ from PyPlasmaFractal.mylib.config.config_path_manager import ConfigPathManager
 from PyPlasmaFractal.mylib.config.json_file_storage import JsonFileStorage
 from PyPlasmaFractal.mylib.config.source_manager import StorageSourceManager
 from PyPlasmaFractal.mylib.gfx.function_registry import FunctionRegistry
+from PyPlasmaFractal.mylib.gfx.function_registry_dynamic import FunctionRegistryDynamic
 from PyPlasmaFractal.mylib.gui.icons import Icons
 from PyPlasmaFractal.mylib.gui.notification_manager import NotificationManager
 from PyPlasmaFractal.mylib.gui.window_fade_manager import WindowFadeManager
 import PyPlasmaFractal.mylib.gui.imgui_helper as ih
 from PyPlasmaFractal.mylib.color.adjust_color import modify_rgba_color_hsv
-from .plasma_fractal_params import BlendFunctionRegistry, PlasmaFractalParams, WarpFunctionRegistry
+from PyPlasmaFractal.types import ShaderFunctionType
+from .plasma_fractal_params import PlasmaFractalParams, WarpFunctionRegistry
 
 class PlasmaFractalGUI:
     """
@@ -44,7 +46,11 @@ class PlasmaFractalGUI:
         RECORDING_ERROR = auto()           # Received by the GUI when an error occurs during recording
 
 
-    def __init__(self, path_manager: ConfigPathManager):
+    def __init__(self, path_manager: ConfigPathManager, function_registries: Dict[ShaderFunctionType, FunctionRegistry]):
+     
+        self.noise_function_registry = function_registries[ShaderFunctionType.NOISE]
+        self.blend_function_registry = function_registries[ShaderFunctionType.BLEND]
+        self.warp_function_registry = function_registries[ShaderFunctionType.WARP]
      
         self.animation_paused = False
         
@@ -206,8 +212,8 @@ class PlasmaFractalGUI:
         """
         with ih.resized_items(-160):
 
-            self.function_settings(header="Feedback Mix Settings", header_attr='feedback_general_settings_open', 
-                                   registry=BlendFunctionRegistry, function_attr='feedback_function', params_attr='feedback_params', 
+            self.function_settings_dynamic(header="Feedback Mix Settings", header_attr='feedback_general_settings_open', 
+                                   registry=self.blend_function_registry, function_attr='feedback_function', params_attr='feedback_params', 
                                    params=params)
       
             if ih.collapsing_header("Warp Noise Settings", self, attr='feedback_warp_noise_settings_open'):
@@ -264,6 +270,52 @@ class PlasmaFractalGUI:
             # Get the parameters for the selected function
             function_params_dict = getattr(params, params_attr)
             function_params = function_params_dict[selected_function.name] 
+            
+            # Generate sliders for the function's parameters
+            for index, param_info in enumerate(function_info.params):
+
+                changed, new_value = imgui.slider_float(f"{param_info.display_name}##{header}", 
+                                                        function_params[index], 
+                                                        param_info.min, 
+                                                        param_info.max, 
+                                                        flags=imgui.SLIDER_FLAGS_LOGARITHMIC if param_info.logarithmic else 0)
+                if changed:
+                    function_params[index] = new_value
+
+    def function_settings_dynamic(self, 
+                          header: str, 
+                          header_attr: str, 
+                          registry: FunctionRegistryDynamic,
+                          function_attr: str,
+                          params_attr: str,
+                          params: PlasmaFractalParams):
+        """
+        Display the settings for a specific function.
+
+        Args:
+            header (str): The header text to display for the collapsible section.
+            header_attr (str): The attribute name in the object to store the collapsed state.
+            registry (FunctionRegistry): The registry of available functions.
+            function_attr (str): The attribute name in the object to store the selected function.
+            params (PlasmaFractalParams): The object containing the overall parameters.
+
+        Returns:
+            None
+        """
+        if ih.collapsing_header(header, self, attr=header_attr):
+            
+            # Dropdown for the available functions
+            # Make sure to create a unique identifier by appending the header to the label
+            ih.list_combo(f"Function##{header}", obj=params, attr=function_attr, items=registry.get_function_keys())
+            
+            selected_function = getattr(params, function_attr)
+            
+            # Get the current function info
+            function_info = registry.get_function_info(selected_function)
+            
+            # Get the parameters for the selected function
+            function_params_dict = getattr(params, params_attr)
+            function_params = function_params_dict[selected_function] 
             
             # Generate sliders for the function's parameters
             for index, param_info in enumerate(function_info.params):

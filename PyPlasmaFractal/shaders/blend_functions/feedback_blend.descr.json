@@ -1,0 +1,51 @@
+{
+    "description": "A set of standard feedback blend functions",
+    "functions": {
+      "Linear": {
+        "display_name": "Linear",
+        "params": [
+          {
+            "name": "Feedback Decay",
+            "logarithmic": false,
+            "min": 0.0,
+            "max": 0.3,
+            "default": 0.01
+          }
+        ]
+      },
+      "Additive": {
+        "display_name": "Additive",
+        "params": [
+          {
+            "name": "Feedback Decay",
+            "logarithmic": false,
+            "min": 0.0,
+            "max": 0.3,
+            "default": 0.01
+          }
+        ]
+      },
+      "Sigmoid": {
+        "display_name": "Sigmoid",
+        "params": [
+          {
+            "name": "Feedback Decay",
+            "logarithmic": false,
+            "min": 0.0,
+            "max": 0.3,
+            "default": 0.02
+          },
+          {
+            "name": "Feedback Steepness",
+            "logarithmic": false,
+            "default": 0.1
+          },
+          {
+            "name": "Feedback Midpoint",
+            "logarithmic": false,
+            "default": 0.5
+          }
+        ]
+      }
+    }
+  }

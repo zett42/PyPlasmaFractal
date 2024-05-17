@@ -5,12 +5,14 @@ import moderngl
 import numpy as np
 from collections import namedtuple
 
+from PyPlasmaFractal.mylib.gfx.function_registry_dynamic import FunctionRegistryDynamic
 from PyPlasmaFractal.mylib.named_tuples import Vec2
 from PyPlasmaFractal.mylib.resources import resource_path
 from PyPlasmaFractal.mylib.gfx.shader_cache import VariantShaderCache
 from PyPlasmaFractal.mylib.gfx.shader_template_system import make_dict_source_resolver
 from PyPlasmaFractal.mylib.config.files_to_dict import read_directory_files_to_dict
-from .plasma_fractal_params import BlendFunctionRegistry, PlasmaFractalParams, WarpFunctionRegistry
+from PyPlasmaFractal.types import ShaderFunctionType
+from .plasma_fractal_params import PlasmaFractalParams, WarpFunctionRegistry
 
 
 class PlasmaFractalRenderer:
@@ -76,7 +78,12 @@ class PlasmaFractalRenderer:
         return self.ctx.buffer(vertices.tobytes())
 
 
-    def update_params(self, params: PlasmaFractalParams, feedback_texture: moderngl.Texture, time: float, aspect_ratio: float):
+    def update_params(self, 
+                      params: PlasmaFractalParams, 
+                      shader_function_registries: Dict[ShaderFunctionType, FunctionRegistryDynamic], 
+                      feedback_texture: moderngl.Texture, 
+                      time: float, 
+                      aspect_ratio: float):
         """
         Applies the rendering parameters to generate the final shader programs from templates and configures them.
 
@@ -95,16 +102,18 @@ class PlasmaFractalRenderer:
         else:
             view_scale = Vec2(1.0, 1.0 / aspect_ratio)  
 
+        blend_function_registry = shader_function_registries[ShaderFunctionType.BLEND]
+
         # Parameters that define how the fragment shader is generated from templates
         fragment_template_params = {
             'NOISE_FUNC': params.noise_algorithm.name,
             'FB_ENABLED': 'Enabled' if params.enable_feedback else 'Disabled',
-            'FB_BLEND_FUNC': params.feedback_function.name,
+            'FB_BLEND_FUNC': params.feedback_function,
             'FB_WARP_FRACTAL_NOISE_VARIANT': params.get_current_warp_function_info().fractal_noise_variant.name,
             'FB_WARP_NOISE_FUNC': params.warpNoiseAlgorithm.name,
             'FB_WARP_XFORM_FUNC': params.warpFunction.name,
             'MAX_WARP_PARAMS': WarpFunctionRegistry.max_param_count(),
-            'MAX_FEEDBACK_PARAMS': BlendFunctionRegistry.max_param_count(),
+            'MAX_FEEDBACK_PARAMS': blend_function_registry.max_param_count(),
         }
         self.program, _ = self.shader_cache.get_or_create_program(fragment_template_params=fragment_template_params)
         self.vao = self.shader_cache.get_or_create_vao(self.program, self.vbo, 'in_pos')
@@ -152,7 +161,7 @@ class PlasmaFractalRenderer:
 
             # Assign the parameters to their respective shader uniforms
             self.set_params_uniform(params.get_current_warp_params(), 'u_warpParams', WarpFunctionRegistry.max_param_count())
-            self.set_params_uniform(params.get_current_feedback_params(), 'u_feedbackParams', BlendFunctionRegistry.max_param_count())
+            self.set_params_uniform(params.get_current_feedback_params(), 'u_feedbackParams', blend_function_registry.max_param_count())
 
             feedback_texture.use(location=0)
         
