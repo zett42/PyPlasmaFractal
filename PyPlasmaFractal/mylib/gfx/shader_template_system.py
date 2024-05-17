@@ -1,3 +1,4 @@
+from pathlib import Path
 import tempfile
 from typing import *
 import re
@@ -247,14 +248,16 @@ def make_file_source_resolver(base_directory: str) -> Callable[[str], str]:
         Callable[[str], str]: A function that takes a shader file name (relative to the base directory) and
         returns the contents of the shader file as a string.
     """
-    def get_file_content(shader_file_name: str) -> str:
+    base_path = Path(base_directory)
 
+    def get_file_content(shader_file_name: str) -> str:
+        
         # Construct the full path to the shader file
-        file_path = os.path.join(base_directory, shader_file_name)
+        file_path = base_path / shader_file_name
 
         # Attempt to open and read the shader file
         try:
-            with open(file_path, 'r') as file:
+            with file_path.open('r') as file:
                 return file.read()
         except FileNotFoundError:
             raise FileNotFoundError(f"The file {shader_file_name} was not found in the directory {base_directory}.")

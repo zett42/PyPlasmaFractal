@@ -50,29 +50,30 @@ in vec2 v_tex;               // Texture coordinates from vertex shader
 in vec2 v_pos;               // Position coordinates from vertex shader
 out vec4 f_color;            // Fragment shader output color
 
-// Including various noise implementations
-#include "perlin_3d_std.glsl"
-#include "perlin_3d_double.glsl"
-#include "perlin_3d_deriv.glsl"
-#include "simplex_perlin_3d_std.glsl"
-#include "simplex_perlin_3d_double.glsl"
-#include "simplex_perlin_3d_deriv.glsl"
-
-// Use the noise implementation specified by template argument for the fractal noise function (visible noise)
-#apply_template "fractal_noise_single.glsl", NOISE_FUNC = <NOISE_FUNC>
-
-// Use the noise implementation specified by template argument for the fractal noise function (feedback warp)
-#apply_template "fractal_noise_double.glsl", NOISE_FUNC = <FB_WARP_NOISE_FUNC>
-
-// Use the noise implementation specified by template argument for the fractal noise function (feedback warp)
-#apply_template "fractal_noise_deriv.glsl", NOISE_FUNC = <FB_WARP_NOISE_FUNC>
-
-#include "warp_double.glsl"
-#include "warp_deriv.glsl"
-
 #include "color_adjustment.glsl"
 #include "transforms.glsl"
-#include "feedback_blend.glsl"
+
+// Including various noise implementations
+#include "noise_functions/perlin_3d_std.glsl"
+#include "noise_functions/perlin_3d_double.glsl"
+#include "noise_functions/perlin_3d_deriv.glsl"
+#include "noise_functions/simplex_perlin_3d_std.glsl"
+#include "noise_functions/simplex_perlin_3d_double.glsl"
+#include "noise_functions/simplex_perlin_3d_deriv.glsl"
+
+// Use the noise implementation specified by template argument for the fractal noise function (visible noise)
+#apply_template "fractal_noise/fractal_noise_single.glsl", NOISE_FUNC = <NOISE_FUNC>
+
+// Use the noise implementation specified by template argument for the fractal noise function (feedback warp)
+#apply_template "fractal_noise/fractal_noise_double.glsl", NOISE_FUNC = <FB_WARP_NOISE_FUNC>
+
+// Use the noise implementation specified by template argument for the fractal noise function (feedback warp)
+#apply_template "fractal_noise/fractal_noise_deriv.glsl", NOISE_FUNC = <FB_WARP_NOISE_FUNC>
+
+#include "warp_functions/warp_double.glsl"
+#include "warp_functions/warp_deriv.glsl"
+
+#include "blend_functions/feedback_blend.glsl"
 
 // Function to apply feedback to the noise color, if enabled
 vec4 applyFeedback_Enabled(vec4 noise_color) {
