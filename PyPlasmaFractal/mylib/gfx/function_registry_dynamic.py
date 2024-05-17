@@ -122,7 +122,17 @@ class FunctionRegistryDynamic:
             if key in self.functions:
                 raise KeyError(f"Function key '{key}' already exists in the registry.")
             self.functions[key] = FunctionInfo(info)
+
             
+    def get_function_keys(self) -> List[str]:
+        """
+        Retrieve a list of all function names in the registry.
+
+        Returns:
+            List[str]: List of all function keys.
+        """
+        return list(self.functions.keys())
+
 
     def has_function(self, key: Hashable) -> bool:
         """
@@ -150,14 +160,18 @@ class FunctionRegistryDynamic:
         return self.functions[key]
 
 
-    def get_function_keys(self) -> List[str]:
+    def get_function_display_name(self, key: Hashable) -> str:
         """
-        Retrieve a list of all function names in the registry.
-
-        Returns:
-            List[str]: List of all function keys.
+        Retrieve the function display name for a given function name.
         """
-        return list(self.functions.keys())
+        return self.functions[key].display_name
+    
+    
+    def get_function_params(self, key: Hashable) -> List[FunctionParam]:
+        """
+        Retrieve the function parameters for a given function name.
+        """
+        return self.functions[key].params
 
 
     def max_param_count(self) -> int:

@@ -166,8 +166,8 @@ class PlasmaFractalGUI:
         with ih.resized_items(-160):
 
             if ih.collapsing_header("Noise Settings", self, attr='noise_settings_open'):
-                ih.slider_float("Scale", params, 'scale', min_value=0.01, max_value=100.0, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)
-                ih.list_combo("Noise Algorithm", params, 'noise_algorithm', items=self.noise_function_registry.get_function_keys())
+                ih.slider_float("Scale", params, 'scale', min_value=0.01, max_value=100.0, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)                
+                self.function_combo("Noise Algorithm", params, 'noise_algorithm', self.noise_function_registry)
 
             if ih.collapsing_header("Fractal Settings", self, attr='fractal_settings_open'):
                 ih.slider_int("Num. Octaves", params, 'octaves', min_value=1, max_value=12)
@@ -220,7 +220,7 @@ class PlasmaFractalGUI:
 
                 ih.slider_float("Speed", params, 'warpSpeed', min_value=0.01, max_value=10.0)
                 ih.slider_float("Scale", params, 'warpScale', min_value=0.01, max_value=10.0)
-                ih.list_combo("Noise Algorithm", params, 'warpNoiseAlgorithm', items=self.noise_function_registry.get_function_keys())
+                self.function_combo("Noise Algorithm", params, 'warpNoiseAlgorithm', self.noise_function_registry)
 
             if ih.collapsing_header("Warp Fractal Settings", self, attr='feedback_warp_octave_settings_open'):
 
@@ -235,6 +235,42 @@ class PlasmaFractalGUI:
                                    registry=self.warp_function_registry, function_attr='warpFunction', params_attr='warpParams',
                                    params=params)
 
+
+    def function_combo(self, combo_label: str, params, params_attr: str, registry: FunctionRegistryDynamic):
+        """
+        Displays a combo box for selecting a function from the registry by display name,
+        and updates the specified parameter in params with the selected function key.
+
+        Args:
+            combo_label (str): The label to display for the combo box.
+            params (object): The object to update with the selected function key.
+            params_attr (str): The attribute of the params object to update.
+            registry (FunctionRegistryDynamic): The function registry containing the functions.
+        """
+        # Retrieve all function keys and their display names
+        function_keys = registry.get_function_keys()
+        function_display_names = [registry.get_function_display_name(key) for key in function_keys]
+
+        # Create a sorted list of (display_name, key) tuples
+        sorted_functions = sorted(zip(function_display_names, function_keys))
+
+        # Unzip the sorted tuples into separate lists
+        sorted_display_names, sorted_keys = zip(*sorted_functions)
+
+        # Convert the tuples to lists
+        sorted_display_names = list(sorted_display_names)
+        sorted_keys = list(sorted_keys)
+
+        # Find the current index based on the function key stored in params
+        current_key = getattr(params, params_attr)
+        current_index = sorted_keys.index(current_key) if current_key in sorted_keys else 0
+
+        # Display the combo box with display names and update the selected key in params
+        changed, selected_index = imgui.combo(f"{combo_label}##{params_attr}", current_index, sorted_display_names)
+
+        if changed:
+            setattr(params, params_attr, sorted_keys[selected_index])
+            
 
     def function_settings(self, 
                           header: str, 
@@ -259,8 +295,8 @@ class PlasmaFractalGUI:
         if ih.collapsing_header(header, self, attr=header_attr):
             
             # Dropdown for the available functions
-            # Make sure to create a unique identifier by appending the header to the label
-            ih.list_combo(f"Function##{header}", obj=params, attr=function_attr, items=registry.get_function_keys())
+            # Make sure to create a unique identifier by appending the function_attr to the label            
+            self.function_combo(f"Function##{function_attr}", params, function_attr, registry)
             
             selected_function = getattr(params, function_attr)
             
