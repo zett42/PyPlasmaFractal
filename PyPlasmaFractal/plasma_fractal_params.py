@@ -111,4 +111,5 @@ class PlasmaFractalParams:
                                  handle_type_mismatch=handle_type_mismatch_gracefully)
         
         for key, value in merged.items():
-            setattr(self, key, value)
+            if not key.startswith('_'):
+                setattr(self, key, value)
