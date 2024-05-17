@@ -1,19 +1,10 @@
 from typing import *
-from enum import Enum, auto
 
 from PyPlasmaFractal.mylib.gfx.function_registry import *
 from PyPlasmaFractal.mylib.config.json_merge import MergePolicy, handle_type_mismatch_gracefully, json_deep_merge
 from PyPlasmaFractal.types import ShaderFunctionType
 
 
-class NoiseAlgorithm(Enum):
-    """
-    Enumeration of noise algorithms.
-    """
-    Perlin3D = auto()
-    SimplexPerlin3D = auto()
-  
-    
 class PlasmaFractalParams:
     """
     Represents the parameters for a plasma fractal.
@@ -38,7 +29,7 @@ class PlasmaFractalParams:
         self.scale = 2.0
         
         # Specific noise settings
-        self.noise_algorithm = NoiseAlgorithm.Perlin3D
+        self.noise_algorithm = self._noise_function_registry.get_function_keys()[0]   # Default to first function
         self.octaves = 1
         self.gain = 0.5
         self.timeScaleFactor = 1.3
@@ -64,7 +55,7 @@ class PlasmaFractalParams:
         self.warpParams = self._warp_function_registry.get_all_param_defaults()
 
         self.warpSpeed = 1.0
-        self.warpNoiseAlgorithm = NoiseAlgorithm.Perlin3D
+        self.warpNoiseAlgorithm = self._noise_function_registry.get_function_keys()[0]   # Default to first function
         self.warpScale = 1.0
         self.warpOctaves = 1
         self.warpGain = 0.3

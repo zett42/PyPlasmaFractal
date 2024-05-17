@@ -107,11 +107,11 @@ class PlasmaFractalRenderer:
 
         # Parameters that define how the fragment shader is generated from templates
         fragment_template_params = {
-            'NOISE_FUNC': params.noise_algorithm.name,
+            'NOISE_FUNC': params.noise_algorithm,
             'FB_ENABLED': 'Enabled' if params.enable_feedback else 'Disabled',
             'FB_BLEND_FUNC': params.feedback_function,
             'FB_WARP_FRACTAL_NOISE_VARIANT': params.get_current_warp_function_info().fractal_noise_variant,
-            'FB_WARP_NOISE_FUNC': params.warpNoiseAlgorithm.name,
+            'FB_WARP_NOISE_FUNC': params.warpNoiseAlgorithm,
             'FB_WARP_XFORM_FUNC': params.warpFunction,
             'MAX_WARP_PARAMS': warp_function_registry.max_param_count(),
             'MAX_FEEDBACK_PARAMS': blend_function_registry.max_param_count(),

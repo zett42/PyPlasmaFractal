@@ -1,0 +1,14 @@
+{
+    "description": "Noise functions",
+    "functions": {
+      "Perlin3D": {
+        "display_name": "Perlin",
+        "params": []
+      },
+      "SimplexPerlin3D": {
+        "display_name": "Simplex",
+        "params": []
+      }
+    }
+  }
+  

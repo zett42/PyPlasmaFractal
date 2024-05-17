@@ -167,7 +167,7 @@ class PlasmaFractalGUI:
 
             if ih.collapsing_header("Noise Settings", self, attr='noise_settings_open'):
                 ih.slider_float("Scale", params, 'scale', min_value=0.01, max_value=100.0, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)
-                ih.enum_combo("Noise Algorithm", params, 'noise_algorithm')
+                ih.list_combo("Noise Algorithm", params, 'noise_algorithm', items=self.noise_function_registry.get_function_keys())
 
             if ih.collapsing_header("Fractal Settings", self, attr='fractal_settings_open'):
                 ih.slider_int("Num. Octaves", params, 'octaves', min_value=1, max_value=12)
@@ -220,7 +220,7 @@ class PlasmaFractalGUI:
 
                 ih.slider_float("Speed", params, 'warpSpeed', min_value=0.01, max_value=10.0)
                 ih.slider_float("Scale", params, 'warpScale', min_value=0.01, max_value=10.0)
-                ih.enum_combo("Noise Algorithm", params, 'warpNoiseAlgorithm')
+                ih.list_combo("Noise Algorithm", params, 'warpNoiseAlgorithm', items=self.noise_function_registry.get_function_keys())
 
             if ih.collapsing_header("Warp Fractal Settings", self, attr='feedback_warp_octave_settings_open'):
 
