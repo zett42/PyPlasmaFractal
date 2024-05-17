@@ -120,13 +120,11 @@ class PlasmaFractalGUI:
                 # Fade the control panel in or out based on mouse activity
                 self.fade_manager.update(imgui.get_mouse_pos(), imgui.is_window_focused(imgui.FOCUS_ANY_WINDOW))
 
-                # Display the current FPS value
-                if self.actual_fps:
-                    # Set color according to the difference between actual and desired FPS                   
-                    tolerance = 0.05 * self.desired_fps
-                    color = (0.2, 1.0, 0.2) if abs(self.actual_fps - self.desired_fps) <= tolerance else (1.0, 0.9, 0.2)
-                    imgui.text_colored(f"FPS: {self.actual_fps:.0f}", *color)
-                    imgui.spacing()
+                # Display the "Reset to Defaults" button and handle the confirmation dialog
+                self.show_reset_button_and_confirm_dialog(params)
+
+                # Display the current FPS in the same line as the "Reset to Defaults" button
+                self.display_fps_same_line()
 
                 width = imgui.get_content_region_available_width()
 
@@ -155,6 +153,46 @@ class PlasmaFractalGUI:
                             if recording_tab.selected:
                                 self.handle_recording_tab(params)
     
+    
+    def show_reset_button_and_confirm_dialog(self, params: PlasmaFractalParams):
+        """
+        Displays the "Reset to Defaults" button and handles the confirmation dialog.
+
+        Args:
+            params (PlasmaFractalParams): The parameters of the plasma fractal.
+        """
+        confirm_dialog_title = "Confirm Reset"
+        
+        if imgui.button("Reset to Defaults"):
+            imgui.open_popup(confirm_dialog_title)
+
+        if self.confirm_dialog("Are you sure you want to reset all settings to their defaults?", confirm_dialog_title):
+            params.apply_defaults()
+            self.notifications.push_notification(self.Notification.NEW_PRESET_LOADED)
+    
+    
+    def display_fps_same_line(self):
+        """
+        Displays the current FPS in the same line as the "Reset to Defaults" button, right-aligned to the content area
+        and color-coded based on the difference between actual and desired FPS.
+        """
+        if self.actual_fps:
+            tolerance = 0.05 * self.desired_fps
+            color = (0.2, 1.0, 0.2) if abs(self.actual_fps - self.desired_fps) <= tolerance else (1.0, 0.9, 0.2)
+            fps_text = f"FPS: {self.actual_fps:.0f}"
+        else:
+            color = (1.0, 0.9, 0.2)
+            fps_text = "FPS: N/A"
+        
+        content_width = imgui.get_content_region_available_width()
+        fps_text_width = imgui.calc_text_size(fps_text)[0]
+
+        # Add spacing to align FPS text to the right
+        imgui.same_line(content_width - fps_text_width)
+        imgui.text_colored(fps_text, *color)
+          
+        imgui.spacing()                
+          
 
     def handle_noise_tab(self, params: PlasmaFractalParams):
         """
