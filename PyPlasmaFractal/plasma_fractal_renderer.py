@@ -5,14 +5,14 @@ import moderngl
 import numpy as np
 from collections import namedtuple
 
+from PyPlasmaFractal.mylib.config.dict_text_file_storage import DictTextFileStorage
 from PyPlasmaFractal.mylib.config.function_registry import FunctionRegistry
 from PyPlasmaFractal.mylib.named_tuples import Vec2
 from PyPlasmaFractal.plasma_fractal_resources import resource_path
 from PyPlasmaFractal.mylib.gfx.shader_cache import VariantShaderCache
-from PyPlasmaFractal.mylib.gfx.shader_template_system import make_dict_source_resolver
 from PyPlasmaFractal.mylib.config.files_to_dict import read_directory_files_to_dict
 from PyPlasmaFractal.plasma_fractal_types import ShaderFunctionType
-from .plasma_fractal_params import PlasmaFractalParams
+from PyPlasmaFractal.plasma_fractal_params import PlasmaFractalParams
 
 
 class PlasmaFractalRenderer:
@@ -49,13 +49,10 @@ class PlasmaFractalRenderer:
         shader_base_directory = resource_path('shaders')
 
         # Load the shader sources into a dictionary to avoid repeated file system access, when a different shader variant is choosen
-        shader_dict = read_directory_files_to_dict(shader_base_directory, recursive=True)
-
-        # Create a source resolver using the loaded dictionary
-        shader_source_resolver = make_dict_source_resolver(shader_dict)
+        shader_storage = DictTextFileStorage(shader_base_directory, '*.glsl')
 
         # Provide the shader sources to the cache.
-        self.shader_cache = VariantShaderCache(ctx, '_vertex_shader.glsl', '_fragment_shader.glsl', shader_source_resolver)
+        self.shader_cache = VariantShaderCache(ctx, '_vertex_shader.glsl', '_fragment_shader.glsl', shader_storage)
 
 
     def _create_fullscreen_quad(self) -> moderngl.Buffer:

@@ -2,6 +2,7 @@ import logging
 from typing import *
 import moderngl
 
+from PyPlasmaFractal.mylib.config.storage import Storage
 from PyPlasmaFractal.mylib.gfx.shader_template_system import resolve_shader_template
 
 class VariantShaderCache:
@@ -18,7 +19,7 @@ class VariantShaderCache:
     - vao_cache (dict): Cache to store VAOs based on program and buffer identifiers.
     """    
     def __init__(self, ctx: moderngl.Context, vertex_shader_name: str, fragment_shader_name: str,
-                 get_shader_source: Callable[[str], str]) -> None:
+                 shader_storage: Storage[str]) -> None:
         """
         Initializes a new instance of VariantShaderCache with the given ModernGL context and shader templates.
 
@@ -31,7 +32,7 @@ class VariantShaderCache:
         
         self.vertex_shader_name   = vertex_shader_name
         self.fragment_shader_name = fragment_shader_name
-        self.get_shader_source    = get_shader_source
+        self.shader_storage       = shader_storage
 
         self.program_cache = {}
         self.vao_cache = {}
@@ -58,8 +59,8 @@ class VariantShaderCache:
 
         is_debug = logging.getLogger().isEnabledFor(logging.DEBUG)
 
-        vertex_shader_source = resolve_shader_template(self.vertex_shader_name, self.get_shader_source, vertex_template_params, extra_debug_info=is_debug)
-        fragment_shader_source = resolve_shader_template(self.fragment_shader_name, self.get_shader_source, fragment_template_params, extra_debug_info=is_debug)
+        vertex_shader_source = resolve_shader_template(self.vertex_shader_name, self.shader_storage, vertex_template_params, extra_debug_info=is_debug)
+        fragment_shader_source = resolve_shader_template(self.fragment_shader_name, self.shader_storage, fragment_template_params, extra_debug_info=is_debug)
 
         program = self.ctx.program(vertex_shader=vertex_shader_source, fragment_shader=fragment_shader_source)
         self.program_cache[params_key] = program

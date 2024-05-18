@@ -4,13 +4,15 @@ from typing import *
 import re
 import logging
 
+from PyPlasmaFractal.mylib.config.storage import Storage
+
 logger = logging.getLogger(__name__)
 
 #------------------------------------------------------------------------------------------------------------------------------
 
 def resolve_shader_template(
     filename: str, 
-    get_file_content: Callable[[str], str], 
+    storage: Storage[str], 
     template_args: Optional[Dict[str, str]] = {},
     max_include_depth: int = 10,
     extra_debug_info: bool = False
@@ -29,8 +31,7 @@ def resolve_shader_template(
 
     Parameters:
         filename (str): The filename of the initial shader source code containing include directives.
-        get_file_content (Callable[[str], str]): A function to fetch shader source code by filename. This function
-            should raise an exception if the file cannot be accessed or does not exist.
+        storage (Storage[str]): A storage instance to fetch shader source code by filename.
         template_args (Dict[str, str], optional): A dictionary of template arguments for replacements at the top-level 
             shader source. Defaults to empty, which applies no template arguments initially.
         max_include_depth (int, optional): The maximum recursion depth allowed for resolving includes. This prevents 
@@ -55,7 +56,7 @@ def resolve_shader_template(
     included_files = set()   # Tracks files with their template arguments to prevent duplicate instances
     current_path = []        # Stack to track current file inclusion path to detect circular dependencies
 
-    resolved_source = _include_file(filename, get_file_content, 1, max_include_depth,
+    resolved_source = _include_file(filename, storage, 1, max_include_depth,
                                     included_files, current_path, 
                                     include_pattern, argument_pattern, template_args,
                                     extra_debug_info)
@@ -70,18 +71,16 @@ def resolve_shader_template(
     return resolved_source
 
 
-#------------------------------------------------------------------------------------------------------------------------------
-
 def _include_file(
     filename: str, 
-    get_file_content: Callable[[str], str], 
+    storage: Storage[str], 
     depth: int, 
     max_include_depth: int, 
     included_files: Set[Tuple[str, Optional[str]]], 
     current_path: List[str], 
     include_pattern: re.Pattern,
     argument_pattern: re.Pattern,
-    template_args: Dict[str, object],
+    template_args: Dict[str, str],
     extra_debug_info: bool = False
 ) -> str:
     """
@@ -93,7 +92,7 @@ def _include_file(
 
     Parameters:
         filename (str): The filename of the shader source to be included.
-        get_file_content (Callable[[str], str]): A function to retrieve shader source content by filename.
+        storage (Storage[str]): A storage instance to retrieve shader source content by filename.
         depth (int): The current depth of recursion for includes.
         max_include_depth (int): The maximum allowable recursion depth for includes to prevent infinite loops.
         included_files (Set[Tuple[str, Optional[str]]]): A set to track included files and their template arguments to 
@@ -123,7 +122,7 @@ def _include_file(
         return ''  # Skip as this exact instance has already been included
 
     try:
-        content = get_file_content(filename)
+        content = storage.load(filename)
         logger.debug(f'Loaded content from "{filename}"')
     except Exception as e:
         raise Exception(f'Error loading source from "{filename}": {str(e)}')    
@@ -156,7 +155,7 @@ def _include_file(
 
         template_args = {m.group(1): m.group(2) for m in re.finditer(argument_pattern, template_args_str)}
 
-        result = _include_file(include_name, get_file_content, depth + 1, max_include_depth, 
+        result = _include_file(include_name, storage, depth + 1, max_include_depth, 
                                included_files, current_path, include_pattern, argument_pattern, template_args,
                                extra_debug_info)
 
@@ -176,9 +175,8 @@ def _include_file(
     
     return result
 
-#------------------------------------------------------------------------------------------------------------------------------
 
-def _apply_template_args(content: str, args: Dict[str, object]) -> str:
+def _apply_template_args(content: str, args: Dict[str, str]) -> str:
     """
     Apply template arguments to placeholders in the given string by scanning for placeholders.
     Placeholders are matched and replaced case-insensitively.
@@ -234,55 +232,3 @@ def _apply_template_args(content: str, args: Dict[str, object]) -> str:
         raise Exception(f"Unused dictionary keys detected: {unused_keys}")
 
     return modified_content
-
-#------------------------------------------------------------------------------------------------------------------------------
-
-def make_file_source_resolver(base_directory: str) -> Callable[[str], str]:
-    """
-    Create a callable that fetches shader source code from files relative to a specified base directory.
-
-    Parameters:
-        base_directory (str): The base directory from which shader include paths will be resolved.
-
-    Returns:
-        Callable[[str], str]: A function that takes a shader file name (relative to the base directory) and
-        returns the contents of the shader file as a string.
-    """
-    base_path = Path(base_directory)
-
-    def get_file_content(shader_file_name: str) -> str:
-        
-        # Construct the full path to the shader file
-        file_path = base_path / shader_file_name
-
-        # Attempt to open and read the shader file
-        try:
-            with file_path.open('r') as file:
-                return file.read()
-        except FileNotFoundError:
-            raise FileNotFoundError(f"The file {shader_file_name} was not found in the directory {base_directory}.")
-        except IOError as e:
-            raise IOError(f"Could not read the file {shader_file_name}: {str(e)}")
-
-    return get_file_content
-
-#------------------------------------------------------------------------------------------------------------------------------
-
-def make_dict_source_resolver(shader_dict: Dict[str, str]) -> Callable[[str], str]:
-    """
-    Creates a callable to retrieve shader source codes based on filenames from a dictionary.
-
-    Args:
-        shader_dict (dict): Dictionary mapping filename to shader source codes.
-
-    Returns:
-        Callable[[str], str]: A function that takes a filename and returns the shader source code.
-    """
-    def get_shader_from_dict(filename: str) -> str:
-
-        if filename in shader_dict:
-            return shader_dict[filename]
-        else:
-            raise KeyError(f'Shader file "{filename}" not found in the dictionary.')
-
-    return get_shader_from_dict
