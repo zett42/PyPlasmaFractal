@@ -5,12 +5,11 @@ import moderngl
 import numpy as np
 from collections import namedtuple
 
-from PyPlasmaFractal.mylib.config.dict_text_file_storage import DictTextFileStorage
+from PyPlasmaFractal.mylib.config.dict_text_storage import DictTextFileStorage
 from PyPlasmaFractal.mylib.config.function_registry import FunctionRegistry
 from PyPlasmaFractal.mylib.named_tuples import Vec2
 from PyPlasmaFractal.plasma_fractal_resources import resource_path
 from PyPlasmaFractal.mylib.gfx.shader_cache import VariantShaderCache
-from PyPlasmaFractal.mylib.config.files_to_dict import read_directory_files_to_dict
 from PyPlasmaFractal.plasma_fractal_types import ShaderFunctionType
 from PyPlasmaFractal.plasma_fractal_params import PlasmaFractalParams
 

@@ -1,7 +1,7 @@
 import pytest
 from typing import *
 from tempfile import TemporaryDirectory
-from PyPlasmaFractal.mylib.config.dict_text_file_storage import DictTextFileStorage
+from PyPlasmaFractal.mylib.config.dict_text_storage import DictTextFileStorage
 from PyPlasmaFractal.mylib.gfx.shader_template_system import resolve_shader_template
 
 # Test data setup for various test scenarios
