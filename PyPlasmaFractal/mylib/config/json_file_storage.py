@@ -13,7 +13,7 @@ class EnumJSONEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, obj)
 
 
-class JsonFileStorage(Storage):
+class JsonFileStorage(Storage[Dict[str, Any]]):
     """
     A class that provides storage operations for JSON files.
     """
@@ -24,10 +24,10 @@ class JsonFileStorage(Storage):
 
         Args:
             directory (str): The base directory where the JSON files will be stored.
+            list_extension (bool): Whether to list file extensions in the output of the list method.
 
         Raises:
             StorageCreateDirectoryError: If the directory cannot be created.
-
         """
         self.directory = Path(directory)
         self.list_extension = list_extension
@@ -147,4 +147,6 @@ class JsonFileStorage(Storage):
         Returns:
             str: The filename with .json extension.
         """
-        return filename if filename.lower().endswith('.json') else filename + '.json'
+        filename = Path(filename)
+        return str(filename if filename.suffix.lower() == '.json' else filename.with_suffix('.json'))
+    
