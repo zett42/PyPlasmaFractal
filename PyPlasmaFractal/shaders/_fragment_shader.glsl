@@ -11,6 +11,8 @@
 #version 330
 precision highp float;
 
+#define NOISE_MIN           <NOISE_MIN>            // Minimum noise value
+#define NOISE_MAX           <NOISE_MAX>            // Maximum noise value
 #define MAX_FEEDBACK_PARAMS <MAX_FEEDBACK_PARAMS>  // Maximum number of feedback blend parameters
 #define MAX_WARP_PARAMS     <MAX_WARP_PARAMS>      // Maximum number of warp parameters
 
@@ -53,27 +55,27 @@ out vec4 f_color;            // Fragment shader output color
 #include "color_adjustment.glsl"
 #include "transforms.glsl"
 
-// Including various noise implementations
+// Include user-selectable functions for noise, warp, and blend operations
 #include "noise_functions/perlin_3d_std.glsl"
 #include "noise_functions/perlin_3d_double.glsl"
 #include "noise_functions/perlin_3d_deriv.glsl"
 #include "noise_functions/simplex_perlin_3d_std.glsl"
 #include "noise_functions/simplex_perlin_3d_double.glsl"
 #include "noise_functions/simplex_perlin_3d_deriv.glsl"
-
-// Use the noise implementation specified by template argument for the fractal noise function (visible noise)
-#apply_template "fractal_noise/fractal_noise_single.glsl", NOISE_FUNC = <NOISE_FUNC>
-
-// Use the noise implementation specified by template argument for the fractal noise function (feedback warp)
-#apply_template "fractal_noise/fractal_noise_double.glsl", NOISE_FUNC = <FB_WARP_NOISE_FUNC>
-
-// Use the noise implementation specified by template argument for the fractal noise function (feedback warp)
-#apply_template "fractal_noise/fractal_noise_deriv.glsl", NOISE_FUNC = <FB_WARP_NOISE_FUNC>
+#include "noise_functions/cellular_3d_std.glsl"
+#include "noise_functions/cellular_3d_double.glsl"
+#include "noise_functions/cellular_3d_deriv.glsl"
 
 #include "warp_functions/warp_double.glsl"
 #include "warp_functions/warp_deriv.glsl"
 
 #include "blend_functions/feedback_blend.glsl"
+
+// Use the noise implementation specified by template argument for the fractal noise functions
+#apply_template "fractal_noise/fractal_noise_single.glsl", NOISE_FUNC = <NOISE_FUNC>
+#apply_template "fractal_noise/fractal_noise_double.glsl", NOISE_FUNC = <FB_WARP_NOISE_FUNC>
+#apply_template "fractal_noise/fractal_noise_deriv.glsl", NOISE_FUNC = <FB_WARP_NOISE_FUNC>
+
 
 // Function to apply feedback to the noise color, if enabled
 vec4 applyFeedback_Enabled(vec4 noise_color) {
@@ -94,7 +96,7 @@ vec4 applyFeedback_Enabled(vec4 noise_color) {
     return blend<FB_BLEND_FUNC>(tex_color, noise_color, u_feedbackParams);
 }
 
-// Function to do nothing with the noise color, if feedback is disabled
+// Do nothing with the noise color, if feedback is disabled
 vec4 applyFeedback_Disabled(vec4 noise_color) {
     return noise_color;
 }
@@ -109,7 +111,9 @@ void main() {
     float grayscale = fractalNoise_Single_<NOISE_FUNC>(scaledPosition, u_octaves, u_gain, u_timeScaleFactor, 
                                                        u_positionScaleFactor, u_rotationAngleIncrement, u_timeOffsetIncrement, u_time);
 
-    grayscale = grayscale * 0.5 + 0.5; // Normalize grayscale to 0..1 range
+    // Normalize noise to 0..1 range
+    grayscale = (grayscale - NOISE_MIN) / (NOISE_MAX - NOISE_MIN); 
+
     grayscale = sigmoidContrast(grayscale, u_contrastSteepness, u_contrastMidpoint); // Apply contrast adjustment
     grayscale = grayscale * u_brightness; // Apply brightness adjustment
     vec4 noise_color = vec4(grayscale, grayscale, grayscale, 1.0); // Set output color to grayscale

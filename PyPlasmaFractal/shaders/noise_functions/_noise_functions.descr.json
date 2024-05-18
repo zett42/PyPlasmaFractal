@@ -3,10 +3,20 @@
     "functions": {
       "Perlin3D": {
         "display_name": "Perlin",
+        "min_value": -1.0,
+        "max_value": 1.0,
         "params": []
       },
       "SimplexPerlin3D": {
         "display_name": "Simplex",
+        "min_value": -1.0,
+        "max_value": 1.0,
+        "params": []
+      },
+      "Cellular3D": {
+        "display_name": "Cellular",
+        "min_value": 0.0,
+        "max_value": 1.0,
         "params": []
       }
     }

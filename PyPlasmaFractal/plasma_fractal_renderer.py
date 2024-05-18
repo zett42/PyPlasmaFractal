@@ -102,12 +102,17 @@ class PlasmaFractalRenderer:
         else:
             view_scale = Vec2(1.0, 1.0 / aspect_ratio)  
 
+        noise_function_registry = shader_function_registries[ShaderFunctionType.NOISE]
         blend_function_registry = shader_function_registries[ShaderFunctionType.BLEND]
         warp_function_registry  = shader_function_registries[ShaderFunctionType.WARP]
+        
+        noise_function_info = noise_function_registry.get_function_info(params.noise_algorithm)
 
         # Parameters that define how the fragment shader is generated from templates
         fragment_template_params = {
             'NOISE_FUNC': params.noise_algorithm,
+            'NOISE_MIN': noise_function_info.min_value,
+            'NOISE_MAX': noise_function_info.max_value,
             'FB_ENABLED': 'Enabled' if params.enable_feedback else 'Disabled',
             'FB_BLEND_FUNC': params.feedback_function,
             'FB_WARP_FRACTAL_NOISE_VARIANT': params.get_current_warp_function_info().fractal_noise_variant,
