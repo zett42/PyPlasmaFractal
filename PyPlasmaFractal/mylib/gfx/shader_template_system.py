@@ -1,3 +1,4 @@
+import fnmatch
 from pathlib import Path
 import tempfile
 from typing import *
@@ -121,6 +122,12 @@ def _include_file(
         logger.debug(f'Skipping already included file: "{filename}" with args {template_args}')
         return ''  # Skip as this exact instance has already been included
 
+    # Check for wildcards in the filename and handle them
+    if '*' in filename or '?' in filename:
+        return _handle_wildcard_includes(filename, storage, depth, max_include_depth,
+                                         included_files, current_path, include_pattern, argument_pattern,
+                                         template_args, extra_debug_info)
+
     try:
         content = storage.load(filename)
         logger.debug(f'Loaded content from "{filename}"')
@@ -174,6 +181,35 @@ def _include_file(
         return content_header + result + content_footer
     
     return result
+
+
+def _handle_wildcard_includes(
+    filename: str,
+    storage: Storage[str],
+    *args: Any
+) -> str:
+    """
+    Handle wildcard patterns in the filename by listing and matching files from the storage,
+    and recursively including each matched file. Normalizes path separators for consistency.
+
+    Parameters:
+        filename (str): The filename with potential wildcard patterns.
+        storage (Storage[str]): A storage instance to list all available files.
+        args (Any): Additional positional parameters to pass to the recursive _include_file function.
+
+    Returns:
+        str: The shader code with all includes processed and template arguments applied, if applicable.
+    """
+    logger.debug(f'Resolving wildcard filename "{filename}"')
+
+    normalized_filename = Path(filename).as_posix()
+    all_files = [Path(f).as_posix() for f in storage.list()]
+    
+    results = []
+    for match in fnmatch.filter(all_files, normalized_filename):
+        results.append(_include_file(match, storage, *args))
+    
+    return "\n\n".join(results)
 
 
 def _apply_template_args(content: str, args: Dict[str, str]) -> str:

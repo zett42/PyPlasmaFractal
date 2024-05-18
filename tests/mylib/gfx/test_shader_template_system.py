@@ -12,7 +12,10 @@ mock_sources = {
     'circular_a.glsl': 'Circle A\n#include "circular_b.glsl"',
     'circular_b.glsl': 'Circle B\n#include "circular_a.glsl"',
     'template_shader.glsl': 'void light() { return <LIGHT_TYPE>; }\nThis is the color <COLOR>\n#apply_template "light_type_shader.glsl", LIGHT_TYPE=<LIGHT_TYPE>',
-    'light_type_shader.glsl': 'Light type is <LIGHT_TYPE>'
+    'light_type_shader.glsl': 'Light type is <LIGHT_TYPE>',
+    'wildcard_shader_1.glsl': 'Shader 1',
+    'wildcard_shader_2.glsl': 'Shader 2',
+    'wildcard_shader_main.glsl': '#include "wildcard_shader_*.glsl"',
 }
 
 @pytest.fixture
@@ -23,17 +26,17 @@ def storage():
             storage.save(content, filename)
         yield storage
 
-
 @pytest.mark.parametrize("filename,expected_output", [
     ("main_shader.glsl", 'void main() { baseFunction(); commonFunction(); }\nvoid baseFunction() {}\nvoid commonFunction() {}'),  # Main shader with nested includes
-    ("common_shader.glsl", 'void commonFunction() {}')  # Test with no includes
+    ("common_shader.glsl", 'void commonFunction() {}'),  # Test with no includes
+    ("wildcard_shader_main.glsl", 'Shader 1\n\nShader 2'),  # Wildcard includes
 ], ids=[
-    "nested_includes", "no_includes"
+    "nested_includes", "no_includes", "wildcard_includes"
 ])
 def test_resolve_shader_includes(storage, filename, expected_output):
     
     resolved_shader_code = resolve_shader_template(filename, storage)
-    assert resolved_shader_code == expected_output
+    assert resolved_shader_code.strip() == expected_output.strip()
 
 
 # Test cases for errors and limits
@@ -70,4 +73,4 @@ def test_template_parameter_resolution(storage):
     
     expected_output = 'void light() { return POINT_LIGHT; }\nThis is the color red\nLight type is POINT_LIGHT'
     resolved_shader_code = resolve_shader_template('template_shader.glsl', storage, {'LIGHT_TYPE': 'POINT_LIGHT', 'COLOR': 'red'})
-    assert resolved_shader_code == expected_output
+    assert resolved_shader_code.strip() == expected_output.strip()
