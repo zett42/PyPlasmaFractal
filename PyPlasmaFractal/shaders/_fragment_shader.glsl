@@ -56,19 +56,8 @@ out vec4 f_color;            // Fragment shader output color
 #include "transforms.glsl"
 
 // Include user-selectable functions for noise, warp, and blend operations
-#include "noise_functions/perlin_3d_std.glsl"
-#include "noise_functions/perlin_3d_double.glsl"
-#include "noise_functions/perlin_3d_deriv.glsl"
-#include "noise_functions/simplex_perlin_3d_std.glsl"
-#include "noise_functions/simplex_perlin_3d_double.glsl"
-#include "noise_functions/simplex_perlin_3d_deriv.glsl"
-#include "noise_functions/cellular_3d_std.glsl"
-#include "noise_functions/cellular_3d_double.glsl"
-#include "noise_functions/cellular_3d_deriv.glsl"
-
-#include "warp_functions/warp_double.glsl"
-#include "warp_functions/warp_deriv.glsl"
-
+#include "noise_functions\*.glsl"
+#include "warp_functions\*.glsl"
 #include "blend_functions/feedback_blend.glsl"
 
 // Use the noise implementation specified by template argument for the fractal noise functions
