@@ -13,6 +13,7 @@ from PyPlasmaFractal.mylib.config.json_file_storage import JsonFileStorage
 from PyPlasmaFractal.mylib.config.source_manager import StorageSourceManager
 from PyPlasmaFractal.mylib.config.function_registry import FunctionRegistry
 from PyPlasmaFractal.mylib.config.function_registry import FunctionRegistry
+from PyPlasmaFractal.mylib.gui.ansi_style import AnsiStyle
 from PyPlasmaFractal.mylib.gui.icons import Icons
 from PyPlasmaFractal.mylib.gui.notification_manager import NotificationManager
 from PyPlasmaFractal.mylib.gui.window_fade_manager import WindowFadeManager
@@ -208,11 +209,21 @@ class PlasmaFractalGUI:
         with ih.resized_items(-160):
 
             if ih.collapsing_header("Noise Settings", self, attr='noise_settings_open'):
-                ih.slider_float("Scale", params, 'scale', min_value=0.01, max_value=100.0, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)                
+                ih.slider_float("Scale", params, 'scale', min_value=0.01, max_value=100.0, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)
+                ih.show_tooltip("Adjust the scale of the noise pattern.")
+                
                 self.function_combo("Noise Algorithm", params, 'noise_algorithm', self.noise_function_registry)
-
+                ih.show_tooltip(
+                    "Select the algorithm used to generate the noise.\n\n"
+                    f"{AnsiStyle.FG_BRIGHT_CYAN}Perlin Noise{AnsiStyle.RESET}: Produces smooth, gradient noise.\n"
+                    f"{AnsiStyle.FG_BRIGHT_CYAN}Simplex Noise{AnsiStyle.RESET}: An improved version of Perlin noise, more variety and contrast.\n"
+                    f"{AnsiStyle.FG_BRIGHT_CYAN}Cellular Noise{AnsiStyle.RESET}: Produces a pattern based on cell-like structures."
+                )
             if ih.collapsing_header("Fractal Settings", self, attr='fractal_settings_open'):
                 ih.slider_int("Num. Octaves", params, 'octaves', min_value=1, max_value=12)
+                ih.show_tooltip("Set the number of noise octaves for fractal generation.\n"
+                                "Higher values increase detail but can be computationally intensive.")
+                
                 ih.slider_float("Gain/Octave", params, 'gain', min_value=0.1, max_value=1.0)
                 ih.slider_float("Pos. Scale/Octave", params, 'positionScaleFactor', min_value=0.1, max_value=10.0)
                 ih.slider_float("Rotation/Octave", params, 'rotationAngleIncrement', min_value=0.0, max_value=math.pi * 2, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)

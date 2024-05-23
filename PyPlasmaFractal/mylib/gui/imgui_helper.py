@@ -4,6 +4,7 @@ This module provides wrapper functions for ImGui controls to update attributes o
 
 from enum import Enum
 from pathlib import Path
+import re
 import imgui
 from typing import *
 
@@ -391,3 +392,53 @@ def imgui_text_width(*args, **kwargs) -> int:
 
     """
     return imgui.calc_text_size(*args, **kwargs)[0]
+
+
+
+
+def show_tooltip(text: str):
+    """
+    Helper function to show a tooltip with ANSI color codes if the current item is hovered.
+    """
+    if imgui.is_item_hovered():
+        _, item_min_y = imgui.get_item_rect_min()
+        _, item_height = imgui.get_item_rect_size()
+        
+        window_pos_x, _ = imgui.get_window_position()
+        window_size_x, _ = imgui.get_window_size()
+        
+        viewport = imgui.get_main_viewport()
+        viewport_x, viewport_width = viewport.pos.x, viewport.size.x
+        
+        padding_x = imgui.get_style().window_padding.x
+        
+        # Strip ANSI codes to calculate the correct text width
+        stripped_text = strip_ansi_codes(text)
+        tooltip_text_width = imgui.calc_text_size(stripped_text).x + 2 * padding_x
+        
+        tooltip_x = window_pos_x + window_size_x
+        tooltip_y = item_min_y
+        
+        if tooltip_x + tooltip_text_width > viewport_x + viewport_width:
+            tooltip_x = window_pos_x - tooltip_text_width
+            if tooltip_x < viewport_x:
+                tooltip_x = viewport_x
+                tooltip_y += item_height
+        
+        imgui.set_next_window_position(tooltip_x, tooltip_y)
+        imgui.set_next_window_size(tooltip_text_width, 0)
+        imgui.begin_tooltip()
+        
+        # Use imgui.text_ansi to display the text with ANSI codes
+        imgui.text_ansi(text)
+        
+        imgui.end_tooltip()
+        
+        
+ansi_escape = re.compile(r'\x1B[@-_][0-?]*[ -/]*[@-~]')
+
+def strip_ansi_codes(text: str) -> str:
+    """
+    Strip ANSI escape codes from a string.
+    """
+    return ansi_escape.sub('', text)
