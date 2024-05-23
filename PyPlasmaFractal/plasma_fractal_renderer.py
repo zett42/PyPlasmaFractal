@@ -1,6 +1,5 @@
 import logging
 from typing import *
-import os
 import moderngl
 import numpy as np
 from collections import namedtuple

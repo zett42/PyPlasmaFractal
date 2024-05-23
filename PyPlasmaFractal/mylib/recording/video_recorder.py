@@ -1,5 +1,4 @@
 import logging
-import os
 from typing import Tuple
 import moderngl
 import numpy as np

@@ -88,8 +88,8 @@ class PyPlasmaFractalApp:
         self.path_manager = ConfigPathManager(self.app_name, self.app_author, app_specific_path=resource_path(''))
         
         # Setup video recording
-        self.user_videos_directory = os.path.join(self.path_manager.user_specific_path, 'videos')
-        os.makedirs(self.user_videos_directory, exist_ok=True)
+        self.user_videos_directory = self.path_manager.user_specific_path / 'videos'
+        self.user_videos_directory.mkdir(parents=True, exist_ok=True)
         self.recorder = VideoRecorder()
 
         # Initialize timing-related variables
@@ -100,9 +100,7 @@ class PyPlasmaFractalApp:
         self.register_selectable_shader_functions()   
 
         # Setup GUI
-        self.gui = PlasmaFractalGUI(self.path_manager, self.shader_function_registries)
-        self.gui.recording_directory = self.user_videos_directory
-        self.gui.recording_fps = self.desired_fps
+        self.gui = PlasmaFractalGUI(self.path_manager, self.shader_function_registries, self.user_videos_directory, self.desired_fps) 
         
         # Initialized in run()
         self.params = None
@@ -173,7 +171,7 @@ class PyPlasmaFractalApp:
         """
         if getattr(sys, 'frozen', False):
             # If the application is run as a bundle, add the location of the glfw DLLs to the search path to avoid errors.
-            os.add_dll_directory(resource_path(''))
+            os.add_dll_directory(str(resource_path('')))
 
         # Import glfw here after setting the DLL search path to avoid issues with the DLLs not being found
         global glfw
@@ -276,9 +274,9 @@ class PyPlasmaFractalApp:
         # Replace default font with custom font
         fonts = imgui.get_io().fonts
         fonts.clear()
-        font_path = os.path.join(fonts_dir, 'Roboto-Regular.ttf')
+        font_path = fonts_dir / 'Roboto-Regular.ttf'
         logging.debug(f"Loading font from: {font_path}")
-        fonts.add_font_from_file_ttf(font_path, 20)
+        fonts.add_font_from_file_ttf(str(font_path), 20)
 
         # Merge icon font
         Icons.merge_font(fonts_dir, font_file_name='MaterialDesignIconsDesktop.ttf', font_size=28)
@@ -291,7 +289,7 @@ class PyPlasmaFractalApp:
         """
         Registers user-selectable shader functions.
         """
-        shaders_path = Path(resource_path('shaders'))
+        shaders_path = resource_path('shaders')
         descriptor_filter = '*.descr.json'
         
         function_dirs = {

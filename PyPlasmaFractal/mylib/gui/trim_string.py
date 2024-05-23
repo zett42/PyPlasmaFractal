@@ -1,6 +1,6 @@
 import os
-from pathlib import PurePath
-from typing import Callable
+from pathlib import Path, PurePath
+from typing import Callable, Union
 
 def trim_text_with_ellipsis(text: str, max_width: int, calc_text_width: Callable[[str], int], ellipsis: str = '...', trim_start: bool = False) -> str:
     """
@@ -63,7 +63,7 @@ def trim_text_with_ellipsis(text: str, max_width: int, calc_text_width: Callable
     return best_fit
 
 
-def trim_path_with_ellipsis(path: str, max_width: int, calc_text_width: Callable[[str], int], ellipsis: str = '...') -> str:
+def trim_path_with_ellipsis(path: Union[Path, str], max_width: int, calc_text_width: Callable[[str], int], ellipsis: str = '...') -> str:
     """
     Trims a given path to fit within a maximum width, replacing parts by an ellipsis if necessary.
 
@@ -77,6 +77,8 @@ def trim_path_with_ellipsis(path: str, max_width: int, calc_text_width: Callable
         str: The trimmed path.
 
     """
+    path = str(path)
+    
     # Check if the original path is within the allowed width, if so return it directly
     if calc_text_width(path) <= max_width:
         return path

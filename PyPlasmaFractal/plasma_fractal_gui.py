@@ -46,7 +46,10 @@ class PlasmaFractalGUI:
         RECORDING_ERROR = auto()           # Received by the GUI when an error occurs during recording
 
 
-    def __init__(self, path_manager: ConfigPathManager, function_registries: Dict[ShaderFunctionType, FunctionRegistry]):
+    def __init__(self, path_manager: ConfigPathManager, 
+                 function_registries: Dict[ShaderFunctionType, FunctionRegistry],
+                 recording_directory: Union[Path, str], 
+                 default_recording_fps: int):
      
         self.noise_function_registry = function_registries[ShaderFunctionType.NOISE]
         self.blend_function_registry = function_registries[ShaderFunctionType.BLEND]
@@ -73,9 +76,9 @@ class PlasmaFractalGUI:
         self.storage_manager = StorageSourceManager(self.app_storage, self.user_storage)        
 
         # Initialize recording state
-        self.is_recording = False
-        self.recording_directory = None
+        self.recording_directory = Path(recording_directory)
         self.recording_file_name = f"Capture_{datetime.datetime.now().strftime('%y%m%d_%H%M')}.mp4"
+        self.recording_fps = default_recording_fps
         self.recording_last_saved_file_path = None
         self.recording_resolution = 'HD 720p'
         self.recording_width = None
@@ -85,6 +88,7 @@ class PlasmaFractalGUI:
         self.recording_quality = 8
         self.recording_time = None
         self.recording_error_message = None
+        self.is_recording = False
 
         # FPS display
         self.actual_fps = 0.0
@@ -766,7 +770,7 @@ class PlasmaFractalGUI:
     def stop_recording(self):
 
         self.is_recording = False
-        self.recording_last_saved_file_path = os.path.join(self.recording_directory, self.recording_file_name)
+        self.recording_last_saved_file_path = self.recording_directory / self.recording_file_name
         self.notifications.push_notification(self.Notification.RECORDING_STATE_CHANGED, {'is_recording': self.is_recording})
 
     def handle_automatic_stop(self):

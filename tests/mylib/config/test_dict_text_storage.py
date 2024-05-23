@@ -1,6 +1,5 @@
 import pytest
 import tempfile
-import os
 from pathlib import Path
 from PyPlasmaFractal.mylib.config.dict_text_storage import DictTextFileStorage
 from PyPlasmaFractal.mylib.config.storage import *

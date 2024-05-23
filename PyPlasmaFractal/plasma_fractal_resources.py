@@ -1,7 +1,7 @@
 from pathlib import Path
 import sys
 
-def resource_path(relative_path: str) -> str:
+def resource_path(relative_path: str) -> Path:
     """ Get absolute path to resource, works for dev and for PyInstaller.
     Assumes that this script is located within a sub directory relative to the main script. """
     try:
@@ -10,4 +10,5 @@ def resource_path(relative_path: str) -> str:
     except AttributeError:
         # In development, the base path is the directory of the current script
         base_path = Path(__file__).resolve().parent
-    return str(base_path / relative_path)
+        
+    return base_path / relative_path

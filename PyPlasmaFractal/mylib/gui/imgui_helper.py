@@ -3,7 +3,7 @@ This module provides wrapper functions for ImGui controls to update attributes o
 """
 
 from enum import Enum
-import os
+from pathlib import Path
 import imgui
 from typing import *
 
@@ -358,7 +358,7 @@ class resized_items:
         imgui.pop_item_width()
 
 
-def display_trimmed_path_with_tooltip(path: str, available_width: int, margin: int = 6, ellipsis: str = '...'):
+def display_trimmed_path_with_tooltip(path: Union[Path, str], available_width: int, margin: int = 6, ellipsis: str = '...'):
     """
     Display a trimmed path with a tooltip showing the full path.
 
@@ -369,6 +369,7 @@ def display_trimmed_path_with_tooltip(path: str, available_width: int, margin: i
     Returns:
         None
     """
+    path = str(path)
     display_path = trim_path_with_ellipsis(path, available_width - margin, imgui_text_width, ellipsis)
 
     # Display the trimmed path and provide a tooltip with the full path

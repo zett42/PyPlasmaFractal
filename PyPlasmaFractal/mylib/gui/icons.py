@@ -1,5 +1,5 @@
 import logging
-import os
+from pathlib import Path
 from typing import *
 import imgui
 
@@ -16,20 +16,20 @@ class Icons:
 
 
     @staticmethod
-    def merge_font(fonts_dir: str, font_file_name: str = 'MaterialDesignIconsDesktop.ttf', font_size: int = 28) -> None:
+    def merge_font(fonts_dir: Union[Path, str], font_file_name: Union[Path, str] = 'MaterialDesignIconsDesktop.ttf', font_size: int = 28) -> None:
         """
         Merge the Material Design Icons font with default fonts in an imgui application using the glyph ranges
         determined from the icon code points.
 
         Args:
-        fonts_dir (str): Directory where the icon font file is stored.
-        font_file_name (str): Name of the Material Design Icons font file to be used.
+        fonts_dir (Path, str): Directory where the icon font file is stored.
+        font_file_name (Path, str): Name of the Material Design Icons font file to be used.
         font_size (int): Size of the font.
         """
         fonts = imgui.get_io().fonts
 
         # Path to the font file
-        font_path = os.path.join(fonts_dir, font_file_name)
+        font_path = Path(fonts_dir) / font_file_name
         glyph_ranges = Icons._determine_glyph_ranges()
 
         # Convert list of tuples into a flat, zero-terminated array
@@ -46,7 +46,7 @@ class Icons:
         
         # Add the font to imgui
         logging.debug(f"Loading font from: {font_path}")
-        fonts.add_font_from_file_ttf(font_path, font_size, font_config=config, glyph_ranges=glyph_range_object)
+        fonts.add_font_from_file_ttf(str(font_path), font_size, font_config=config, glyph_ranges=glyph_range_object)
 
 
     @staticmethod
