@@ -24,7 +24,7 @@ class PlasmaFractalRenderer:
         params (Dict[str, Any]): Configuration dictionary for rendering options.
         shader_cache (VariantShaderCache): Caches and manages shader variants.
     """
-    def __init__(self, ctx):
+    def __init__(self, ctx: moderngl.Context, shader_function_registries: Dict[ShaderFunctionType, FunctionRegistry], ):
         """
         Initializes a new instance of the PlasmaFractalRenderer class.
 
@@ -51,6 +51,10 @@ class PlasmaFractalRenderer:
 
         # Provide the shader sources to the cache.
         self.shader_cache = VariantShaderCache(ctx, '_vertex_shader.glsl', '_fragment_shader.glsl', shader_storage)
+        
+        self.noise_function_registry = shader_function_registries[ShaderFunctionType.NOISE]
+        self.blend_function_registry = shader_function_registries[ShaderFunctionType.BLEND]
+        self.warp_function_registry  = shader_function_registries[ShaderFunctionType.WARP]        
 
 
     def _create_fullscreen_quad(self) -> moderngl.Buffer:
@@ -74,8 +78,7 @@ class PlasmaFractalRenderer:
 
 
     def update_params(self, 
-                      params: PlasmaFractalParams, 
-                      shader_function_registries: Dict[ShaderFunctionType, FunctionRegistry], 
+                      params: PlasmaFractalParams,
                       feedback_texture: moderngl.Texture, 
                       time: float, 
                       aspect_ratio: float):
@@ -96,12 +99,8 @@ class PlasmaFractalRenderer:
             view_scale = Vec2(aspect_ratio, 1.0)
         else:
             view_scale = Vec2(1.0, 1.0 / aspect_ratio)  
-
-        noise_function_registry = shader_function_registries[ShaderFunctionType.NOISE]
-        blend_function_registry = shader_function_registries[ShaderFunctionType.BLEND]
-        warp_function_registry  = shader_function_registries[ShaderFunctionType.WARP]
-        
-        noise_function_info = noise_function_registry.get_function_info(params.noise_algorithm)
+       
+        noise_function_info = self.noise_function_registry.get_function_info(params.noise_algorithm)
 
         # Parameters that define how the fragment shader is generated from templates
         fragment_template_params = {
@@ -113,8 +112,8 @@ class PlasmaFractalRenderer:
             'FB_WARP_FRACTAL_NOISE_VARIANT': params.get_current_warp_function_info().fractal_noise_variant,
             'FB_WARP_NOISE_FUNC': params.warpNoiseAlgorithm,
             'FB_WARP_XFORM_FUNC': params.warpFunction,
-            'MAX_WARP_PARAMS': warp_function_registry.max_param_count(),
-            'MAX_FEEDBACK_PARAMS': blend_function_registry.max_param_count(),
+            'MAX_WARP_PARAMS': self.warp_function_registry.max_param_count(),
+            'MAX_FEEDBACK_PARAMS': self.blend_function_registry.max_param_count(),
         }
         self.program, _ = self.shader_cache.get_or_create_program(fragment_template_params=fragment_template_params)
         self.vao = self.shader_cache.get_or_create_vao(self.program, self.vbo, 'in_pos')
@@ -161,8 +160,8 @@ class PlasmaFractalRenderer:
             self.program['u_warpScale'] = (params.warpScale * view_scale.x, params.warpScale * view_scale.y)
 
             # Assign the parameters to their respective shader uniforms
-            self.set_params_uniform(params.get_current_warp_params(), 'u_warpParams', warp_function_registry.max_param_count())
-            self.set_params_uniform(params.get_current_feedback_params(), 'u_feedbackParams', blend_function_registry.max_param_count())
+            self.set_params_uniform(params.get_current_warp_params(), 'u_warpParams', self.warp_function_registry.max_param_count())
+            self.set_params_uniform(params.get_current_feedback_params(), 'u_feedbackParams', self.blend_function_registry.max_param_count())
 
             feedback_texture.use(location=0)
         

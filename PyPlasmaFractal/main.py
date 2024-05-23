@@ -307,7 +307,7 @@ class PyPlasmaFractalApp:
         """
         Main rendering loop that continuously updates and displays the fractal visuals.
         """
-        main_renderer = PlasmaFractalRenderer(self.ctx)
+        main_renderer = PlasmaFractalRenderer(self.ctx, self.shader_function_registries)
         texture_to_screen = FullscreenTextureRenderer(self.ctx)
         fps_limiter = FrameRateLimiter(self.desired_fps)                     
 
@@ -352,7 +352,7 @@ class PyPlasmaFractalApp:
             self.feedback_manager.clear()
 
         # Update the main renderer with the current parameters and render to the destination texture
-        main_renderer.update_params(self.params, self.shader_function_registries, self.feedback_manager.previous_texture, 
+        main_renderer.update_params(self.params, self.feedback_manager.previous_texture, 
                                     elapsed_time, self.feedback_manager.aspect_ratio)
         
         # Render the fractal to the destination texture
