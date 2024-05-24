@@ -1,8 +1,9 @@
 {
-  "description": "Feedback warp functions (fractal_noise_variant: Double)",
+  "description": "Feedback warp functions",
   "functions": {
     "Offset": {
       "display_name": "Offset",
+      "description": "Applies an offset to texture coordinates based on noise values.",
       "fractal_noise_variant": "Double",
       "params": [
         {
@@ -10,12 +11,14 @@
           "logarithmic": true,
           "min": 0.0,
           "max": 1.0,
-          "default": 0.05
+          "default": 0.05,
+          "description": "A scalar that scales the noise values to control the extent of the offset."
         }
       ]
     },
     "Polar": {
       "display_name": "Polar",
+      "description": "Applies a polar-based offset to texture coordinates, influenced by noise values. This creates a circular pattern warp.",
       "fractal_noise_variant": "Double",
       "params": [
         {
@@ -23,14 +26,16 @@
           "logarithmic": true,
           "min": 0.0,
           "max": 1.0,
-          "default": 0.02
+          "default": 0.02,
+          "description": "Scales the radial component of the offset, affecting how far from the original position the warp can move."
         },
         {
           "display_name": "Rotation Factor",
           "logarithmic": true,
           "min": 0.0,
           "max": 1.0,
-          "default": 0.1
+          "default": 0.1,
+          "description": "Scales the angular component of the distortion, determining the rotational influence of the noise's angular value."
         }
       ]
     }

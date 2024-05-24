@@ -1,55 +1,63 @@
 {
-    "description": "A set of standard feedback blend functions",
-    "functions": {
-      "Linear": {
-        "display_name": "Linear",
-        "params": [
-          {
-            "display_name": "Feedback Decay",
-            "logarithmic": false,
-            "min": 0.0,
-            "max": 0.3,
-            "default": 0.01
-          }
-        ]
-      },
-      "Additive": {
-        "display_name": "Additive",
-        "params": [
-          {
-            "display_name": "Feedback Decay",
-            "logarithmic": false,
-            "min": 0.0,
-            "max": 0.3,
-            "default": 0.01
-          }
-        ]
-      },
-      "Sigmoid": {
-        "display_name": "Sigmoid",
-        "params": [
-          {
-            "display_name": "Feedback Decay",
-            "logarithmic": false,
-            "min": 0.0,
-            "max": 0.3,
-            "default": 0.02
-          },
-          {
-            "display_name": "Feedback Steepness",
-            "logarithmic": false,
-            "min": 0.0,
-            "max": 1.0,
-            "default": 0.1
-          },
-          {
-            "display_name": "Feedback Midpoint",
-            "logarithmic": false,
-            "min": 0.0,
-            "max": 1.0,
-            "default": 0.5
-          }
-        ]
-      }
+  "description": "Blend functions that define how colors from previous and current frame are mixed.",
+  "functions": {
+    "Linear": {
+      "display_name": "Linear",
+      "description": "Linearly blends the current frame's color with the previous frame's color based on an alpha value.",
+      "params": [
+        {
+          "display_name": "Feedback Decay",
+          "logarithmic": false,
+          "min": 0.0,
+          "max": 0.3,
+          "default": 0.01,
+          "description": "Alpha value for linear blending.\nHigher values give more influence to the current frame."
+        }
+      ]
+    },
+    "Additive": {
+      "display_name": "Additive",
+      "description": "Adds the current frame's color to the previous frame's color, scaled by an alpha value.",
+      "params": [
+        {
+          "display_name": "Feedback Decay",
+          "logarithmic": false,
+          "min": 0.0,
+          "max": 0.3,
+          "default": 0.01,
+          "description": "Alpha value for additive blending.\nHigher values increase the current frame's influence."
+        }
+      ]
+    },
+    "Sigmoid": {
+      "display_name": "Sigmoid",
+      "description": "Blends colors from the current frame using a sigmoid function for contrast control, influenced by the previous frame's luminance.",
+      "params": [
+        {
+          "display_name": "Feedback Decay",
+          "logarithmic": false,
+          "min": 0.0,
+          "max": 0.3,
+          "default": 0.02,
+          "description": "Base alpha value for sigmoid blending."
+        },
+        {
+          "display_name": "Feedback Steepness",
+          "logarithmic": false,
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.1,
+          "description": "Steepness of the sigmoid function.\nHigher values create a steeper curve."
+        },
+        {
+          "display_name": "Feedback Midpoint",
+          "logarithmic": false,
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.5,
+          "description": "Midpoint of the sigmoid function.\nAdjusts the central point of the curve."
+        }
+      ]
     }
   }
+}

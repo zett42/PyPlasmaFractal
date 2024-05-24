@@ -441,7 +441,10 @@ def render_markdown(text: str):
     
     lines = text.split('\n')
     for line in lines:
-        if line.startswith('# '):
+        if line.strip() == '':
+            imgui.spacing()
+            imgui.spacing()
+        elif line.startswith('# '):
             imgui.text_ansi(f"{AnsiStyle.FG_BRIGHT_RED}{line[2:]}{AnsiStyle.RESET}")
         elif line.startswith('## '):
             imgui.text_ansi(f"{AnsiStyle.FG_BRIGHT_BLUE}{line[3:]}{AnsiStyle.RESET}")
@@ -454,6 +457,7 @@ def render_markdown(text: str):
             imgui.text_ansi(f"{AnsiStyle.UNDERLINE}{line[1:-1]}{AnsiStyle.RESET}")
         else:
             imgui.text_ansi(line)
+
             
             
 def calculate_markdown_max_width(text: str):

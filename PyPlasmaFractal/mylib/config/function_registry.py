@@ -61,7 +61,7 @@ class FunctionInfo(DynamicAttributes):
         # Make sure params are converted to FunctionParam instances (instead of just dictionaries)      
         attributes['params'] = [FunctionParam(param) for param in attributes['params']]
         
-        super().__init__(attributes, mandatory_attrs = ['display_name', 'params'])
+        super().__init__(attributes, mandatory_attrs = ['display_name', 'description', 'params'])
 
 
 class FunctionRegistry:
@@ -78,6 +78,7 @@ class FunctionRegistry:
         """
         self.storage = storage
         self.name_filter = name_filter
+        self.description = None
         self.functions = {}
         
         self.load(name_filter, merge=True)
@@ -98,6 +99,7 @@ class FunctionRegistry:
         
         for name in matched_data_names:
             data = self.storage.load(name)
+            self.description = data.get("description", "Missing description!")
             self._merge_functions(data["functions"])
 
 

@@ -1,231 +1,263 @@
 {
-    "description": "Feedback warp functions - (fractal_noise_variant: Deriv)",
-    "functions": {
-      "Swirl": {
-        "display_name": "Swirl",
-        "fractal_noise_variant": "Deriv",
-        "params": [
-          {
-            "display_name": "Radial Strength",
-            "logarithmic": true,
-            "min": 0.0,
-            "max": 1.0,
-            "default": 0.02
-          },
-          {
-            "display_name": "Swirl Strength",
-            "logarithmic": true,
-            "min": 0.0,
-            "max": 1.0,
-            "default": 0.08
-          },
-          {
-            "display_name": "Isolation Factor",
-            "logarithmic": true,
-            "min": 0.0,
-            "max": 1.0,
-            "default": 0.0
-          }
-        ]
-      },
-      "SwirlSigmoid": {
-        "display_name": "Swirl Sigmoid",
-        "fractal_noise_variant": "Deriv",
-        "params": [
-          {
-            "display_name": "Radial Strength",
-            "logarithmic": true,
-            "min": 0.0,
-            "max": 1.0,
-            "default": 0.02
-          },
-          {
-            "display_name": "Swirl Strength",
-            "logarithmic": true,
-            "min": 0.0,
-            "max": 1.0,
-            "default": 0.08
-          },
-          {
-            "display_name": "Transition Sharpness",
-            "logarithmic": true,
-            "min": 0.0,
-            "max": 1.0,
-            "default": 0.0
-          },
-          {
-            "display_name": "Transition Point",
-            "logarithmic": false,
-            "min": 0.0,
-            "max": 1.0,
-            "default": 0.5
-          }
-        ]
-      },
-      "SwirlSigmoidDistorted": {
-        "display_name": "Swirl Sigmoid Distorted",
-        "fractal_noise_variant": "Deriv",
-        "params": [
-          {
-            "display_name": "Radial Strength",
-            "logarithmic": true,
-            "min": 0.0,
-            "max": 1.0,
-            "default": 0.02
-          },
-          {
-            "display_name": "Swirl Strength",
-            "logarithmic": true,
-            "min": 0.0,
-            "max": 1.0,
-            "default": 0.08
-          },
-          {
-            "display_name": "Transition Sharpness",
-            "logarithmic": true,
-            "min": 0.0,
-            "max": 1.0,
-            "default": 0.0
-          },
-          {
-            "display_name": "Transition Point",
-            "logarithmic": false,
-            "min": 0.0,
-            "max": 1.0,
-            "default": 0.5
-          },
-          {
-            "display_name": "Error Scale",
-            "logarithmic": true,
-            "min": 0.0,
-            "max": 1.0,
-            "default": 0.0
-          },
-          {
-            "display_name": "Error Threshold",
-            "logarithmic": true,
-            "min": 0.0,
-            "max": 1.0,
-            "default": 0.0
-          },
-          {
-            "display_name": "Error Midpoint",
-            "logarithmic": false,
-            "min": 0.0,
-            "max": 1.0,
-            "default": 0.5
-          },
-          {
-            "display_name": "Error Strength",
-            "logarithmic": true,
-            "min": 0.0,
-            "max": 1.0,
-            "default": 0.3
-          },
-          {
-            "display_name": "Error Speed",
-            "logarithmic": true,
-            "min": 0.0,
-            "max": 1.0,
-            "default": 0.3
-          }
-        ]
-      },
-      "OffsetDeriv": {
-        "display_name": "Offset Derivatives",
-        "fractal_noise_variant": "Deriv",
-        "params": [
-          {
-            "display_name": "Amplitude",
-            "logarithmic": true,
-            "min": 0.0,
-            "max": 1.0,
-            "default": 0.02
-          }
-        ]
-      },
-      "InfiniteMirror": {
-        "display_name": "Infinite Mirror",
-        "fractal_noise_variant": "Deriv",
-        "params": [
-          {
-            "display_name": "Duplication Scale",
-            "logarithmic": true,
-            "min": 0.0,
-            "max": 1.0,
-            "default": 0.5
-          },
-          {
-            "display_name": "Influence Radius",
-            "logarithmic": true,
-            "min": 0.0,
-            "max": 1.0,
-            "default": 0.5
-          },
-          {
-            "display_name": "Non-Linearity",
-            "logarithmic": true,
-            "min": 0.0,
-            "max": 1.0,
-            "default": 0.0
-          },
-          {
-            "display_name": "Base Rotation",
-            "logarithmic": true,
-            "min": 0.0,
-            "max": 1.0,
-            "default": 0.0
-          },
-          {
-            "display_name": "Time Modulation",
-            "logarithmic": true,
-            "min": 0.0,
-            "max": 1.0,
-            "default": 0.0
-          },
-          {
-            "display_name": "Frequency",
-            "logarithmic": true,
-            "min": 0.0,
-            "max": 1.0,
-            "default": 2.0
-          }
-        ]
-      },
-      "Test": {
-        "display_name": "Test",
-        "fractal_noise_variant": "Deriv",
-        "params": [
-          {
-            "display_name": "Param1",
-            "logarithmic": true,
-            "min": 0.0,
-            "max": 1.0,
-            "default": 0.1
-          },
-          {
-            "display_name": "Param2",
-            "logarithmic": true,
-            "min": 0.0,
-            "max": 1.0,
-            "default": 0.1
-          },
-          {
-            "display_name": "Param3",
-            "logarithmic": true,
-            "min": 0.0,
-            "max": 1.0,
-            "default": 0.0
-          },
-          {
-            "display_name": "Param4",
-            "logarithmic": true,
-            "min": 0.0,
-            "max": 1.0,
-            "default": 0.0
-          }
-        ]
-      }
+  "description": "Feedback warp functions",
+  "functions": {
+    "Swirl": {
+      "display_name": "Swirl",
+      "description": "Applies a swirling effect, useful to simulate the flow effect of liquids or gases.",
+      "fractal_noise_variant": "Deriv",
+      "params": [
+        {
+          "display_name": "Radial Strength",
+          "logarithmic": true,
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.02,
+          "description": "Controls the strength of the radial component of the swirl effect."
+        },
+        {
+          "display_name": "Swirl Strength",
+          "logarithmic": true,
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.08,
+          "description": "Determines the intensity of the angular distortion in the swirl."
+        },
+        {
+          "display_name": "Isolation Factor",
+          "logarithmic": true,
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.0,
+          "description": "Adjusts how localized the swirl effect is within the texture."
+        }
+      ]
+    },
+    "SwirlSigmoid": {
+      "display_name": "Swirl Sigmoid",
+      "description": "Swirling effect with sigmoid transition for smooth blending.",
+      "fractal_noise_variant": "Deriv",
+      "params": [
+        {
+          "display_name": "Radial Strength",
+          "logarithmic": true,
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.02,
+          "description": "Controls the strength of the radial component of the swirl effect."
+        },
+        {
+          "display_name": "Swirl Strength",
+          "logarithmic": true,
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.08,
+          "description": "Determines the intensity of the angular distortion in the swirl."
+        },
+        {
+          "display_name": "Transition Sharpness",
+          "logarithmic": true,
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.0,
+          "description": "Adjusts the sharpness of the transition effect."
+        },
+        {
+          "display_name": "Transition Point",
+          "logarithmic": false,
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.5,
+          "description": "Sets the midpoint for the sigmoid transition, controlling where the transition occurs."
+        }
+      ]
+    },
+    "SwirlSigmoidDistorted": {
+      "display_name": "Swirl Sigmoid Distorted",
+      "description": "Combines swirling with sigmoid transitions and additional noise distortions.",
+      "fractal_noise_variant": "Deriv",
+      "params": [
+        {
+          "display_name": "Radial Strength",
+          "logarithmic": true,
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.02,
+          "description": "Controls the strength of the radial component of the swirl effect."
+        },
+        {
+          "display_name": "Swirl Strength",
+          "logarithmic": true,
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.08,
+          "description": "Determines the intensity of the angular distortion in the swirl."
+        },
+        {
+          "display_name": "Transition Sharpness",
+          "logarithmic": true,
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.0,
+          "description": "Adjusts the sharpness of the transition effect."
+        },
+        {
+          "display_name": "Transition Point",
+          "logarithmic": false,
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.5,
+          "description": "Sets the midpoint for the sigmoid transition, controlling where the transition occurs."
+        },
+        {
+          "display_name": "Error Scale",
+          "logarithmic": true,
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.0,
+          "description": "Scales the effect of noise-based error on the texture coordinates."
+        },
+        {
+          "display_name": "Error Threshold",
+          "logarithmic": true,
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.0,
+          "description": "Defines the threshold at which the error effect begins to apply."
+        },
+        {
+          "display_name": "Error Midpoint",
+          "logarithmic": false,
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.5,
+          "description": "Sets the midpoint for the sigmoid function controlling error transitions."
+        },
+        {
+          "display_name": "Error Strength",
+          "logarithmic": true,
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.3,
+          "description": "Magnifies the impact of the noise-induced error on the angular displacement."
+        },
+        {
+          "display_name": "Error Speed",
+          "logarithmic": true,
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.3,
+          "description": "Modifies the speed at which the error pattern evolves over time."
+        }
+      ]
+    },
+    "OffsetDeriv": {
+      "display_name": "Offset Derivatives",
+      "description": "Applies a simple offset to texture coordinates based on noise derivatives.",
+      "fractal_noise_variant": "Deriv",
+      "params": [
+        {
+          "display_name": "Amplitude",
+          "logarithmic": true,
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.02,
+          "description": "Controls the scale of the offset applied to texture coordinates."
+        }
+      ]
+    },
+    "InfiniteMirror": {
+      "display_name": "Infinite Mirror",
+      "description": "Creates fractal-like patterns by duplicating texture elements around dynamic centers.",
+      "fractal_noise_variant": "Deriv",
+      "params": [
+        {
+          "display_name": "Duplication Scale",
+          "logarithmic": true,
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.5,
+          "description": "Scales the duplication effect, affecting spatial distribution."
+        },
+        {
+          "display_name": "Influence Radius",
+          "logarithmic": true,
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.5,
+          "description": "Defines the radius of influence for the effect."
+        },
+        {
+          "display_name": "Non-Linearity",
+          "logarithmic": true,
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.0,
+          "description": "Adjusts the non-linearity of the influence curve."
+        },
+        {
+          "display_name": "Base Rotation",
+          "logarithmic": true,
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.0,
+          "description": "Controls the base intensity of the rotation effect."
+        },
+        {
+          "display_name": "Time Modulation",
+          "logarithmic": true,
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.0,
+          "description": "Modulates the rotation intensity over time."
+        },
+        {
+          "display_name": "Frequency",
+          "logarithmic": true,
+          "min": 0.0,
+          "max": 1.0,
+          "default": 2.0,
+          "description": "Controls the oscillation speed of the time-based rotation."
+        }
+      ]
+    },
+    "Test": {
+      "display_name": "Test",
+      "description": "Function for testing new effects and ideas.",
+      "fractal_noise_variant": "Deriv",
+      "params": [
+        {
+          "display_name": "Param1",
+          "logarithmic": true,
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.1,
+          "description": "User-controllable parameter for testing."
+        },
+        {
+          "display_name": "Param2",
+          "logarithmic": true,
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.1,
+          "description": "User-controllable parameter for testing."
+        },
+        {
+          "display_name": "Param3",
+          "logarithmic": true,
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.0,
+          "description": "User-controllable parameter for testing."
+        },
+        {
+          "display_name": "Param4",
+          "logarithmic": true,
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.0,
+          "description": "User-controllable parameter for testing."
+        }
+      ]
     }
   }
-  
+}

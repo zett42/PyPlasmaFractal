@@ -214,12 +214,6 @@ class PlasmaFractalGUI:
                 ih.show_tooltip("Adjust the scale of the noise pattern.")
                 
                 self.function_combo("Noise Algorithm", params, 'noise_algorithm', self.noise_function_registry)
-                ih.show_tooltip(
-                    "Select the algorithm used to generate the noise.\n\n"
-                    f"- {AnsiStyle.FG_BRIGHT_CYAN}Perlin{AnsiStyle.RESET} - produces smooth, gradient noise\n"
-                    f"- {AnsiStyle.FG_BRIGHT_CYAN}Simplex{AnsiStyle.RESET} - a version of Perlin noise with more variety and contrast\n"
-                    f"- {AnsiStyle.FG_BRIGHT_CYAN}Cellular{AnsiStyle.RESET} - produces a pattern based on cell-like structures"
-                )
                 
             if ih.collapsing_header("Fractal Settings", self, attr='fractal_settings_open'):
                 
@@ -306,12 +300,7 @@ class PlasmaFractalGUI:
                                 "Larger values increase the size of noise features.")
                 
                 self.function_combo("Noise Algorithm", params, 'warpNoiseAlgorithm', self.noise_function_registry)
-                ih.show_tooltip(
-                    "Select the algorithm used to generate the warp noise.\n\n"
-                    f"- {AnsiStyle.FG_BRIGHT_CYAN}Perlin{AnsiStyle.RESET} - produces smooth, gradient noise\n"
-                    f"- {AnsiStyle.FG_BRIGHT_CYAN}Simplex{AnsiStyle.RESET} - a version of Perlin noise with more variety and contrast\n"
-                    f"- {AnsiStyle.FG_BRIGHT_CYAN}Cellular{AnsiStyle.RESET} - produces a pattern based on cell-like structures"
-                )
+
 
             if ih.collapsing_header("Warp Fractal Settings", self, attr='feedback_warp_octave_settings_open'):
 
@@ -380,6 +369,15 @@ class PlasmaFractalGUI:
         if changed:
             setattr(params, params_attr, sorted_keys[selected_index])
             
+        # Show a tooltip with details of all available functions in sorted order
+        tooltip_text = f"{registry.description}\n"
+        for key in sorted_keys:
+            color = AnsiStyle.FG_BRIGHT_YELLOW if key == current_key else AnsiStyle.FG_BRIGHT_CYAN
+            func_info = registry.get_function_info(key)
+            tooltip_text += f"\n- {color}{func_info.display_name}{AnsiStyle.RESET} - {func_info.description}"
+
+        ih.show_tooltip(tooltip_text)        
+        
 
     def function_settings(self, 
                           header: str, 
@@ -405,8 +403,8 @@ class PlasmaFractalGUI:
             
             # Dropdown for the available functions
             # Make sure to create a unique identifier by appending the function_attr to the label            
-            self.function_combo(f"Function##{function_attr}", params, function_attr, registry)
-            
+            self.function_combo(f"Function##{function_attr}", params, function_attr, registry)        
+                      
             selected_function = getattr(params, function_attr)
             
             # Get the current function info
@@ -424,6 +422,10 @@ class PlasmaFractalGUI:
                                                         param_info.min, 
                                                         param_info.max, 
                                                         flags=imgui.SLIDER_FLAGS_LOGARITHMIC if param_info.logarithmic else 0)
+                
+                if (description := getattr(param_info, 'description', None)):
+                    ih.show_tooltip(description)
+                
                 if changed:
                     function_params[index] = new_value
 
