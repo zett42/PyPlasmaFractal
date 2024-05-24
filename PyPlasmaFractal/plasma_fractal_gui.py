@@ -370,7 +370,7 @@ class PlasmaFractalGUI:
             setattr(params, params_attr, sorted_keys[selected_index])
             
         # Show a tooltip with details of all available functions in sorted order
-        tooltip_text = f"{registry.description}\n"
+        tooltip_text = f"# {registry.description}\n"
         for key in sorted_keys:
             color = AnsiStyle.FG_BRIGHT_YELLOW if key == current_key else AnsiStyle.FG_BRIGHT_CYAN
             func_info = registry.get_function_info(key)

@@ -437,27 +437,47 @@ def show_tooltip(text: str):
         imgui.end_tooltip()
         
         
-def render_markdown(text: str):
+def render_glow_text(text: str, color: tuple, glow_alpha: float = 0.05, glow_strength: int = 4):
     
-    lines = text.split('\n')
-    for line in lines:
+    original_pos = imgui.get_cursor_pos()
+    
+    max_offset = glow_strength * 2
+    alpha_step = glow_alpha / max_offset
+
+    # Render the glow effect
+    for dx in range(-glow_strength, glow_strength + 1):
+        for dy in range(-glow_strength, glow_strength + 1):
+            if dx != 0 or dy != 0:
+                offset = abs(dx) + abs(dy)
+                alpha = max(glow_alpha - offset * alpha_step, 0.0)
+                glow_color_with_alpha = (*color[:3], alpha)
+                imgui.set_cursor_pos((original_pos.x + dx, original_pos.y + dy))
+                imgui.text_colored(text, *glow_color_with_alpha)
+                imgui.set_cursor_pos(original_pos)
+
+    # Render the main text
+    imgui.set_cursor_pos(original_pos)
+    imgui.text_colored(text, *color)
+    
+
+def render_markdown(text: str):
+       
+    for line in text.split('\n'):
         if line.strip() == '':
             imgui.spacing()
-            imgui.spacing()
         elif line.startswith('# '):
-            imgui.text_ansi(f"{AnsiStyle.FG_BRIGHT_RED}{line[2:]}{AnsiStyle.RESET}")
+            render_glow_text(line[2:], color=(1.0, 1.0, 1.0, 1.0))
         elif line.startswith('## '):
-            imgui.text_ansi(f"{AnsiStyle.FG_BRIGHT_BLUE}{line[3:]}{AnsiStyle.RESET}")
+            render_glow_text(line[3:], color=(0.5, 1.0, 1.0, 1.0))
         elif line.startswith('- '):
             imgui.bullet()
             imgui.text_ansi(line[2:])
         elif line.startswith('**') and line.endswith('**'):
-            imgui.text_ansi(f"{AnsiStyle.BOLD}{line[2:-2]}{AnsiStyle.RESET}")
+            render_glow_text(line[2:-2], color=(1.0, 1.0, 1.0, 1.0))
         elif line.startswith('*') and line.endswith('*'):
-            imgui.text_ansi(f"{AnsiStyle.UNDERLINE}{line[1:-1]}{AnsiStyle.RESET}")
+            render_glow_text(line[1:-1], color=(0.0, 1.0, 0.0, 1.0))
         else:
             imgui.text_ansi(line)
-
             
             
 def calculate_markdown_max_width(text: str):
