@@ -215,9 +215,9 @@ class PlasmaFractalGUI:
                 self.function_combo("Noise Algorithm", params, 'noise_algorithm', self.noise_function_registry)
                 ih.show_tooltip(
                     "Select the algorithm used to generate the noise.\n\n"
-                    f"{AnsiStyle.FG_BRIGHT_CYAN}Perlin Noise{AnsiStyle.RESET}: Produces smooth, gradient noise.\n"
-                    f"{AnsiStyle.FG_BRIGHT_CYAN}Simplex Noise{AnsiStyle.RESET}: An improved version of Perlin noise, more variety and contrast.\n"
-                    f"{AnsiStyle.FG_BRIGHT_CYAN}Cellular Noise{AnsiStyle.RESET}: Produces a pattern based on cell-like structures."
+                    f"- {AnsiStyle.FG_BRIGHT_CYAN}Perlin{AnsiStyle.RESET} - produces smooth, gradient noise\n"
+                    f"- {AnsiStyle.FG_BRIGHT_CYAN}Simplex{AnsiStyle.RESET} - a version of Perlin noise with more variety and contrast\n"
+                    f"- {AnsiStyle.FG_BRIGHT_CYAN}Cellular{AnsiStyle.RESET} - produces a pattern based on cell-like structures"
                 )
             if ih.collapsing_header("Fractal Settings", self, attr='fractal_settings_open'):
                 ih.slider_int("Num. Octaves", params, 'octaves', min_value=1, max_value=12)

@@ -8,6 +8,7 @@ import re
 import imgui
 from typing import *
 
+from PyPlasmaFractal.mylib.gui.ansi_style import AnsiStyle
 from PyPlasmaFractal.mylib.gui.trim_string import trim_path_with_ellipsis
 
 IndexType = Union[int, Hashable]
@@ -394,11 +395,14 @@ def imgui_text_width(*args, **kwargs) -> int:
     return imgui.calc_text_size(*args, **kwargs)[0]
 
 
-
-
 def show_tooltip(text: str):
     """
-    Helper function to show a tooltip with ANSI color codes if the current item is hovered.
+    Helper function to show a tooltip with basic Markdown rendering if the current item is hovered.
+    It tries to display the tooltip in a fixed position to the right or left of the item, 
+    aligned to the parent window's frame, based on the available space.
+    
+    Parameters:
+        text (str): The text to display in the tooltip.
     """
     if imgui.is_item_hovered():
         _, item_min_y = imgui.get_item_rect_min()
@@ -412,9 +416,8 @@ def show_tooltip(text: str):
         
         padding_x = imgui.get_style().window_padding.x
         
-        # Strip ANSI codes to calculate the correct text width
-        stripped_text = strip_ansi_codes(text)
-        tooltip_text_width = imgui.calc_text_size(stripped_text).x + 2 * padding_x
+        # Calculate the correct text width
+        tooltip_text_width = calculate_markdown_max_width(text) + 2 * padding_x
         
         tooltip_x = window_pos_x + window_size_x
         tooltip_y = item_min_y
@@ -429,11 +432,44 @@ def show_tooltip(text: str):
         imgui.set_next_window_size(tooltip_text_width, 0)
         imgui.begin_tooltip()
         
-        # Use imgui.text_ansi to display the text with ANSI codes
-        imgui.text_ansi(text)
+        render_markdown(text)
         
         imgui.end_tooltip()
         
+        
+def render_markdown(text: str):
+    
+    lines = text.split('\n')
+    for line in lines:
+        if line.startswith('# '):
+            imgui.text_ansi(f"{AnsiStyle.FG_BRIGHT_RED}{line[2:]}{AnsiStyle.RESET}")
+        elif line.startswith('## '):
+            imgui.text_ansi(f"{AnsiStyle.FG_BRIGHT_BLUE}{line[3:]}{AnsiStyle.RESET}")
+        elif line.startswith('- '):
+            imgui.bullet()
+            imgui.text_ansi(line[2:])
+        elif line.startswith('**') and line.endswith('**'):
+            imgui.text_ansi(f"{AnsiStyle.BOLD}{line[2:-2]}{AnsiStyle.RESET}")
+        elif line.startswith('*') and line.endswith('*'):
+            imgui.text_ansi(f"{AnsiStyle.UNDERLINE}{line[1:-1]}{AnsiStyle.RESET}")
+        else:
+            imgui.text_ansi(line)
+            
+            
+def calculate_markdown_max_width(text: str):
+    
+    lines = text.split('\n')
+    max_width = 0
+    bullet_margin = imgui.get_style().indent_spacing
+    for line in lines:
+        stripped_line = strip_ansi_codes(line)
+        if line.startswith('- '):
+            line_width = imgui.calc_text_size(stripped_line).x + bullet_margin
+        else:
+            line_width = imgui.calc_text_size(stripped_line).x
+        max_width = max(max_width, line_width)
+    return max_width      
+                    
         
 ansi_escape = re.compile(r'\x1B[@-_][0-?]*[ -/]*[@-~]')
 
