@@ -198,7 +198,7 @@ class PlasmaFractalGUI:
         imgui.text_colored(fps_text, *color)
           
         imgui.spacing()                
-          
+            
 
     def handle_noise_tab(self, params: PlasmaFractalParams):
         """
@@ -212,10 +212,10 @@ class PlasmaFractalGUI:
             if ih.collapsing_header("Noise Settings", self, attr='noise_settings_open'):
                 
                 ih.slider_float("Scale", params, 'scale', min_value=0.01, max_value=100.0, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)
-                ih.show_tooltip("Adjust the scale of the noise pattern.")
-                
+                ih.show_tooltip("Adjust the scale of the noise.")
+
                 self.function_combo("Noise Algorithm", params, 'noise_algorithm', self.noise_function_registry)
-                
+
             if ih.collapsing_header("Fractal Settings", self, attr='fractal_settings_open'):
                 
                 ih.slider_int("Num. Octaves", params, 'octaves', min_value=1, max_value=12)
@@ -224,23 +224,22 @@ class PlasmaFractalGUI:
                 
                 ih.slider_float("Gain/Octave", params, 'gain', min_value=0.1, max_value=1.0)
                 ih.show_tooltip("Adjust the gain applied to each octave in the fractal noise.\n"
-                                "Higher gain increases the amplitude of each octave.")
+                                "A typical value is 0.5, which reduces the influence of higher octaves.")
                 
                 ih.slider_float("Pos. Scale/Octave", params, 'positionScaleFactor', min_value=0.1, max_value=10.0)
-                ih.show_tooltip("Set the scaling factor for the position of each octave in the fractal noise.\n"
-                                "Higher values increase the distance between octave samples.")
+                ih.show_tooltip("Adjust the position scale applied to each octave.\n"
+                                "A typical value is 2.0, which allows each octave to contribute smaller details.")
                 
                 ih.slider_float("Rotation/Octave", params, 'rotationAngleIncrement', min_value=0.0, max_value=math.pi * 2, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)
-                ih.show_tooltip("Adjust the rotation applied to each octave in the fractal noise.\n"
-                                "Higher values result in more varied and rotationally dynamic noise patterns.")
+                ih.show_tooltip("Adjust the rotation angle increment applied to each octave.")
                 
                 ih.slider_float("Time Scale/Octave", params, 'timeScaleFactor', min_value=0.1, max_value=2.0)
-                ih.show_tooltip("Set the time scaling factor for each octave in the fractal noise.\n"
-                                "Higher values result in faster temporal changes in the noise pattern.")
+                ih.show_tooltip("Adjust the time scale factor applied to each octave.\n"
+                                "Higher values speed up the temporal changes of each octave.")
                 
                 ih.slider_float("Time Offset/Octave", params, 'timeOffsetIncrement', min_value=0.0, max_value=20.0)
-                ih.show_tooltip("Adjust the time offset applied to each octave in the fractal noise.\n"
-                                "Higher values result in a greater temporal shift between octaves.")
+                ih.show_tooltip("Adjust the time offset increment applied to each octave,\n"
+                                "to increase noise variation.")
 
             if ih.collapsing_header("Output Settings", self, attr='output_settings_open'):
                 
@@ -287,8 +286,8 @@ class PlasmaFractalGUI:
         with ih.resized_items(-160):
 
             self.function_settings(header="Feedback Mix Settings", header_attr='feedback_general_settings_open', 
-                                registry=self.blend_function_registry, function_attr='feedback_function', params_attr='feedback_params', 
-                                params=params)
+                                   registry=self.blend_function_registry, function_attr='feedback_function', params_attr='feedback_params', 
+                                   params=params)
 
             if ih.collapsing_header("Warp Noise Settings", self, attr='feedback_warp_noise_settings_open'):
 
@@ -297,8 +296,7 @@ class PlasmaFractalGUI:
                                 "Higher values result in faster movement of the noise pattern.")
                 
                 ih.slider_float("Scale", params, 'warpScale', min_value=0.01, max_value=10.0)
-                ih.show_tooltip("Adjust the scale of the warp noise.\n"
-                                "Larger values increase the size of noise features.")
+                ih.show_tooltip("Adjust the scale of the warp noise.")
                 
                 self.function_combo("Noise Algorithm", params, 'warpNoiseAlgorithm', self.noise_function_registry)
 
@@ -311,27 +309,25 @@ class PlasmaFractalGUI:
                 
                 ih.slider_float("Gain/Octave", params, 'warpGain', min_value=0.1, max_value=1.0)
                 ih.show_tooltip("Adjust the gain applied to each octave in the fractal warp noise.\n"
-                                "Higher gain increases the amplitude of each octave.")
+                                "A typical value is 0.5, which reduces the influence of higher octaves.")
                 
                 ih.slider_float("Pos. Scale/Octave", params, 'warpPositionScaleFactor', min_value=0.1, max_value=10.0)
                 ih.show_tooltip("Adjust the position scale applied to each octave.\n"
-                                "Larger values increase the positional influence of each octave.")
+                                "A typical value is 2.0, which allows each octave to contribute smaller details.")
                 
                 ih.slider_float("Rotation/Octave", params, 'warpRotationAngleIncrement', min_value=0.0, max_value=math.pi * 2, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)
-                ih.show_tooltip("Adjust the rotation angle increment applied to each octave.\n"
-                                "Larger values increase the rotational influence of each octave.")
+                ih.show_tooltip("Adjust the rotation angle increment applied to each octave.")
                 
                 ih.slider_float("Time Scale/Octave", params, 'warpTimeScaleFactor', min_value=0.1, max_value=2.0)
                 ih.show_tooltip("Adjust the time scale factor applied to each octave.\n"
                                 "Higher values speed up the temporal changes of each octave.")
                 
                 ih.slider_float("Time Offset/Octave", params, 'warpTimeOffsetIncrement', min_value=0.0, max_value=20.0)
-                ih.show_tooltip("Adjust the time offset increment applied to each octave.\n"
-                                "Larger values increase the temporal offset of each octave.")
+                ih.show_tooltip("Adjust the time offset increment applied to each octave,\nto increase noise variation.")
 
             self.function_settings(header="Warp Function Settings", header_attr='feedback_warp_effect_settings_open', 
-                                registry=self.warp_function_registry, function_attr='warpFunction', params_attr='warpParams',
-                                params=params)
+                                   registry=self.warp_function_registry, function_attr='warpFunction', params_attr='warpParams',
+                                   params=params)
 
 
     def function_combo(self, combo_label: str, params, params_attr: str, registry: FunctionRegistry):

@@ -439,7 +439,7 @@ def show_tooltip(text: str):
         imgui.end_tooltip()
         
         
-def render_glow_text(text: str, color: tuple, glow_alpha: float = 0.05, glow_strength: int = 4):
+def render_glow_text(text: str, color: tuple, glow_alpha: float = 0.03, glow_strength: int = 4):
     
     original_pos = imgui.get_cursor_pos()
     
