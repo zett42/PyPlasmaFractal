@@ -360,7 +360,7 @@ class resized_items:
         imgui.pop_item_width()
 
 
-def display_trimmed_path_with_tooltip(path: Union[Path, str], available_width: int, margin: int = 6, ellipsis: str = '...'):
+def display_trimmed_path_with_tooltip(path: Union[Path, str], available_width: int = 0, margin: int = 6, ellipsis: str = '...'):
     """
     Display a trimmed path with a tooltip showing the full path.
 
@@ -371,6 +371,8 @@ def display_trimmed_path_with_tooltip(path: Union[Path, str], available_width: i
     Returns:
         None
     """
+    available_width = available_width or imgui.get_content_region_available_width()
+    
     path = str(path)
     display_path = trim_path_with_ellipsis(path, available_width - margin, imgui_text_width, ellipsis)
 

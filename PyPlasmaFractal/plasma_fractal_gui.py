@@ -72,6 +72,7 @@ class PlasmaFractalGUI:
         self.selected_preset_index = -1
         self.current_preset_name = "new_file"
         self.preset_error_message = None
+        self.preset_last_saved_file_path = None
         self.app_storage     = JsonFileStorage(Path(path_manager.app_specific_path)  / 'presets', list_extension=False)
         self.user_storage    = JsonFileStorage(Path(path_manager.user_specific_path) / 'presets', list_extension=False)
         self.storage_manager = StorageSourceManager(self.app_storage, self.user_storage)        
@@ -333,7 +334,6 @@ class PlasmaFractalGUI:
                                 params=params)
 
 
-
     def function_combo(self, combo_label: str, params, params_attr: str, registry: FunctionRegistry):
         """
         Displays a combo box for selecting a function from the registry by display name,
@@ -539,8 +539,13 @@ class PlasmaFractalGUI:
         if self.confirm_dialog(f'A preset with this name already exists:\n"{self.current_preset_name}"\n\nDo you want to overwrite it?',
                                confirm_dlg_title):
 
-            logging.info(f"Confirmed to overwrite existing preset: {self.current_preset_name}")
             self.save_preset(params)
+            
+        if self.preset_last_saved_file_path:
+            # Show the path where the preset was saved
+            imgui.spacing()
+            imgui.text_colored(f"Preset saved to:", 0.2, 1.0, 1.0)
+            ih.display_trimmed_path_with_tooltip(self.preset_last_saved_file_path)            
 
 
     def preset_delete_ui(self, params: PlasmaFractalParams):
@@ -655,6 +660,7 @@ class PlasmaFractalGUI:
             selected_preset (StorageSourceManager.Item): The preset selected by the user for application.
         """
         self.preset_error_message = None
+        self.preset_last_saved_file_path = None
 
         try:
             preset_data = selected_preset.storage.load(selected_preset.name)
@@ -679,6 +685,7 @@ class PlasmaFractalGUI:
             params (PlasmaFractalParams): The fractal parameters to save.
         """
         self.preset_error_message = None
+        self.preset_last_saved_file_path = None
 
         try:
             storage = self.user_storage
@@ -686,7 +693,9 @@ class PlasmaFractalGUI:
             
             data = params.to_dict()
             storage.save(data, self.current_preset_name)
-
+            
+            self.preset_last_saved_file_path = storage.get_full_path( self.current_preset_name )
+            
             self.update_presets_list()
 
         except Exception as e:
@@ -701,6 +710,7 @@ class PlasmaFractalGUI:
         assert self.selected_preset_index != -1, "No preset is selected."
 
         self.preset_error_message = None
+        self.preset_last_saved_file_path = None
 
         try:
             self.user_storage.delete(self.get_current_preset().name)
