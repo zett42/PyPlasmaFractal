@@ -81,6 +81,20 @@ class Storage(ABC, Generic[DataType]):
             bool: True if the data exists, False otherwise.
         """
         pass
+    
+    @abstractmethod
+    def get_full_path(self, name: str) -> str:
+        """
+        Get the full path of the data with the specified name.
+
+        Args:
+            name (str): The name or key of the data.
+
+        Returns:
+            str: The full path of the data.
+        """
+        pass
+    
 
 class StorageError(Exception):
     """Base class for all storage-related exceptions."""

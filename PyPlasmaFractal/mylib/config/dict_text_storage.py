@@ -90,6 +90,18 @@ class DictTextFileStorage(Storage[str]):
             bool: True if the file exists, False otherwise.
         """
         return filename in self.storage_dict
+    
+    def get_full_path(self, filename: str) -> str:
+        """
+        Get the full path of a text file in the storage dictionary.
+
+        Args:
+            filename (str): The name of the text file.
+
+        Returns:
+            str: The full path of the text file.
+        """
+        return filename
 
     def load_from_directory(self, base_directory: str, pattern: str, recurse: bool = True) -> None:
         """

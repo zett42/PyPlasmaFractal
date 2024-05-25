@@ -136,6 +136,20 @@ class JsonFileStorage(Storage[Dict[str, Any]]):
         return (self.directory / filename).exists()
     
     
+    def get_full_path(self, filename: str) -> str:
+        """
+        Get the full path of a JSON file in the storage directory.
+
+        Args:
+            name (str): The name of the JSON file.
+
+        Returns:
+            str: The full path of the JSON file.
+        """
+        filename = self._ensure_extension(filename)
+        return str(self.directory / filename)
+    
+    
     @staticmethod
     def _ensure_extension(filename: str) -> str:
         """
