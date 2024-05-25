@@ -257,7 +257,6 @@ class PyPlasmaFractalApp:
 
         width, height = glfw.get_framebuffer_size(window)
 
-        # TODO: Check if dtype='f2' (16-bit float instead of 32-bit) is sufficient
         self.feedback_manager = PingpongTextureRenderManager(self.ctx, width=width, height=height, dtype='f4', filter_x=moderngl.LINEAR, filter_y=moderngl.LINEAR) # repeat_x=True, repeat_y=True)
 
 
