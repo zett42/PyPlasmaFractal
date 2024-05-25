@@ -223,7 +223,7 @@ class PlasmaFractalGUI:
                                 "Higher values increase detail but can be computationally intensive.")
                 
                 ih.slider_float("Gain/Octave", params, 'gain', min_value=0.1, max_value=1.0)
-                ih.show_tooltip("Adjust the gain applied to each octave in the fractal noise.\n"
+                ih.show_tooltip("Adjust the gain applied to the noise value produced by each octave.\n"
                                 "A typical value is 0.5, which reduces the influence of higher octaves.")
                 
                 ih.slider_float("Pos. Scale/Octave", params, 'positionScaleFactor', min_value=0.1, max_value=10.0)
@@ -308,7 +308,7 @@ class PlasmaFractalGUI:
                                 "Higher values increase detail but can be computationally intensive.")
                 
                 ih.slider_float("Gain/Octave", params, 'warpGain', min_value=0.1, max_value=1.0)
-                ih.show_tooltip("Adjust the gain applied to each octave in the fractal warp noise.\n"
+                ih.show_tooltip("Adjust the gain applied to the noise value produced by each octave.\n"
                                 "A typical value is 0.5, which reduces the influence of higher octaves.")
                 
                 ih.slider_float("Pos. Scale/Octave", params, 'warpPositionScaleFactor', min_value=0.1, max_value=10.0)
