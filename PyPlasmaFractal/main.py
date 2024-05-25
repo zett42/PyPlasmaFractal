@@ -27,9 +27,9 @@ import imgui
 from imgui.integrations.glfw import GlfwRenderer
 
 # Ensure the package root is in sys.path so that the local modules can be imported when PyInstaller runs the script
-current_dir = os.path.dirname(os.path.abspath(__file__))
-parent_dir = os.path.dirname(current_dir)
-sys.path.insert(0, parent_dir)  # Add parent directory to sys.path
+current_dir = Path(__file__).resolve().parent
+parent_dir = current_dir.parent
+sys.path.insert(0, str(parent_dir))  # Add parent directory to sys.path
 
 # Debug print statements
 print("Current directory:", current_dir)
@@ -427,7 +427,7 @@ class PyPlasmaFractalApp:
                 # During recording, the time is frame-based and starts at the current time of the timer.
                 self.timer.paused = True
 
-                video_path = os.path.join(self.user_videos_directory, self.gui.recording_file_name)
+                video_path = self.user_videos_directory / self.gui.recording_file_name
                 try:
                     self.recorder.start_recording(video_path, self.feedback_manager.width, self.feedback_manager.height, fps=self.gui.recording_fps, 
                                                   quality=self.gui.recording_quality)
