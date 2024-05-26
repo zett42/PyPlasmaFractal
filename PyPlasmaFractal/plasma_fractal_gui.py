@@ -330,7 +330,7 @@ class PlasmaFractalGUI:
                                    params=params)
 
 
-    def function_combo(self, combo_label: str, params, params_attr: str, registry: FunctionRegistry):
+    def function_combo(self, combo_label: str, params: PlasmaFractalParams, params_attr: str, registry: FunctionRegistry):
         """
         Displays a combo box for selecting a function from the registry by display name,
         and updates the specified parameter in params with the selected function key.
