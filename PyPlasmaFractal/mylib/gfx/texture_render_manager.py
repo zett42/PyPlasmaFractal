@@ -12,9 +12,10 @@ class PingpongTextureRenderManager:
     def __init__(self, 
                  ctx: moderngl.Context, 
                  width: int = 800, height: int = 600, 
+                 components: int = 4,
                  dtype: str = 'f4', 
                  repeat_x: bool = False, repeat_y: bool = False, 
-                 filter_x: int = moderngl.NEAREST, filter_y: int = moderngl.NEAREST) -> None:
+                 filter_x: int = moderngl.LINEAR, filter_y: int = moderngl.LINEAR) -> None:
         """
         Initializes two textures and their corresponding framebuffers.
 
@@ -33,7 +34,7 @@ class PingpongTextureRenderManager:
         self.height = height
         
         # Create two textures and associated framebuffers
-        self.textures = [ctx.texture((width, height), components=4, dtype=dtype) for _ in range(2)]
+        self.textures = [ctx.texture((width, height), components=components, dtype=dtype) for _ in range(2)]
         self.framebuffers = [ctx.framebuffer(color_attachments=[tex]) for tex in self.textures]
         
         for texture in self.textures:
@@ -98,6 +99,7 @@ class PingpongTextureRenderManager:
         repeat_x = self.textures[0].repeat_x
         repeat_y = self.textures[0].repeat_y
         filter = self.textures[0].filter
+        components = self.textures[0].components
         dtype = self.textures[0].dtype
 
         # Release existing textures and framebuffers
@@ -115,7 +117,7 @@ class PingpongTextureRenderManager:
         self.height = new_height
 
         # Attempt to re-create the textures and framebuffers with the new dimensions
-        self.textures = [self.ctx.texture((self.width, self.height), components=4, dtype=dtype) for _ in range(2)]
+        self.textures = [self.ctx.texture((self.width, self.height), components=components, dtype=dtype) for _ in range(2)]
         self.framebuffers = [self.ctx.framebuffer(color_attachments=[tex]) for tex in self.textures]
 
         # Reapply the stored texture settings

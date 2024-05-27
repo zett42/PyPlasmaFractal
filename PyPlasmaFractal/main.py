@@ -51,6 +51,7 @@ from PyPlasmaFractal.mylib.gui.window_config_manager import WindowConfigManager
 from PyPlasmaFractal.mylib.gfx.animation_timer import AnimationTimer
 from PyPlasmaFractal.mylib.gui.icons import Icons
 from PyPlasmaFractal.mylib.config.function_registry import FunctionRegistry
+from PyPlasmaFractal.mylib.gfx.separable_gaussian_blur import SeparableGaussianBlur
 
 from PyPlasmaFractal.plasma_fractal_types import ShaderFunctionType
 from PyPlasmaFractal.plasma_fractal_renderer import PlasmaFractalRenderer
@@ -307,8 +308,16 @@ class PyPlasmaFractalApp:
         Main rendering loop that continuously updates and displays the fractal visuals.
         """
         main_renderer = PlasmaFractalRenderer(self.ctx, self.shader_function_registries)
+        
         texture_to_screen = FullscreenTextureRenderer(self.ctx)
-        fps_limiter = FrameRateLimiter(self.desired_fps)                     
+        
+        # The separable Gaussian blur uses the feedback manager's textures to blur the previous frame's texture. To efficiently use resources,
+        # the current frame's texture is used as intermediate storage (before the noise visuals are rendered).
+        gaussian_blur = SeparableGaussianBlur(self.ctx, self.feedback_manager)
+        
+        fps_limiter = FrameRateLimiter(self.desired_fps)     
+        
+        self.first_frame = True                
 
         while not glfw.window_should_close(self.window):
 
@@ -322,7 +331,7 @@ class PyPlasmaFractalApp:
             elapsed_time = self.handle_time()
 
             if not self.gui.animation_paused:
-                self.render_frame(main_renderer, elapsed_time)
+                self.render_frame(main_renderer, gaussian_blur, elapsed_time)
 
             texture_to_screen.render(self.feedback_manager.current_texture, self.ctx.screen)
 
@@ -338,17 +347,26 @@ class PyPlasmaFractalApp:
                 
             self.fps_calculator.update()
             
+            self.first_frame = False
     
-    def render_frame(self, main_renderer: PlasmaFractalRenderer, elapsed_time: float):
+    
+    def render_frame(self, main_renderer: PlasmaFractalRenderer, gaussian_blur: SeparableGaussianBlur, elapsed_time: float):
         """
         Render a single frame of the fractal visuals.
         """
-        # Swap the textures so the previous frame will be used for feedback  
-        self.feedback_manager.swap_textures()
+        # Check if the first frame is being rendered to avoid issues with uninitialized feedback textures
+        if not self.first_frame:
+            # Swap the textures so the previous frame will be used for feedback  
+            self.feedback_manager.swap_textures()
         
+            if self.params.enableFeedbackBlur:
+                # Apply Gaussian blur to the previous frame, utilizing the (yet unused) destination texture as intermediate storage
+                gaussian_blur.apply_blur(self.params.feedbackBlurRadius, self.params.feedbackBlurRadiusPower)
+            
         # Clear the feedback textures if a new preset has been loaded, to ensure we start with a clean state
         if self.gui.notifications.pull_notification(PlasmaFractalGUI.Notification.NEW_PRESET_LOADED):
             self.feedback_manager.clear()
+            self.first_frame = True
 
         # Update the main renderer with the current parameters and render to the destination texture
         main_renderer.update_params(self.params, self.feedback_manager.previous_texture, 
@@ -375,6 +393,7 @@ class PyPlasmaFractalApp:
                 # During recording, the feedback textures should not be resized, since the video size is fixed
                 if not self.recorder.is_recording:
                     self.feedback_manager.resize(self.requested_framebuffer_size.width, self.requested_framebuffer_size.height)
+                    self.first_frame = True
                 
                 self.resize_requested = False
 

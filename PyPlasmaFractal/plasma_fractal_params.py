@@ -50,6 +50,11 @@ class PlasmaFractalParams:
         self.feedback_function = self._blend_function_registry.get_function_keys()[0]   # Default to first function
         self.feedback_params = self._blend_function_registry.get_all_param_defaults()
         
+        # Feedback blur settings
+        self.enableFeedbackBlur = False
+        self.feedbackBlurRadius = 2
+        self.feedbackBlurRadiusPower = 1.0
+        
         # Warp settings for feedback
         self.warpFunction = self._warp_function_registry.get_function_keys()[0]   # Default to first function
         self.warpParams = self._warp_function_registry.get_all_param_defaults()
