@@ -23,6 +23,9 @@ class MockStorage(Storage):
     def exists(self, name: str) -> bool:
         return name in self.storage
 
+    def get_full_path(self, name: str) -> str:
+        return f"/mock/path/{name}"
+
 # Create a fixture for mock storage
 @pytest.fixture
 def mock_storage():
@@ -33,6 +36,7 @@ def mock_storage():
         "functions": {
             "ExampleSingleParam": {
                 "display_name": "Example Single Param",
+                "description": "Description for Example Single Param",
                 "params": [
                     {
                         "display_name": "Single Param",
@@ -45,6 +49,7 @@ def mock_storage():
             },
             "ExampleTwoParams": {
                 "display_name": "Example Two Params",
+                "description": "Description for Example Two Params",
                 "params": [
                     {
                         "display_name": "First Param",
@@ -70,6 +75,7 @@ def mock_storage():
         "functions": {
             "NewFunction": {
                 "display_name": "New Function",
+                "description": "Description for New Function",
                 "params": [
                     {
                         "display_name": "New Param",
@@ -88,6 +94,7 @@ def mock_storage():
         "functions": {
             "ExampleSingleParam": {
                 "display_name": "Duplicate Example Single Param",
+                "description": "Description for Duplicate Example Single Param",
                 "params": [
                     {
                         "display_name": "Duplicate Param",
