@@ -71,16 +71,16 @@ vec4 applyFeedback_Enabled(vec4 noise_color) {
 
     vec2 scaledPosition = v_pos * u_warpScale;  // Scale position by provided scale factor
 
-    vec4 tex_color = warp<FB_WARP_XFORM_FUNC>(
-        u_texture,
+    vec2 offset = warp<FB_WARP_XFORM_FUNC>(
         v_tex,
-        noise_color,
         fractalNoise_<FB_WARP_FRACTAL_NOISE_VARIANT>_<FB_WARP_NOISE_FUNC>( 
             scaledPosition, u_warpOctaves, u_warpGain, u_warpTimeScaleFactor, 
             u_warpPositionScaleFactor, u_warpRotationAngleIncrement, 
             u_warpTimeOffsetIncrement, u_warpTimeOffsetInitial + u_time * u_warpSpeed ),
         u_time,
         u_warpParams);
+    
+    vec4 tex_color = texture(u_texture, v_tex + offset);
     
     return blend<FB_BLEND_FUNC>(tex_color, noise_color, u_feedbackParams);
 }
