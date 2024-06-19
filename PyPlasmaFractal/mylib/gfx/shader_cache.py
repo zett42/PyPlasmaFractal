@@ -3,7 +3,7 @@ from typing import *
 import moderngl
 
 from PyPlasmaFractal.mylib.config.storage import Storage
-from PyPlasmaFractal.mylib.gfx.shader_template_system import resolve_shader_template
+from PyPlasmaFractal.mylib.gfx.shader_template_system import ShaderTemplateResolver
 
 class VariantShaderCache:
     """
@@ -59,8 +59,9 @@ class VariantShaderCache:
 
         is_debug = logging.getLogger().isEnabledFor(logging.DEBUG)
 
-        vertex_shader_source = resolve_shader_template(self.vertex_shader_name, self.shader_storage, vertex_template_params, extra_debug_info=is_debug)
-        fragment_shader_source = resolve_shader_template(self.fragment_shader_name, self.shader_storage, fragment_template_params, extra_debug_info=is_debug)
+        template_resolver = ShaderTemplateResolver(self.shader_storage, extra_debug_info=is_debug)
+        vertex_shader_source = template_resolver.resolve(self.vertex_shader_name, vertex_template_params)
+        fragment_shader_source = template_resolver.resolve(self.fragment_shader_name, fragment_template_params)
 
         program = self.ctx.program(vertex_shader=vertex_shader_source, fragment_shader=fragment_shader_source)
         self.program_cache[params_key] = program
