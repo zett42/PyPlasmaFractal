@@ -142,8 +142,53 @@ def _include_file(
     current_path.append(filename)
     included_files.add(include_key)
 
-    def replace_include(match: re.Match):
+    result = _replace_includes_and_templates(content, current_path, storage, depth, max_include_depth, included_files, 
+                                             include_pattern, argument_pattern, extra_debug_info)
 
+    current_path.pop()
+
+    logger.debug(f'Finished processing file: "{filename}"')
+
+    if extra_debug_info:
+        comment = '//////////'
+        content_header = f'\n{comment} FILE: "{filename}"' + (f'\n{comment} {template_args}' if template_args else '') + '\n\n'
+        content_footer = f'\n{comment} END FILE: "{filename}"\n'
+        return content_header + result + content_footer
+    
+    return result
+
+
+def _replace_includes_and_templates(
+    content: str,
+    current_path: List[str],
+    storage: Storage[str],
+    depth: int,
+    max_include_depth: int,
+    included_files: Set[Tuple[str, Optional[str]]],
+    include_pattern: re.Pattern,
+    argument_pattern: re.Pattern,
+    extra_debug_info: bool
+) -> str:
+    """
+    Replace include and apply_template directives in shader code with the corresponding file content.
+
+    Parameters:
+        content (str): The shader code to process.
+        current_path (List[str]): The current path of file inclusions to detect circular includes.
+        storage (Storage[str]): A storage instance to retrieve shader source content by filename.
+        depth (int): The current depth of recursion for includes.
+        max_include_depth (int): The maximum allowable recursion depth for includes to prevent infinite loops.
+        included_files (Set[Tuple[str, Optional[str]]]): A set to track included files and their template arguments to 
+            avoid redundant processing.
+        include_pattern (re.Pattern): Compiled regex pattern to identify include directives in the shader code.
+        argument_pattern (re.Pattern): Compiled regex pattern to parse template arguments from include directives.
+        extra_debug_info (bool): Whether to include additional debug information in the resolved shader code.
+
+    Returns:
+        str: The shader code with all includes and templates processed.
+    """    
+    def replace_func(match: re.Match):
+        
         parent_file = current_path[-1]
         directive = match.group(1)
         include_name = match.group(2).strip()
@@ -168,19 +213,7 @@ def _include_file(
 
         return result
 
-    result = re.sub(include_pattern, replace_include, content)
-
-    current_path.pop()
-
-    logger.debug(f'Finished processing file: "{filename}"')
-
-    if extra_debug_info:
-        comment = '//////////'
-        content_header = f'\n{comment} FILE: "{filename}"' + (f'\n{comment} {template_args}' if template_args else '') + '\n\n'
-        content_footer = f'\n{comment} END FILE: "{filename}"\n'
-        return content_header + result + content_footer
-    
-    return result
+    return re.sub(include_pattern, replace_func, content)
 
 
 def _handle_wildcard_includes(
