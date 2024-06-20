@@ -3,7 +3,8 @@ from typing import *
 import moderngl
 
 from PyPlasmaFractal.mylib.config.storage import Storage
-from PyPlasmaFractal.mylib.gfx.shader_template_system import ShaderTemplateResolver
+from PyPlasmaFractal.mylib.gfx.shader_template_system import ShaderTemplateResolver, handle_shader_template_compile_error
+
 
 class VariantShaderCache:
     """
@@ -60,10 +61,18 @@ class VariantShaderCache:
         is_debug = logging.getLogger().isEnabledFor(logging.DEBUG)
 
         template_resolver = ShaderTemplateResolver(self.shader_storage, extra_debug_info=is_debug)
-        vertex_shader_source = template_resolver.resolve(self.vertex_shader_name, vertex_template_params)
-        fragment_shader_source = template_resolver.resolve(self.fragment_shader_name, fragment_template_params)
+        
+        vertex_shader_source_info = []
+        vertex_shader_source = template_resolver.resolve(self.vertex_shader_name, vertex_template_params, source_info=vertex_shader_source_info)
+        
+        fragment_shader_source_info = []
+        fragment_shader_source = template_resolver.resolve(self.fragment_shader_name, fragment_template_params, source_info=fragment_shader_source_info)
 
-        program = self.ctx.program(vertex_shader=vertex_shader_source, fragment_shader=fragment_shader_source)
+        try:
+            program = self.ctx.program(vertex_shader=vertex_shader_source, fragment_shader=fragment_shader_source)
+        except moderngl.Error as e:
+            handle_shader_template_compile_error(e, self.shader_storage.get_full_path('.'), vertex_shader_source_info, fragment_shader_source_info)
+
         self.program_cache[params_key] = program
         
         return program, True

@@ -101,7 +101,7 @@ class DictTextFileStorage(Storage[str]):
         Returns:
             str: The full path of the text file.
         """
-        return filename
+        return self.base_directory / filename
 
     def load_from_directory(self, base_directory: str, pattern: str, recurse: bool = True) -> None:
         """
@@ -112,6 +112,8 @@ class DictTextFileStorage(Storage[str]):
             pattern (str): The wildcard pattern to filter files.
             recurse (bool, optional): Whether to load files recursively. Defaults to True.
         """
+        self.base_directory = Path( base_directory )
+        
         base_path = Path(base_directory)
         glob_method = base_path.rglob if recurse else base_path.glob
         

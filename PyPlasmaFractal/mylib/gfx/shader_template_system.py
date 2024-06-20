@@ -11,26 +11,45 @@ logger = logging.getLogger(__name__)
 
 #------------------------------------------------------------------------------------------------------------------------------
 
+class SourceInfo:
+    """
+    Holds information about the source file and line number.
+
+    Attributes:
+        filename (str): The name of the source file.
+        line_number (int): The line number in the source file.
+    """
+    def __init__(self, filename: str, line_number: int):
+        
+        self.filename = filename
+        self.line_number = line_number
+
+
+class ResolvedLine:
+    """
+    Represents a resolved line of shader code along with its source information.
+
+    Attributes:
+        line (str): The resolved line of shader code.
+        source (SourceInfo): The source information for the line.
+    """
+    def __init__(self, line: str, source: SourceInfo):
+        
+        self.line = line
+        self.source = source
+
+
 class ShaderTemplateResolver:
     """
-    A class to resolve and integrate shader includes and apply template arguments within the shader source code.
-    
-    Attributes:
-        storage (Storage[str]): A storage instance to fetch shader source code by filename.
-        max_include_depth (int): The maximum recursion depth allowed for resolving includes.
-        extra_debug_info (bool): Whether to include additional debug information in the resolved shader code.
-        include_pattern (re.Pattern): Compiled regex pattern to identify include directives in the shader code.
-        argument_pattern (re.Pattern): Compiled regex pattern to parse template arguments from include directives.
-    """
-    def __init__(self, storage: Storage[str], max_include_depth: int = 10, extra_debug_info: bool = False):
-        """
-        Initialize the ShaderTemplateResolver with the given parameters.
+    Resolves shader templates, handling includes and template arguments.
 
-        Parameters:
-            storage (Storage[str]): A storage instance to fetch shader source code by filename.
-            max_include_depth (int): The maximum recursion depth allowed for resolving includes. Defaults to 10.
-            extra_debug_info (bool): Whether to include additional debug information in the resolved shader code. Defaults to False.
-        """
+    Attributes:
+        storage (Storage[str]): Storage mechanism to load shader files.
+        max_include_depth (int): Maximum allowed depth for nested includes.
+        extra_debug_info (bool): Flag to include extra debug information.
+    """
+    def __init__(self, storage: 'Storage[str]', max_include_depth: int = 10, extra_debug_info: bool = False):
+        
         self.storage = storage
         self.max_include_depth = max_include_depth
         self.extra_debug_info = extra_debug_info
@@ -38,49 +57,54 @@ class ShaderTemplateResolver:
         self.argument_pattern = re.compile(r'(\w+)\s*=\s*(\w+)')
 
 
-    def resolve(self, filename: str, template_args: Optional[Dict[str, str]] = None) -> str:
+    def resolve(self, filename: str, template_args: Optional[Dict[str, str]] = None, source_info: Optional[List[SourceInfo]] = None) -> str:
         """
-        Resolve the shader template by integrating includes and applying template arguments.
+        Resolves a shader template by processing includes and applying template arguments.
 
-        Parameters:
-            filename (str): The filename of the initial shader source code containing include directives.
-            template_args (Dict[str, str], optional): A dictionary of template arguments for replacements. Defaults to None.
+        Args:
+            filename (str): The name of the shader file to resolve.
+            template_args (Optional[Dict[str, str]]): Arguments for template substitution.
+            source_info (Optional[List[SourceInfo]]): List to store source information.
 
         Returns:
-            str: The fully resolved shader source code with all includes processed and placeholders replaced.
+            str: The resolved shader source code.
         """
-        template_args = template_args or {}
+        if source_info is None:
+            source_info = []
             
+        template_args = template_args or {}
+        
         included_files = set()
         current_path = []
+
         resolved_source = self._include_file(filename, 1, included_files, current_path, template_args)
-        
+
+        resolved_content = '\n'.join([line.line for line in resolved_source])
+        source_info.extend([line.source for line in resolved_source])
+
         if self.extra_debug_info:
             with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.glsl') as temp_file:
-                temp_file.write(resolved_source)
+                temp_file.write(resolved_content)
                 temp_file_path = temp_file.name
                 logger.debug(f'RESOLVED TEMPLATE "{filename}": {temp_file_path}')
-        
-        return resolved_source
+
+        return resolved_content
 
 
     def _include_file(self, filename: str, depth: int, included_files: Set[Tuple[str, Optional[str]]],
-                      current_path: List[str], template_args: Dict[str, str]) -> str:
+                      current_path: List[str], template_args: Dict[str, str]) -> List[ResolvedLine]:
         """
-        Process the inclusion of a shader file, managing nested includes and template arguments.
+        Includes and processes a file, handling nested includes and template arguments.
 
-        Parameters:
-            filename (str): The filename of the shader source to be included.
-            depth (int): The current depth of recursion for includes.
-            included_files (Set[Tuple[str, Optional[str]]]): A set to track included files and their template arguments.
-            current_path (List[str]): A list tracking the current path of file inclusions to detect circular includes.
-            template_args (Dict[str, str]): Template arguments to apply to the shader code.
+        Args:
+            filename (str): The name of the file to include.
+            depth (int): Current depth of nested includes.
+            included_files (Set[Tuple[str, Optional[str]]]): Set of included files to avoid duplicates.
+            current_path (List[str]): Stack of the current include path.
+            template_args (Dict[str, str]): Arguments for template substitution.
 
         Returns:
-            str: The shader code with all includes processed and template arguments applied.
-        
-        Raises:
-            Exception: If the maximum include depth is exceeded, or if circular dependencies are detected.
+            List[ResolvedLine]: List of resolved lines from the included file.
         """
         logger.debug(f'Processing template file "{filename}" at depth {depth} with template args: {template_args}')
         
@@ -90,7 +114,7 @@ class ShaderTemplateResolver:
         include_key = (filename, tuple(sorted(template_args.items())))
         if include_key in included_files:
             logger.debug(f'Skipping already included file: "{filename}" with args {template_args}')
-            return ''
+            return []
         
         if '*' in filename or '?' in filename:
             return self._handle_wildcard_includes(filename, depth, included_files, current_path, template_args)
@@ -109,7 +133,7 @@ class ShaderTemplateResolver:
         current_path.append(filename)
         included_files.add(include_key)
         
-        result = self._replace_includes_and_templates(content, current_path, depth, included_files, template_args)
+        result = self._replace_includes_and_templates(content, current_path, depth, included_files, filename)
         
         current_path.pop()
         
@@ -117,73 +141,72 @@ class ShaderTemplateResolver:
         
         if self.extra_debug_info:
             comment = '//////////'
-            content_header = f'\n{comment} FILE: "{filename}"' + (f'\n{comment} {template_args}' if template_args else '') + '\n\n'
-            content_footer = f'\n{comment} END FILE: "{filename}"\n'
+            content_header = [ResolvedLine(f'{comment} FILE: "{filename}"', SourceInfo(filename, -1))]
+            content_footer = [ResolvedLine(f'{comment} END FILE: "{filename}"', SourceInfo(filename, -1))]
             return content_header + result + content_footer
         
         return result
 
 
     def _replace_includes_and_templates(self, content: str, current_path: List[str], depth: int,
-                                        included_files: Set[Tuple[str, Optional[str]]], template_args: Dict[str, str]) -> str:
+                                        included_files: Set[Tuple[str, Optional[str]]],
+                                        parent_filename: str) -> List['ResolvedLine']:
         """
-        Replace include and apply_template directives in shader code with the corresponding file content.
+        Replaces include and template directives in the content with the resolved lines.
 
-        Parameters:
-            content (str): The shader code to process.
-            current_path (List[str]): The current path of file inclusions to detect circular includes.
-            depth (int): The current depth of recursion for includes.
-            included_files (Set[Tuple[str, Optional[str]]]): A set to track included files and their template arguments.
-            template_args (Dict[str, str]): Template arguments to apply to the shader code.
+        Args:
+            content (str): The content of the current file.
+            current_path (List[str]): Stack of the current include path.
+            depth (int): Current depth of nested includes.
+            included_files (Set[Tuple[str, Optional[str]]]): Set of included files to avoid duplicates.
+            parent_filename (str): Name of the parent file.
 
         Returns:
-            str: The shader code with all includes and templates processed.
-        
-        Raises:
-            Exception: If there are misuse of directives, such as providing template arguments with #include or omitting them with #apply_template.
+            List[ResolvedLine]: List of resolved lines from the processed content.
         """
-        def replace_func(match: re.Match):
-            
-            parent_file = current_path[-1]
-            directive = match.group(1)
-            include_name = match.group(2).strip()
-            template_args_str = match.group(3) or ''
-            
-            logger.debug(f"Found directive '{directive}' for file '{include_name}' with args '{template_args_str}'")
+        def replace_directive(match: re.Match) -> List['ResolvedLine']:
+
+            directive, include_name, template_args_str = match.group(1), match.group(2).strip(), match.group(3) or ''
             
             if directive.lower() == '#include' and template_args_str:
-                raise Exception(f'Error in \"{parent_file}\": Template arguments are not allowed for #include directive.\n  {match.group(0)}')
+                raise Exception(f'Error in \"{parent_filename}\": Template arguments are not allowed for #include directive.\n  {match.group(0)}')
             
             if directive.lower() == '#apply_template' and not template_args_str:
-                raise Exception(f'Error in \"{parent_file}\": Missing template arguments for #apply_template directive.\n  {match.group(0)}')
+                raise Exception(f'Error in \"{parent_filename}\": Missing template arguments for #apply_template directive.\n  {match.group(0)}')
             
             if include_name in current_path:
-                raise Exception(f'Error in \"{parent_file}\": Circular include detected.\n  {match.group(0)}')
+                raise Exception(f'Error in \"{parent_filename}\": Circular include detected.\n  {match.group(0)}')
             
-            template_args = {m.group(1): m.group(2) for m in re.finditer(self.argument_pattern, template_args_str)}
-            
-            result = self._include_file(include_name, depth + 1, included_files, current_path, template_args)
-            
-            return result
-        
-        return re.sub(self.include_pattern, replace_func, content)
-    
+            parsed_template_args = {m.group(1): m.group(2) for m in re.finditer(self.argument_pattern, template_args_str)}
+            return self._include_file(include_name, depth + 1, included_files, current_path, parsed_template_args)
+
+        resolved_lines = []
+        lines = content.split('\n')
+
+        for line_number, line in enumerate(lines):
+            match = self.include_pattern.match(line.strip())
+            if match:
+                resolved_lines.extend(replace_directive(match))
+            else:
+                resolved_lines.append(ResolvedLine(line, SourceInfo(parent_filename, line_number)))
+
+        return resolved_lines
+
 
     def _handle_wildcard_includes(self, filename: str, depth: int, included_files: Set[Tuple[str, Optional[str]]],
-                                  current_path: List[str], template_args: Dict[str, str]) -> str:
+                                  current_path: List[str], template_args: Dict[str, str]) -> List[ResolvedLine]:
         """
-        Handle wildcard patterns in the filename by listing and matching files from the storage,
-        and recursively including each matched file.
+        Handles includes with wildcard characters by resolving matching files.
 
-        Parameters:
-            filename (str): The filename with potential wildcard patterns.
-            depth (int): The current depth of recursion for includes.
-            included_files (Set[Tuple[str, Optional[str]]]): A set to track included files and their template arguments.
-            current_path (List[str]): A list tracking the current path of file inclusions to detect circular includes.
-            template_args (Dict[str, str]): Template arguments to apply to the shader code.
+        Args:
+            filename (str): The wildcard filename pattern.
+            depth (int): Current depth of nested includes.
+            included_files (Set[Tuple[str, Optional[str]]]): Set of included files to avoid duplicates.
+            current_path (List[str]): Stack of the current include path.
+            template_args (Dict[str, str]): Arguments for template substitution.
 
         Returns:
-            str: The shader code with all includes processed and template arguments applied.
+            List[ResolvedLine]: List of resolved lines from the matching files.
         """
         logger.debug(f'Resolving wildcard filename "{filename}"')
         
@@ -192,63 +215,120 @@ class ShaderTemplateResolver:
         
         results = []
         for match in fnmatch.filter(all_files, normalized_filename):
-            results.append(self._include_file(match, depth, included_files, current_path, template_args))
+            results.extend(self._include_file(match, depth, included_files, current_path, template_args))
         
-        return "\n\n".join(results)
+        return results
 
 
     def _apply_template_args(self, content: str, args: Dict[str, str]) -> str:
         """
-        Apply template arguments to placeholders in the given string by scanning for placeholders.
-        Placeholders are matched and replaced case-insensitively.
-        Reports errors for unmatched placeholders and unused dictionary keys.
-        Only placeholders consisting of alphanumeric characters and underscores are considered valid.
+        Applies template arguments to the content by replacing placeholders.
 
         Args:
-            content (str): The string containing placeholders to be replaced.
-            args (Dict[str, str]): A dictionary of template arguments, where the keys are the placeholders
-                and the values are the corresponding replacement values.
+            content (str): The content with placeholders.
+            args (Dict[str, str]): Dictionary of template arguments.
 
         Returns:
-            str: The modified content string with placeholders replaced by their corresponding values.
-
-        Raises:
-            Exception: If there are unused dictionary keys or unmatched placeholders.
-
-        Example:
-            >>> content = "Hello, <name>! Today is <DAY>."
-            >>> args = {"name": "John", "day": "Monday"}
-            >>> apply_template_args(content, args)
-            'Hello, John! Today is Monday.'
+            str: The content with placeholders replaced by argument values.
         """
-        
-        # Create a new dictionary where all keys are lowercase to handle case-insensitive matching
         case_insensitive_args = {key.lower(): value for key, value in args.items()}
-
-        # Set to collect all unique placeholders found in the content
         found_placeholders = set()
-
-        # Regex pattern to find all valid occurrences of placeholders in the format <placeholder>
         placeholder_pattern = re.compile(r"<(\w+)>")
 
-        # Function to replace each placeholder with corresponding value from case_insensitive_args
         def replace_placeholder(match):
+
             placeholder = match.group(1).lower()
             found_placeholders.add(placeholder.lower())
 
-            # Return the replacement if it exists in case_insensitive_args, otherwise report error
             if placeholder in case_insensitive_args:
                 return str(case_insensitive_args[placeholder])
             else:
                 raise Exception(f"Unmatched placeholder detected: {match.group(0)}")
 
-        # Replace all found placeholders in the content
         modified_content = placeholder_pattern.sub(replace_placeholder, content)
-
-        # Check for unused dictionary keys
+        
         unused_keys = set(case_insensitive_args.keys()) - found_placeholders
         if unused_keys:
-            # Raise an exception for unused dictionary keys
             raise Exception(f"Unused dictionary keys detected: {unused_keys}")
 
         return modified_content
+
+
+class ShaderCompileError(Exception):
+    """
+    Exception raised when a shader compilation error occurs.
+    
+    Attributes:
+        message (str): The error message describing the shader compilation error.
+    """    
+    def __init__(self, message: str):
+        super().__init__(message)
+
+
+def handle_shader_template_compile_error(e: Exception, base_directory: str, 
+                                         vertex_shader_source_info: List[SourceInfo], fragment_shader_source_info: List[SourceInfo]):
+    """
+    Handles shader template compilation errors by parsing error messages and providing detailed information
+    about the error locations within the source templates.
+    
+    Args:
+        e (Exception): The exception raised during shader compilation.
+        base_directory (str): The base directory where shader source files are located.
+        vertex_shader_source_info (List[SourceInfo]): List of SourceInfo objects for the vertex shader source,
+            defining the source file name and line number in the template that contributed to each line of the resolved shader code.
+        fragment_shader_source_info (List[SourceInfo]): List of SourceInfo objects for the fragment shader source,
+            defining the source file name and line number in the template that contributed to each line of the resolved shader code.
+        
+    Raises:
+        ShaderCompileError: If a shader compilation error is detected, a detailed ShaderCompileError is raised,
+            providing the error locations within the source templates.
+        Exception: If the error is not related to shader compilation, the original exception is re-raised.
+    """
+    error_msg = str(e)
+    
+    if not error_msg.strip().startswith("GLSL Compiler failed"):
+        raise e    
+    
+    parsed_errors = _parse_shader_errors(error_msg)
+    
+    combined_error_msg = "Shader compilation errors:\n"
+    
+    for error in parsed_errors:
+        
+        line_number = error['line_number']
+        message     = error['error_message']
+        shader_type = error['shader_type']
+        
+        source_info = (vertex_shader_source_info if shader_type == 'vertex_shader' else fragment_shader_source_info)
+        
+        if line_number >= 0 and line_number < len(source_info):
+            source = source_info[line_number]
+            source_path = Path(base_directory) / source.filename
+            combined_error_msg += (f'\n  File "{source_path}", line {source.line_number}, in {shader_type}\n    {message}\n')
+        else:
+            combined_error_msg += (f'\n  File "unknown", line {line_number}, in {shader_type}\n    {message}\n')
+    
+    raise ShaderCompileError(combined_error_msg) from e
+
+
+def _parse_shader_errors(exception_message: str) -> List[Dict[str, Union[int, str]]]:
+    
+    error_pattern = re.compile(r'ERROR: (\d+):(\d+): (.+)')
+    parsed_errors = []
+    sections = exception_message.split('\n\n')
+    
+    if len(sections) < 2:
+        return parsed_errors
+    
+    shader_info = sections[1].split('\n')
+            
+    for line in shader_info[2:]:
+        match = error_pattern.match(line)
+        if match: 
+            parsed_errors.append({
+                'line_number': int(match.group(2)),
+                'error_message': match.group(3),
+                'shader_type': shader_info[0]
+            })
+            
+    return parsed_errors
