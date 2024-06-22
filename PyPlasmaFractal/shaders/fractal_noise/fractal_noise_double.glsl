@@ -1,4 +1,4 @@
-#include "transforms.glsl"
+#include "common/transforms.glsl"
 
 // Computes two independent fractal noise values and return vec2
 vec2 fractalNoise_Double_<NOISE_FUNC>(

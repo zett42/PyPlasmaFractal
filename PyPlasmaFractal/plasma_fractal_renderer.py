@@ -24,7 +24,7 @@ class PlasmaFractalRenderer:
         params (Dict[str, Any]): Configuration dictionary for rendering options.
         shader_cache (VariantShaderCache): Caches and manages shader variants.
     """
-    def __init__(self, ctx: moderngl.Context, shader_function_registries: Dict[ShaderFunctionType, FunctionRegistry], ):
+    def __init__(self, ctx: moderngl.Context, shader_function_registries: Dict[ShaderFunctionType, FunctionRegistry] ):
         """
         Initializes a new instance of the PlasmaFractalRenderer class.
 
@@ -50,7 +50,7 @@ class PlasmaFractalRenderer:
         shader_storage = DictTextFileStorage(shader_base_directory, '*.glsl')
 
         # Provide the shader sources to the cache.
-        self.shader_cache = VariantShaderCache(ctx, '_vertex_shader.glsl', '_fragment_shader.glsl', shader_storage)
+        self.shader_cache = VariantShaderCache(ctx, 'vertex_shader.glsl', 'fragment_shader.glsl', shader_storage)
         
         self.noise_function_registry = shader_function_registries[ShaderFunctionType.NOISE]
         self.blend_function_registry = shader_function_registries[ShaderFunctionType.BLEND]

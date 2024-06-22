@@ -1,4 +1,4 @@
-#include "color_adjustment.glsl"
+#include "common/color_adjustment.glsl"
 
 // Blends two colors linearly based on a given alpha value.
 //

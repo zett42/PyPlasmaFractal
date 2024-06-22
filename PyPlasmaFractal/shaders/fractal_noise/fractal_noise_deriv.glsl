@@ -1,4 +1,4 @@
-#include "transforms.glsl"
+#include "common/transforms.glsl"
 
 // Function to compute fractal noise and its derivatives
 vec4 fractalNoise_Deriv_<NOISE_FUNC>(vec2 position, int octaves, float gain, float timeScaleFactor,

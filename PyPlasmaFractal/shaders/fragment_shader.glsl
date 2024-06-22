@@ -52,8 +52,8 @@ in vec2 v_tex;               // Texture coordinates from vertex shader
 in vec2 v_pos;               // Position coordinates from vertex shader
 out vec4 f_color;            // Fragment shader output color
 
-#include "color_adjustment.glsl"
-#include "transforms.glsl"
+#include "common/color_adjustment.glsl"
+#include "common/transforms.glsl"
 
 // Include user-selectable functions for noise, warp, and blend operations
 #include "noise_functions\*.glsl"

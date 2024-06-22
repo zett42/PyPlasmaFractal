@@ -1,4 +1,4 @@
-#include "transforms.glsl"
+#include "common/transforms.glsl"
 
 // Computes fractal noise based on multiple octaves of a noise function.
 //

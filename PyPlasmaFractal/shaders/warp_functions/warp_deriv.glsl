@@ -3,8 +3,8 @@
 // The functions in this file are used as template functions, so they must have the same number and kind of arguments.
 //----------------------------------------------------------------------------------------------------------------------------------
 
-#include "math_constants.glsl"
-#include "transforms.glsl"
+#include "common/math_constants.glsl"
+#include "common/transforms.glsl"
 
 // Applies a simple offset to texture coordinates based on noise derivatives.
 vec2 warpOffsetDeriv(vec2 texPos, vec4 noiseWithDerivatives, float time, float params[MAX_WARP_PARAMS]) {

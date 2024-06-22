@@ -3,7 +3,7 @@
 // The functions in this file are used as template functions, so they must have the same number and kind of arguments.
 //----------------------------------------------------------------------------------------------------------------------------------
 
-#include "math_constants.glsl"
+#include "common/math_constants.glsl"
 
 // Applies an offset to texture coordinates based on noise values.
 //
