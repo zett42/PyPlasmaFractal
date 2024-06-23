@@ -7,6 +7,7 @@ from pathlib import Path
 import platform
 from typing import *
 import imgui
+import numpy as np
 
 from PyPlasmaFractal.mylib.config.config_path_manager import ConfigPathManager
 from PyPlasmaFractal.mylib.config.json_file_storage import JsonFileStorage
@@ -18,7 +19,7 @@ from PyPlasmaFractal.mylib.gui.icons import Icons
 from PyPlasmaFractal.mylib.gui.notification_manager import NotificationManager
 from PyPlasmaFractal.mylib.gui.window_fade_manager import WindowFadeManager
 import PyPlasmaFractal.mylib.gui.imgui_helper as ih
-from PyPlasmaFractal.mylib.color.adjust_color import modify_rgba_color_hsv
+from PyPlasmaFractal.mylib.color.adjust_color import modify_rgba_color_hsv, sigmoid_contrast
 from PyPlasmaFractal.plasma_fractal_types import ShaderFunctionType
 from .plasma_fractal_params import PlasmaFractalParams, FunctionRegistry
 
@@ -208,6 +209,7 @@ class PlasmaFractalGUI:
         Args:
             params (PlasmaFractalParams): The current settings of the plasma fractal that can be adjusted via the UI.
         """
+               
         with ih.resized_items(-160):
 
             if ih.collapsing_header("Noise Settings", self, attr='noise_settings_open'):
@@ -255,6 +257,10 @@ class PlasmaFractalGUI:
                 ih.slider_float("Contrast Midpoint", params, 'contrastMidpoint', min_value=0.0, max_value=1.0)
                 ih.show_tooltip("Adjust the midpoint for contrast adjustments.\n"
                                 "Higher values shift the midpoint towards the brighter end of the intensity range.")
+
+                ih.plot_callable('##output_curve', 
+                                 lambda x: sigmoid_contrast(x, params.contrastSteepness, params.contrastMidpoint) * params.brightness, 
+                                 scale_max=2.0)
 
 
     def handle_feedback_tab(self, params: PlasmaFractalParams):

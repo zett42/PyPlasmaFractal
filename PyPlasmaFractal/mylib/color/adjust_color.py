@@ -1,4 +1,5 @@
 import colorsys
+import math
 from typing import Tuple
 
 def modify_rgba_color_hsv(color_rgba: Tuple[float, float, float, float], 
@@ -30,3 +31,18 @@ def modify_rgba_color_hsv(color_rgba: Tuple[float, float, float, float],
 
     # Return the modified color with the original alpha
     return (r, g, b, a)
+
+
+def sigmoid_contrast(x: float, contrast_steepness: float, contrast_midpoint: float) -> float:
+    """
+    Apply sigmoid-based contrast to values between 0 and 1.
+
+    Parameters:
+    x (float): The input value.
+    contrast_steepness (float): The steepness of the sigmoid function.
+    contrast_midpoint (float): The midpoint of the sigmoid function.
+
+    Returns:
+    float: The contrast-adjusted value.
+    """
+    return 1.0 / (1.0 + math.exp(-contrast_steepness * (x - contrast_midpoint)))
