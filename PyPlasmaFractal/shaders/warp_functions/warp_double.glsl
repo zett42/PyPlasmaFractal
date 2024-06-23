@@ -17,15 +17,13 @@
 // - amplitude: A scalar that scales the noise values to control the extent of the offset.
 //
 // Returns:
-// - vec2: The new texture coordinates after applying the noise-based offset.
+// - vec2: The offset to apply to the texture coordinates
 
-vec4 warpOffset(sampler2D tex, vec2 texPos, vec4 newColor, vec2 noise, float time, float params[MAX_WARP_PARAMS]) {
+vec2 warpOffset(vec2 texPos, vec2 noise, float time, float params[MAX_WARP_PARAMS]) {
     
     float amplitude = params[0];
 
-    vec2 newPos = texPos + noise * amplitude / 20.0;
-
-    return texture(tex, newPos);
+    return noise * amplitude / 20.0;
 }
 
 
@@ -49,9 +47,9 @@ vec4 warpOffset(sampler2D tex, vec2 texPos, vec4 newColor, vec2 noise, float tim
 //   influence of the noise's angular value.
 //
 // Returns:
-// - vec2: The new texture coordinates after the polar offset has been applied.
+// - vec2: The offset to apply to the texture coordinates
 
-vec4 warpPolar(sampler2D tex, vec2 texPos, vec4 newColor, vec2 noise, float time, float params[MAX_WARP_PARAMS]) {
+vec2 warpPolar(vec2 texPos, vec2 noise, float time, float params[MAX_WARP_PARAMS]) {
 
     float radiusScale = params[0];
     float angleScale  = params[1];
@@ -63,10 +61,5 @@ vec4 warpPolar(sampler2D tex, vec2 texPos, vec4 newColor, vec2 noise, float time
     float radius = (noise.y + 1.0) / 2.0 * radiusScale / 30.0;
 
     // Calculate offset using polar coordinates (angle and radius)
-    vec2 offset = vec2(cos(angle), sin(angle)) * radius;
-
-    // Apply offset to the original texture coordinates
-    vec2 newPos = texPos + offset;
-
-    return texture(tex, newPos);    
+    return vec2(cos(angle), sin(angle)) * radius;
 }
