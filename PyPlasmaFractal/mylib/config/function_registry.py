@@ -1,3 +1,4 @@
+from enum import Enum
 from typing import List, Hashable, Dict, Any
 import fnmatch
 from PyPlasmaFractal.mylib.config.storage import Storage
@@ -26,22 +27,42 @@ class DynamicAttributes:
             setattr(self, key, value)
 
 
+class ParamType(Enum):
+    FLOAT = "float"
+    COLOR = "color"
+
+
 class FunctionParam(DynamicAttributes):
-    """
-    Information about a parameter used in functions and how to represent it in the UI.
-    """
-    def __init__(self, attributes: Dict[str, Any]):
-        """
-        Initialize a FunctionParam instance.
-
-        Args:
-            attributes (Dict[str, Any]): Dictionary of attributes for the function parameter.
-
-        Raises:
-            KeyError: If any mandatory attribute is missing from attributes.
-        """       
+    """Information about a parameter used in functions and how to represent it in the UI."""
+    
+    def _validate_float(self, value) -> None:
         
-        super().__init__(attributes, mandatory_attrs = ['display_name', 'min', 'max', 'default'])
+        if not isinstance(value, (int, float)):
+            raise ValueError("Float parameter requires numeric default")
+
+    def _validate_color(self, value) -> None:
+        
+        if not (isinstance(value, list) and len(value) == 4):
+            raise ValueError("Color parameter requires RGBA default [r,g,b,a]")
+
+    def __init__(self, attributes: Dict[str, Any]):
+        
+        if 'param_type' not in attributes:
+            attributes['param_type'] = ParamType.FLOAT
+        else:
+            attributes['param_type'] = ParamType(attributes['param_type'])
+            
+        match attributes['param_type']:
+            case ParamType.FLOAT:
+                mandatory = ['display_name', 'min', 'max', 'default']
+                self._validate_float(attributes.get('default'))
+            case ParamType.COLOR:
+                mandatory = ['display_name', 'default']
+                self._validate_color(attributes.get('default'))
+            case _:
+                raise ValueError(f"Unsupported parameter type: {attributes['param_type']}")
+                
+        super().__init__(attributes, mandatory_attrs=mandatory)
         
 
 class FunctionInfo(DynamicAttributes):

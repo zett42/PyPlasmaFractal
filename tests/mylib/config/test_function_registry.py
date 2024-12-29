@@ -1,5 +1,5 @@
 import pytest
-from PyPlasmaFractal.mylib.config.function_registry import FunctionRegistry
+from PyPlasmaFractal.mylib.config.function_registry import FunctionRegistry, ParamType
 from PyPlasmaFractal.mylib.config.storage import Storage
 
 # Create a mock Storage class
@@ -108,9 +108,85 @@ def mock_storage():
         }
     }
 
+    float_data = {
+        "description": "Test float parameter",
+        "functions": {
+            "FloatFunction": {
+                "display_name": "Float Function",
+                "description": "Function with float parameter",
+                "params": [
+                    {
+                        "display_name": "Float Param",
+                        "min": 0.0,
+                        "max": 1.0,
+                        "default": 0.5,
+                        "param_type": "float"
+                    }
+                ]
+            }
+        }
+    }
+
+    color_data = {
+        "description": "Test color parameter",
+        "functions": {
+            "ColorFunction": {
+                "display_name": "Color Function",
+                "description": "Function with color parameter",
+                "params": [
+                    {
+                        "display_name": "Color Param",
+                        "default": [255, 0, 0, 255],
+                        "param_type": "color"
+                    }
+                ]
+            }
+        }
+    }
+
+    invalid_float_data = {
+        "description": "Invalid float parameter",
+        "functions": {
+            "InvalidFloatFunction": {
+                "display_name": "Invalid Float Function",
+                "description": "Function with invalid float parameter",
+                "params": [
+                    {
+                        "display_name": "Invalid Float Param",
+                        "min": 0.0,
+                        "max": 1.0,
+                        "default": "not a float",
+                        "param_type": "float"
+                    }
+                ]
+            }
+        }
+    }
+
+    invalid_color_data = {
+        "description": "Invalid color parameter",
+        "functions": {
+            "InvalidColorFunction": {
+                "display_name": "Invalid Color Function",
+                "description": "Function with invalid color parameter",
+                "params": [
+                    {
+                        "display_name": "Invalid Color Param",
+                        "default": [255, 0, 0],
+                        "param_type": "color"
+                    }
+                ]
+            }
+        }
+    }
+
     storage.save(initial_data, "initial_data")
     storage.save(new_data, "new_data")
     storage.save(duplicate_data, "duplicate_data")
+    storage.save(float_data, "float_data")
+    storage.save(color_data, "color_data")
+    storage.save(invalid_float_data, "invalid_float_data")
+    storage.save(invalid_color_data, "invalid_color_data")
 
     return storage
 
@@ -213,3 +289,33 @@ def test_load_duplicate_key(mock_storage):
     registry = FunctionRegistry(mock_storage, "initial_data")
     with pytest.raises(KeyError, match="Function key 'ExampleSingleParam' already exists in the registry."):
         registry.load("duplicate_data", merge=True)
+
+def test_float_param(mock_storage):
+    registry = FunctionRegistry(mock_storage, "float_data")
+    
+    float_function_info = registry.get_function_info("FloatFunction")
+    assert float_function_info.display_name == "Float Function"
+    assert len(float_function_info.params) == 1
+    assert float_function_info.params[0].display_name == "Float Param"
+    assert float_function_info.params[0].min == 0.0
+    assert float_function_info.params[0].max == 1.0
+    assert float_function_info.params[0].default == 0.5
+    assert float_function_info.params[0].param_type == ParamType.FLOAT
+
+def test_color_param(mock_storage):
+    registry = FunctionRegistry(mock_storage, "color_data")
+    
+    color_function_info = registry.get_function_info("ColorFunction")
+    assert color_function_info.display_name == "Color Function"
+    assert len(color_function_info.params) == 1
+    assert color_function_info.params[0].display_name == "Color Param"
+    assert color_function_info.params[0].default == [255, 0, 0, 255]
+    assert color_function_info.params[0].param_type == ParamType.COLOR
+
+def test_invalid_float_param(mock_storage):
+    with pytest.raises(ValueError):
+        FunctionRegistry(mock_storage, "invalid_float_data")
+
+def test_invalid_color_param(mock_storage):
+    with pytest.raises(ValueError):
+        FunctionRegistry(mock_storage, "invalid_color_data")
