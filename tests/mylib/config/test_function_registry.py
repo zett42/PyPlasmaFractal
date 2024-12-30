@@ -39,7 +39,9 @@ def mock_storage():
                 "description": "Description for Example Single Param",
                 "params": [
                     {
+                        "name": "single_param",
                         "display_name": "Single Param",
+                        "param_type": "float",
                         "logarithmic": False,
                         "min": 0.0,
                         "max": 1.0,
@@ -52,14 +54,18 @@ def mock_storage():
                 "description": "Description for Example Two Params",
                 "params": [
                     {
+                        "name": "first_param",
                         "display_name": "First Param",
+                        "param_type": "float",
                         "logarithmic": False,
                         "min": 0.0,
                         "max": 1.0,
                         "default": 0.2
                     },
                     {
+                        "name": "second_param",
                         "display_name": "Second Param",
+                        "param_type": "float",
                         "logarithmic": True,
                         "min": 0.0,
                         "max": 2.0,
@@ -78,7 +84,9 @@ def mock_storage():
                 "description": "Description for New Function",
                 "params": [
                     {
+                        "name": "new_param",
                         "display_name": "New Param",
+                        "param_type": "float",
                         "logarithmic": True,
                         "min": 0.0,
                         "max": 1.0,
@@ -97,7 +105,9 @@ def mock_storage():
                 "description": "Description for Duplicate Example Single Param",
                 "params": [
                     {
+                        "name": "duplicate_param",
                         "display_name": "Duplicate Param",
+                        "param_type": "float",
                         "logarithmic": False,
                         "min": 0.0,
                         "max": 1.0,
@@ -116,11 +126,12 @@ def mock_storage():
                 "description": "Function with float parameter",
                 "params": [
                     {
+                        "name": "float_param",
                         "display_name": "Float Param",
+                        "param_type": "float",
                         "min": 0.0,
                         "max": 1.0,
-                        "default": 0.5,
-                        "param_type": "float"
+                        "default": 0.5
                     }
                 ]
             }
@@ -135,9 +146,10 @@ def mock_storage():
                 "description": "Function with color parameter",
                 "params": [
                     {
+                        "name": "color_param",
                         "display_name": "Color Param",
-                        "default": [255, 0, 0, 255],
-                        "param_type": "color"
+                        "param_type": "color",
+                        "default": [1.0, 0.2, 0.5, 0.9]
                     }
                 ]
             }
@@ -152,11 +164,12 @@ def mock_storage():
                 "description": "Function with invalid float parameter",
                 "params": [
                     {
+                        "name": "invalid_float_param",
                         "display_name": "Invalid Float Param",
+                        "param_type": "float",
                         "min": 0.0,
                         "max": 1.0,
-                        "default": "not a float",
-                        "param_type": "float"
+                        "default": "not a float"
                     }
                 ]
             }
@@ -171,9 +184,10 @@ def mock_storage():
                 "description": "Function with invalid color parameter",
                 "params": [
                     {
+                        "name": "invalid_color_param",
                         "display_name": "Invalid Color Param",
-                        "default": [255, 0, 0],
-                        "param_type": "color"
+                        "param_type": "color",
+                        "default": [255, 0, 0]
                     }
                 ]
             }
@@ -309,7 +323,7 @@ def test_color_param(mock_storage):
     assert color_function_info.display_name == "Color Function"
     assert len(color_function_info.params) == 1
     assert color_function_info.params[0].display_name == "Color Param"
-    assert color_function_info.params[0].default == [255, 0, 0, 255]
+    assert color_function_info.params[0].default == [1.0, 0.2, 0.5, 0.9]
     assert color_function_info.params[0].param_type == ParamType.COLOR
 
 def test_invalid_float_param(mock_storage):

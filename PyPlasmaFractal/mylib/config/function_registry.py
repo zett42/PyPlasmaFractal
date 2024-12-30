@@ -61,8 +61,8 @@ class FunctionParam(DynamicAttributes):
             raise ValueError(f"Invalid default value for FLOAT parameter: {value}")
 
     def _validate_color(self, value: Any):
-        if not (isinstance(value, list) and len(value) == 3 and all(isinstance(v, (float, int)) and 0.0 <= v <= 1.0 for v in value)):
-            raise ValueError(f"Invalid default value for COLOR parameter: {value}")
+        if not (isinstance(value, list) and len(value) == 4 and all(isinstance(v, (float, int)) and 0.0 <= v <= 1.0 for v in value)):
+            raise ValueError(f"Invalid default value for COLOR parameter: {value} (expected list of 4 floats in range [0.0, 1.0], representing RGBA)")
         
 
 class FunctionInfo(DynamicAttributes):
