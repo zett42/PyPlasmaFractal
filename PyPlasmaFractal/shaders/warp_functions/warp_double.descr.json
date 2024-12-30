@@ -4,7 +4,7 @@
     "offset": {
       "display_name": "Offset",
       "description": "Applies an offset to texture coordinates based on noise values.",
-      "fractal_noise_variant": "Double",
+      "fractal_noise_variant": "double",
       "params": [
         {
           "name": "amplitude",
@@ -21,7 +21,7 @@
     "polar": {
       "display_name": "Polar",
       "description": "Applies a polar-based offset to texture coordinates, influenced by noise values. This creates a circular pattern warp.",
-      "fractal_noise_variant": "Double",
+      "fractal_noise_variant": "double",
       "params": [
         {
           "name": "radial_strength",

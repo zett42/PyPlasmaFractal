@@ -1,44 +1,44 @@
 #include "common/transforms.glsl"
 
 // Computes two independent fractal noise values and return vec2
-vec2 fractalNoise_Double_<NOISE_FUNC>(
-        vec2 position, int octaves, float gain, float timeScaleFactor,
-        float positionScaleFactor, float rotationAngleIncrement, float timeOffsetIncrement, float time) {
+vec2 fractal_noise_double_<NOISE_FUNC>(
+        vec2 position, int octaves, float gain, float time_scale_factor,
+        float position_scale_factor, float rotation_angle_increment, float time_offset_increment, float time) {
 
     float amplitude = 1.0;        // Initial amplitude for first octave
-    float totalAmplitude = 0.0;   // Total amplitude for normalizing final noise values
+    float total_amplitude = 0.0;   // Total amplitude for normalizing final noise values
     vec2 grayscale = vec2(0.0);   // Accumulated grayscale value from noise for x and y
-    float currentAngle = 0.0;     // Current angle for incremental rotation
-    float timeOffset = 0.0;       // Current time offset for noise variation
-    float timeOffsetY = 123.0;    // Different time offset for y noise to create variation (value choosen arbitrarily)
+    float current_angle = 0.0;     // Current angle for incremental rotation
+    float time_offset = 0.0;       // Current time offset for noise variation
+    float time_offset_y = 123.0;    // Different time offset for y noise to create variation (value choosen arbitrarily)
 
     // Iterate over each octave to accumulate noise contributions
     for(int i = 0; i < octaves; i++) {
 
         // Adjust time and position scaling per octave
-        float timeScalePerOctave = pow(timeScaleFactor, float(i));
-        float positionScalePerOctave = pow(positionScaleFactor, float(i));
+        float time_scale_per_octave = pow(time_scale_factor, float(i));
+        float position_scale_per_octave = pow(position_scale_factor, float(i));
 
         // Apply rotation
-        currentAngle += rotationAngleIncrement;
-        vec2 rotatedPosition = rotate2D(position, currentAngle);
+        current_angle += rotation_angle_increment;
+        vec2 rotated_position = rotate2D(position, current_angle);
 
         // Calculate effective time including time scaling and offset
-        float effectiveTimeX = time * timeScalePerOctave + timeOffset;
-        float effectiveTimeY = effectiveTimeX + timeOffsetY; // Apply offset to "seed" noise value for y differently
+        float effective_time_x = time * time_scale_per_octave + time_offset;
+        float effective_time_y = effective_time_x + time_offset_y; // Apply offset to "seed" noise value for y differently
 
         // Create final position vector for noise
-        vec3 posX = vec3(rotatedPosition * positionScalePerOctave, effectiveTimeX);
+        vec3 pos_x = vec3(rotated_position * position_scale_per_octave, effective_time_x);
   
         // Compute noise value for x and y
-        vec2 noiseValue = <NOISE_FUNC>_Double(posX, effectiveTimeY);
+        vec2 noise_value = <NOISE_FUNC>_Double(pos_x, effective_time_y);
 
         // Accumulate
-        grayscale += noiseValue * amplitude; // Weight noise by current amplitude
-        totalAmplitude += amplitude;  // Accumulate total amplitude for normalization
+        grayscale += noise_value * amplitude; // Weight noise by current amplitude
+        total_amplitude += amplitude;  // Accumulate total amplitude for normalization
         amplitude *= gain;  // Decrease amplitude for next octave
-        timeOffset += timeOffsetIncrement;  // Increment time offset
+        time_offset += time_offset_increment;  // Increment time offset
     }
 
-    return grayscale / totalAmplitude; // Return normalized noise values
+    return grayscale / total_amplitude; // Return normalized noise values
 }

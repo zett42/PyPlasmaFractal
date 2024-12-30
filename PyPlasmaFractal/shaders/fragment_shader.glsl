@@ -75,7 +75,7 @@ vec4 applyFeedback_Enabled(vec4 noise_color) {
 
     vec2 offset = warp_<FB_WARP_XFORM_FUNC>(
         v_tex,
-        fractalNoise_<FB_WARP_FRACTAL_NOISE_VARIANT>_<FB_WARP_NOISE_FUNC>( 
+        fractal_noise_<FB_WARP_FRACTAL_NOISE_VARIANT>_<FB_WARP_NOISE_FUNC>( 
             scaled_position, u_warp_octaves, u_warp_gain, u_warp_time_scale_factor, 
             u_warp_position_scale_factor, u_warp_rotation_angle_increment, 
             u_warp_time_offset_increment, u_warp_time_offset_initial + u_time * u_warp_speed ),
@@ -99,8 +99,8 @@ void main() {
 
     vec2 scaled_position = v_pos * u_scale;  // Scale position by provided scale factor
 
-    float grayscale = fractalNoise_Single_<NOISE_FUNC>(scaled_position, u_octaves, u_gain, u_time_scale_factor, 
-                                                       u_position_scale_factor, u_rotation_angle_increment, u_time_offset_increment, u_time);
+    float grayscale = fractal_noise_single_<NOISE_FUNC>(scaled_position, u_octaves, u_gain, u_time_scale_factor, 
+                                                        u_position_scale_factor, u_rotation_angle_increment, u_time_offset_increment, u_time);
 
     // Normalize noise to 0..1 range
     grayscale = (grayscale - NOISE_MIN) / (NOISE_MAX - NOISE_MIN); 
