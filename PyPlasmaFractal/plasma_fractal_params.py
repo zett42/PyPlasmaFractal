@@ -32,15 +32,15 @@ class PlasmaFractalParams:
         self.noise_algorithm = self._noise_function_registry.get_function_keys()[0]   # Default to first function
         self.octaves = 1
         self.gain = 0.5
-        self.timeScaleFactor = 1.3
-        self.positionScaleFactor = 2.0
-        self.rotationAngleIncrement = 0.0
-        self.timeOffsetIncrement = 12.0
+        self.time_scale_factor = 1.3
+        self.position_scale_factor = 2.0
+        self.rotation_angle_increment = 0.0
+        self.time_offset_increment = 12.0
         
         # Output settings for noise
         self.brightness = 1.0
-        self.contrastSteepness = 10.0
-        self.contrastMidpoint = 0.5
+        self.contrast_steepness = 10.0
+        self.contrast_midpoint = 0.5
         
         # FEEDBACK
         
@@ -51,43 +51,43 @@ class PlasmaFractalParams:
         self.feedback_params = self._blend_function_registry.get_all_param_defaults()
         
         # Feedback blur settings
-        self.enableFeedbackBlur = False
-        self.feedbackBlurRadius = 2
-        self.feedbackBlurRadiusPower = 1.0
+        self.enable_feedback_blur = False
+        self.feedback_blur_radius = 2
+        self.feedback_blur_radius_power = 1.0
         
         # Warp settings for feedback
-        self.warpFunction = self._warp_function_registry.get_function_keys()[0]   # Default to first function
-        self.warpParams = self._warp_function_registry.get_all_param_defaults()
+        self.warp_function = self._warp_function_registry.get_function_keys()[0]   # Default to first function
+        self.warp_params = self._warp_function_registry.get_all_param_defaults()
 
-        self.warpSpeed = 1.0
-        self.warpNoiseAlgorithm = self._noise_function_registry.get_function_keys()[0]   # Default to first function
-        self.warpScale = 1.0
-        self.warpOctaves = 1
-        self.warpGain = 0.3
-        self.warpAmplitude = 1.0  # Assuming a default value for amplitude
-        self.warpTimeScaleFactor = 1.0
-        self.warpPositionScaleFactor = 2.0
-        self.warpRotationAngleIncrement = 0.0
-        self.warpTimeOffsetInitial = 42.0
-        self.warpTimeOffsetIncrement = 12.0
+        self.warp_speed = 1.0
+        self.warp_noise_algorithm = self._noise_function_registry.get_function_keys()[0]   # Default to first function
+        self.warp_scale = 1.0
+        self.warp_octaves = 1
+        self.warp_gain = 0.3
+        self.warp_amplitude = 1.0  # Assuming a default value for amplitude
+        self.warp_time_scale_factor = 1.0
+        self.warp_position_scale_factor = 2.0
+        self.warp_rotation_angle_increment = 0.0
+        self.warp_time_offset_initial = 42.0
+        self.warp_time_offset_increment = 12.0
          
          
-    def get_current_feedback_function_info(self) -> FunctionInfo:
+    def get_current_feedback_blend_function_info(self) -> FunctionInfo:
         """ Return the current blend function info. """
         return self._blend_function_registry.get_function_info(self.feedback_function)
 
-    def get_current_feedback_params(self) -> List[float]:
+    def get_current_feedback_params(self) -> List[Any]:
         """ Return the current feedback parameters. """
         return self.feedback_params[self.feedback_function]
              
     
     def get_current_warp_function_info(self) -> FunctionInfo:
         """ Return the current warp function info. """
-        return self._warp_function_registry.get_function_info(self.warpFunction)
+        return self._warp_function_registry.get_function_info(self.warp_function)
 
-    def get_current_warp_params(self) -> List[float]:
+    def get_current_warp_params(self) -> List[Any]:
         """ Return the current warp parameters. """
-        return self.warpParams[self.warpFunction]
+        return self.warp_params[self.warp_function]
 
 
     def apply_defaults(self) -> None:

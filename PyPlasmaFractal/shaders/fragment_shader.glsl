@@ -24,24 +24,24 @@ uniform sampler2D u_texture;            // Feedback texture (from previous frame
 uniform vec2 u_scale;                   // Scaling factor for the noise coordinates
 uniform int u_octaves;                  // Number of noise octaves
 uniform float u_gain;                   // Gain factor decreasing amplitude each octave
-uniform float u_timeScaleFactor;        // Time scaling per octave
-uniform float u_positionScaleFactor;    // Position scaling per octave
-uniform float u_rotationAngleIncrement; // Rotation angle increase per octave
-uniform float u_timeOffsetIncrement;    // Time offset increase per octave
+uniform float u_time_scale_factor;      // Time scaling per octave
+uniform float u_position_scale_factor;  // Position scaling per octave
+uniform float u_rotation_angle_increment; // Rotation angle increase per octave
+uniform float u_time_offset_increment;  // Time offset increase per octave
 uniform float u_brightness;             // Scales the noise output
-uniform float u_contrastSteepness;      // Sigmoid function steepness for contrast adjustment
-uniform float u_contrastMidpoint;       // Midpoint for sigmoid contrast function
+uniform float u_contrast_steepness;     // Sigmoid function steepness for contrast adjustment
+uniform float u_contrast_midpoint;      // Midpoint for sigmoid contrast function
 
 // Parameters for fractal noise that warps the feedback texture
-uniform float u_warpSpeed;              // Noise mutation speed
-uniform vec2 u_warpScale;               // Noise scale factor
-uniform int u_warpOctaves;              // Number of warping noise octaves
-uniform float u_warpGain;               // Noise gain factor
-uniform float u_warpTimeScaleFactor;    // Time scaling for warping noise
-uniform float u_warpPositionScaleFactor;// Position scaling for warping noise
-uniform float u_warpRotationAngleIncrement; // Rotation angle increase for warping noise
-uniform float u_warpTimeOffsetInitial;      // Time offset initial for warping noise
-uniform float u_warpTimeOffsetIncrement;    // Time offset increase for warping noise
+uniform float u_warp_speed;              // Noise mutation speed
+uniform vec2 u_warp_scale;               // Noise scale factor
+uniform int u_warp_octaves;              // Number of warping noise octaves
+uniform float u_warp_gain;               // Noise gain factor
+uniform float u_warp_time_scale_factor;  // Time scaling for warping noise
+uniform float u_warp_position_scale_factor; // Position scaling for warping noise
+uniform float u_warp_rotation_angle_increment; // Rotation angle increase for warping noise
+uniform float u_warp_time_offset_initial;      // Time offset initial for warping noise
+uniform float u_warp_time_offset_increment;    // Time offset increase for warping noise
 
 // Declare uniforms for configurable feedback blend parameters
 <FB_BLEND_FUNC_UNIFORMS>
@@ -71,14 +71,14 @@ out vec4 f_color;            // Fragment shader output color
 // Function to apply feedback to the noise color, if enabled
 vec4 applyFeedback_Enabled(vec4 noise_color) {
 
-    vec2 scaledPosition = v_pos * u_warpScale;  // Scale position by provided scale factor
+    vec2 scaled_position = v_pos * u_warp_scale;  // Scale position by provided scale factor
 
     vec2 offset = warp<FB_WARP_XFORM_FUNC>(
         v_tex,
         fractalNoise_<FB_WARP_FRACTAL_NOISE_VARIANT>_<FB_WARP_NOISE_FUNC>( 
-            scaledPosition, u_warpOctaves, u_warpGain, u_warpTimeScaleFactor, 
-            u_warpPositionScaleFactor, u_warpRotationAngleIncrement, 
-            u_warpTimeOffsetIncrement, u_warpTimeOffsetInitial + u_time * u_warpSpeed ),
+            scaled_position, u_warp_octaves, u_warp_gain, u_warp_time_scale_factor, 
+            u_warp_position_scale_factor, u_warp_rotation_angle_increment, 
+            u_warp_time_offset_increment, u_warp_time_offset_initial + u_time * u_warp_speed ),
         u_time,
         <FB_WARP_FUNC_ARGS>);
     
@@ -97,15 +97,15 @@ void main() {
 
     // Compute fractal noise value and apply contrast adjustment
 
-    vec2 scaledPosition = v_pos * u_scale;  // Scale position by provided scale factor
+    vec2 scaled_position = v_pos * u_scale;  // Scale position by provided scale factor
 
-    float grayscale = fractalNoise_Single_<NOISE_FUNC>(scaledPosition, u_octaves, u_gain, u_timeScaleFactor, 
-                                                       u_positionScaleFactor, u_rotationAngleIncrement, u_timeOffsetIncrement, u_time);
+    float grayscale = fractalNoise_Single_<NOISE_FUNC>(scaled_position, u_octaves, u_gain, u_time_scale_factor, 
+                                                       u_position_scale_factor, u_rotation_angle_increment, u_time_offset_increment, u_time);
 
     // Normalize noise to 0..1 range
     grayscale = (grayscale - NOISE_MIN) / (NOISE_MAX - NOISE_MIN); 
 
-    grayscale = sigmoidContrast(grayscale, u_contrastSteepness, u_contrastMidpoint); // Apply contrast adjustment
+    grayscale = sigmoidContrast(grayscale, u_contrast_steepness, u_contrast_midpoint); // Apply contrast adjustment
     grayscale = grayscale * u_brightness; // Apply brightness adjustment
     vec4 noise_color = vec4(grayscale, grayscale, grayscale, 1.0); // Set output color to grayscale
 

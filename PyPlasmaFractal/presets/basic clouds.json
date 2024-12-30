@@ -4,17 +4,17 @@
     "noise_algorithm": "SimplexPerlin3D",
     "octaves": 7,
     "gain": 0.5,
-    "timeScaleFactor": 1.5809999704360962,
-    "positionScaleFactor": 2.0,
-    "rotationAngleIncrement": 0.0,
-    "timeOffsetIncrement": 12.0,
+    "time_scale_factor": 1.5809999704360962,
+    "position_scale_factor": 2.0,
+    "rotation_angle_increment": 0.0,
+    "time_offset_increment": 12.0,
     "brightness": 0.921999990940094,
-    "contrastSteepness": 10.204999923706055,
-    "contrastMidpoint": 0.5270000100135803,
+    "contrast_steepness": 10.204999923706055,
+    "contrast_midpoint": 0.5270000100135803,
     "enable_feedback": false,
     "feedback_decay": 0.004999999888241291,
-    "warpFunction": "Swirl",
-    "warpParams": {
+    "warp_function": "Swirl",
+    "warp_params": {
         "Offset": [
             0.05
         ],
@@ -37,15 +37,15 @@
             0.0
         ]
     },
-    "warpSpeed": 0.25,
-    "warpNoiseAlgorithm": "Perlin3D",
-    "warpScale": 0.4020000100135803,
-    "warpOctaves": 8,
-    "warpGain": 0.3659999966621399,
-    "warpAmplitude": null,
-    "warpTimeScaleFactor": 1.8270000219345093,
-    "warpPositionScaleFactor": 2.01200008392334,
-    "warpRotationAngleIncrement": 0.0,
-    "warpTimeOffsetInitial": 42.0,
-    "warpTimeOffsetIncrement": 12.0
+    "warp_speed": 0.25,
+    "warp_noise_algorithm": "Perlin3D",
+    "warp_scale": 0.4020000100135803,
+    "warp_octaves": 8,
+    "warp_gain": 0.3659999966621399,
+    "warp_amplitude": null,
+    "warp_time_scale_factor": 1.8270000219345093,
+    "warp_position_scale_factor": 2.01200008392334,
+    "warp_rotation_angle_increment": 0.0,
+    "warp_time_offset_initial": 42.0,
+    "warp_time_offset_increment": 12.0
 }

@@ -4,3 +4,5 @@ class ShaderFunctionType(Enum):
     NOISE = 'noise'
     BLEND = 'blend'
     WARP  = 'warp'
+    COLOR = 'color'
+    

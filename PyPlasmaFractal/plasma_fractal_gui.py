@@ -229,18 +229,18 @@ class PlasmaFractalGUI:
                 ih.show_tooltip("Adjust the gain applied to the noise value produced by each octave.\n"
                                 "A typical value is 0.5, which reduces the influence of higher octaves.")
                 
-                ih.slider_float("Pos. Scale/Octave", params, 'positionScaleFactor', min_value=0.1, max_value=10.0)
+                ih.slider_float("Pos. Scale/Octave", params, 'position_scale_factor', min_value=0.1, max_value=10.0)
                 ih.show_tooltip("Adjust the position scale applied to each octave.\n"
                                 "A typical value is 2.0, which allows each octave to contribute smaller details.")
                 
-                ih.slider_float("Rotation/Octave", params, 'rotationAngleIncrement', min_value=0.0, max_value=math.pi * 2, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)
+                ih.slider_float("Rotation/Octave", params, 'rotation_angle_increment', min_value=0.0, max_value=math.pi * 2, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)
                 ih.show_tooltip("Adjust the rotation angle increment applied to each octave.")
                 
-                ih.slider_float("Time Scale/Octave", params, 'timeScaleFactor', min_value=0.1, max_value=2.0)
+                ih.slider_float("Time Scale/Octave", params, 'time_scale_factor', min_value=0.1, max_value=2.0)
                 ih.show_tooltip("Adjust the time scale factor applied to each octave.\n"
                                 "Higher values speed up the temporal changes of each octave.")
                 
-                ih.slider_float("Time Offset/Octave", params, 'timeOffsetIncrement', min_value=0.0, max_value=20.0)
+                ih.slider_float("Time Offset/Octave", params, 'time_offset_increment', min_value=0.0, max_value=20.0)
                 ih.show_tooltip("Adjust the time offset increment applied to each octave,\n"
                                 "to increase noise variation.")
 
@@ -250,16 +250,16 @@ class PlasmaFractalGUI:
                 ih.show_tooltip("Adjust the brightness of the rendered noise.\n"
                                 "Higher values increase the overall intensity of the noise pattern.")
                 
-                ih.slider_float("Contrast", params, 'contrastSteepness', min_value=0.001, max_value=50.0)
+                ih.slider_float("Contrast", params, 'contrast_steepness', min_value=0.001, max_value=50.0)
                 ih.show_tooltip("Set the contrast steepness of the rendered noise.\n"
                                 "Higher values result in sharper contrasts between light and dark areas.")
                 
-                ih.slider_float("Contrast Midpoint", params, 'contrastMidpoint', min_value=0.0, max_value=1.0)
+                ih.slider_float("Contrast Midpoint", params, 'contrast_midpoint', min_value=0.0, max_value=1.0)
                 ih.show_tooltip("Adjust the midpoint for contrast adjustments.\n"
                                 "Higher values shift the midpoint towards the brighter end of the intensity range.")
 
                 ih.plot_callable('##output_curve', 
-                                 lambda x: sigmoid_contrast(x, params.contrastSteepness, params.contrastMidpoint) * params.brightness, 
+                                 lambda x: sigmoid_contrast(x, params.contrast_steepness, params.contrast_midpoint) * params.brightness, 
                                  scale_max=2.0)
 
 
@@ -298,49 +298,49 @@ class PlasmaFractalGUI:
 
             if ih.collapsing_header("Feedback Blur Settings", self, attr='feedback_blur_settings_open'):
                                    
-                ih.checkbox("Enable Blur", params, 'enableFeedbackBlur')
-                if params.enableFeedbackBlur:
-                    ih.slider_int("Blur Radius", params, 'feedbackBlurRadius', min_value=1, max_value=16)
-                    ih.slider_float("Blur Radius Power", params, 'feedbackBlurRadiusPower', min_value=0.01, max_value=20, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)
+                ih.checkbox("Enable Blur", params, 'enable_feedback_blur')
+                if params.enable_feedback_blur:
+                    ih.slider_int("Blur Radius", params, 'feedback_blur_radius', min_value=1, max_value=16)
+                    ih.slider_float("Blur Radius Power", params, 'feedback_blur_radius_power', min_value=0.01, max_value=20, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)
       
             if ih.collapsing_header("Warp Noise Settings", self, attr='feedback_warp_noise_settings_open'):
 
-                ih.slider_float("Speed", params, 'warpSpeed', min_value=0.01, max_value=10.0)
+                ih.slider_float("Speed", params, 'warp_speed', min_value=0.01, max_value=10.0)
                 ih.show_tooltip("Adjust the speed of the warp effect.\n"
                                 "Higher values result in faster movement of the noise pattern.")
                 
-                ih.slider_float("Scale", params, 'warpScale', min_value=0.01, max_value=10.0)
+                ih.slider_float("Scale", params, 'warp_scale', min_value=0.01, max_value=10.0)
                 ih.show_tooltip("Adjust the scale of the warp noise.")
                 
-                self.function_combo("Noise Algorithm", params, 'warpNoiseAlgorithm', self.noise_function_registry)
+                self.function_combo("Noise Algorithm", params, 'warp_noise_algorithm', self.noise_function_registry)
 
 
             if ih.collapsing_header("Warp Fractal Settings", self, attr='feedback_warp_octave_settings_open'):
 
-                ih.slider_int("Num. Octaves", params, 'warpOctaves', min_value=1, max_value=12)
+                ih.slider_int("Num. Octaves", params, 'warp_octaves', min_value=1, max_value=12)
                 ih.show_tooltip("Set the number of noise octaves for fractal generation in the warp effect.\n"
                                 "Higher values increase detail but can be computationally intensive.")
                 
-                ih.slider_float("Gain/Octave", params, 'warpGain', min_value=0.1, max_value=1.0)
+                ih.slider_float("Gain/Octave", params, 'warp_gain', min_value=0.1, max_value=1.0)
                 ih.show_tooltip("Adjust the gain applied to the noise value produced by each octave.\n"
                                 "A typical value is 0.5, which reduces the influence of higher octaves.")
                 
-                ih.slider_float("Pos. Scale/Octave", params, 'warpPositionScaleFactor', min_value=0.1, max_value=10.0)
+                ih.slider_float("Pos. Scale/Octave", params, 'warp_position_scale_factor', min_value=0.1, max_value=10.0)
                 ih.show_tooltip("Adjust the position scale applied to each octave.\n"
                                 "A typical value is 2.0, which allows each octave to contribute smaller details.")
                 
-                ih.slider_float("Rotation/Octave", params, 'warpRotationAngleIncrement', min_value=0.0, max_value=math.pi * 2, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)
+                ih.slider_float("Rotation/Octave", params, 'warp_rotation_angle_increment', min_value=0.0, max_value=math.pi * 2, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)
                 ih.show_tooltip("Adjust the rotation angle increment applied to each octave.")
                 
-                ih.slider_float("Time Scale/Octave", params, 'warpTimeScaleFactor', min_value=0.1, max_value=2.0)
+                ih.slider_float("Time Scale/Octave", params, 'warp_time_scale_factor', min_value=0.1, max_value=2.0)
                 ih.show_tooltip("Adjust the time scale factor applied to each octave.\n"
                                 "Higher values speed up the temporal changes of each octave.")
                 
-                ih.slider_float("Time Offset/Octave", params, 'warpTimeOffsetIncrement', min_value=0.0, max_value=20.0)
+                ih.slider_float("Time Offset/Octave", params, 'warp_time_offset_increment', min_value=0.0, max_value=20.0)
                 ih.show_tooltip("Adjust the time offset increment applied to each octave,\nto increase noise variation.")
 
             self.function_settings(header="Warp Function Settings", header_attr='feedback_warp_effect_settings_open', 
-                                   registry=self.warp_function_registry, function_attr='warpFunction', params_attr='warpParams',
+                                   registry=self.warp_function_registry, function_attr='warp_function', params_attr='warp_params',
                                    params=params)
 
 

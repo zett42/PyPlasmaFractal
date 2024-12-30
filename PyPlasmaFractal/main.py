@@ -362,9 +362,9 @@ class PyPlasmaFractalApp:
             # Swap the textures so the previous frame will be used for feedback  
             self.feedback_manager.swap_textures()
         
-            if self.params.enableFeedbackBlur:
+            if self.params.enable_feedback_blur:
                 # Apply Gaussian blur to the previous frame, utilizing the (yet unused) destination texture as intermediate storage
-                gaussian_blur.apply_blur(self.params.feedbackBlurRadius, self.params.feedbackBlurRadiusPower)
+                gaussian_blur.apply_blur(self.params.feedback_blur_radius, self.params.feedback_blur_radius_power)
             
         # Clear the feedback textures if a new preset has been loaded, to ensure we start with a clean state
         if self.gui.notifications.pull_notification(PlasmaFractalGUI.Notification.NEW_PRESET_LOADED):

@@ -1,0 +1,34 @@
+{
+  "description": "Color mapping functions that convert grayscale values to colors",
+  "functions": {
+    "GradientRGBA": {
+      "display_name": "Color Gradient",
+      "description": "Maps grayscale values to a gradient between two colors",
+      "params": [
+        {
+          "name": "start_color",
+          "display_name": "Start Color",
+          "param_type": "color",
+          "default": [0, 0, 0, 255],
+          "description": "Color for minimum grayscale value"
+        },
+        {
+          "name": "end_color",
+          "display_name": "End Color", 
+          "param_type": "color",
+          "default": [255, 255, 255, 255],
+          "description": "Color for maximum grayscale value"
+        },
+        {
+            "name": "gamma",
+            "display_name": "Gamma",
+            "param_type": "float",
+            "min": 0.1,
+            "max": 5.0,
+            "default": 1.0,
+            "description": "Adjusts the gradient interpolation curve"
+        }
+      ]
+    }
+  }
+}
