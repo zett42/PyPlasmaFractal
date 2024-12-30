@@ -19,10 +19,7 @@
 // Returns:
 // - vec2: The offset to apply to the texture coordinates
 
-vec2 warpOffset(vec2 texPos, vec2 noise, float time, float params[MAX_WARP_PARAMS]) {
-    
-    float amplitude = params[0];
-
+vec2 warpOffset(vec2 texPos, vec2 noise, float time, float amplitude) {
     return noise * amplitude / 20.0;
 }
 
@@ -49,10 +46,7 @@ vec2 warpOffset(vec2 texPos, vec2 noise, float time, float params[MAX_WARP_PARAM
 // Returns:
 // - vec2: The offset to apply to the texture coordinates
 
-vec2 warpPolar(vec2 texPos, vec2 noise, float time, float params[MAX_WARP_PARAMS]) {
-
-    float radiusScale = params[0];
-    float angleScale  = params[1];
+vec2 warpPolar(vec2 texPos, vec2 noise, float time, float radiusScale, float angleScale) {
 
     // Normalize noise.x values around zero and limit angle variations
     float angle = 2.0 * M_PI * noise.x * angleScale * 10.0; 

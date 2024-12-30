@@ -5,7 +5,8 @@ import numpy as np
 from collections import namedtuple
 
 from PyPlasmaFractal.mylib.config.dict_text_storage import DictTextFileStorage
-from PyPlasmaFractal.mylib.config.function_registry import FunctionRegistry
+from PyPlasmaFractal.mylib.config.function_glsl_generator import GlslGenerator
+from PyPlasmaFractal.mylib.config.function_registry import FunctionInfo, FunctionRegistry
 from PyPlasmaFractal.mylib.named_tuples import Vec2
 from PyPlasmaFractal.plasma_fractal_resources import resource_path
 from PyPlasmaFractal.mylib.gfx.shader_cache import VariantShaderCache
@@ -109,9 +110,13 @@ class PlasmaFractalRenderer:
             'NOISE_MAX': noise_function_info.max_value,
             'FB_ENABLED': 'Enabled' if params.enable_feedback else 'Disabled',
             'FB_BLEND_FUNC': params.feedback_function,
+            'FB_BLEND_FUNC_UNIFORMS': GlslGenerator.generate_function_params_uniforms(params.get_current_feedback_blend_function_info()),
+            'FB_BLEND_FUNC_ARGS': GlslGenerator.generate_function_args(params.get_current_feedback_blend_function_info()),
             'FB_WARP_FRACTAL_NOISE_VARIANT': params.get_current_warp_function_info().fractal_noise_variant,
             'FB_WARP_NOISE_FUNC': params.warpNoiseAlgorithm,
             'FB_WARP_XFORM_FUNC': params.warpFunction,
+            'FB_WARP_FUNC_UNIFORMS': GlslGenerator.generate_function_params_uniforms(params.get_current_warp_function_info()),
+            'FB_WARP_FUNC_ARGS': GlslGenerator.generate_function_args(params.get_current_warp_function_info()),
             'MAX_WARP_PARAMS': self.warp_function_registry.max_param_count(),
             'MAX_FEEDBACK_PARAMS': self.blend_function_registry.max_param_count(),
         }
@@ -159,30 +164,20 @@ class PlasmaFractalRenderer:
 
             self.program['u_warpScale'] = (params.warpScale * view_scale.x, params.warpScale * view_scale.y)
 
-            # Assign the parameters to their respective shader uniforms
-            self.set_params_uniform(params.get_current_warp_params(), 'u_warpParams', self.warp_function_registry.max_param_count())
-            self.set_params_uniform(params.get_current_feedback_params(), 'u_feedbackParams', self.blend_function_registry.max_param_count())
+            # Assign the function parameters to their respective shader uniforms
+            self.set_function_uniforms(params.get_current_warp_function_info(), params.get_current_warp_params())
+            self.set_function_uniforms(params.get_current_feedback_blend_function_info(), params.get_current_feedback_params())
 
             feedback_texture.use(location=0)
+
         
-    
-    def set_params_uniform(self, current_params: List[float], uniform_name: str, max_params_count: int):
-        """
-        General function to prepare and update shader function arguments for user-selectable shader functions.
-
-        Args:
-            current_params (list): List of current parameter values.
-            uniform_name (str): The name of the uniform variable in the shader.
-            max_params_count (int): The maximum number of parameters expected by the shader.
-            program (ShaderProgram): The shader program object which will use the parameters.
-
-        """
-        # Populate the array with current parameters and ensure the shader receives a fixed size array by filling unused params with zero.
-        params_np = np.zeros(max_params_count, dtype='float32')
-        params_np[:len(current_params)] = current_params
-
-        # Write the array to the shader's uniform buffer
-        self.program[uniform_name].write(params_np.tobytes())        
+    def set_function_uniforms(self, function_info: FunctionInfo, values: List[Any]) -> None:
+        """Sets shader uniforms for function parameters."""
+        
+        uniform_names = GlslGenerator.get_function_params_uniform_names(function_info)
+        
+        for uniform_name, value in zip(uniform_names, values):
+            self.program[uniform_name] = value
 
 
     @property

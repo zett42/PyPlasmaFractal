@@ -32,11 +32,7 @@ uniform float u_brightness;             // Scales the noise output
 uniform float u_contrastSteepness;      // Sigmoid function steepness for contrast adjustment
 uniform float u_contrastMidpoint;       // Midpoint for sigmoid contrast function
 
-// Feedback blend parameters
-uniform float u_feedbackParams[MAX_FEEDBACK_PARAMS]; // Parameters specific to the feedback blend function
-
 // Parameters for fractal noise that warps the feedback texture
-uniform float u_warpParams[MAX_WARP_PARAMS]; // Parameters specific to the warp function
 uniform float u_warpSpeed;              // Noise mutation speed
 uniform vec2 u_warpScale;               // Noise scale factor
 uniform int u_warpOctaves;              // Number of warping noise octaves
@@ -46,6 +42,12 @@ uniform float u_warpPositionScaleFactor;// Position scaling for warping noise
 uniform float u_warpRotationAngleIncrement; // Rotation angle increase for warping noise
 uniform float u_warpTimeOffsetInitial;      // Time offset initial for warping noise
 uniform float u_warpTimeOffsetIncrement;    // Time offset increase for warping noise
+
+// Declare uniforms for configurable feedback blend parameters
+<FB_BLEND_FUNC_UNIFORMS>
+
+// Declare uniforms for configurable warp function parameters
+<FB_WARP_FUNC_UNIFORMS>
 
 // Input/Output
 in vec2 v_tex;               // Texture coordinates from vertex shader
@@ -78,11 +80,11 @@ vec4 applyFeedback_Enabled(vec4 noise_color) {
             u_warpPositionScaleFactor, u_warpRotationAngleIncrement, 
             u_warpTimeOffsetIncrement, u_warpTimeOffsetInitial + u_time * u_warpSpeed ),
         u_time,
-        u_warpParams);
+        <FB_WARP_FUNC_ARGS>);
     
     vec4 tex_color = texture(u_texture, v_tex + offset);
     
-    return blend<FB_BLEND_FUNC>(tex_color, noise_color, u_feedbackParams);
+    return blend<FB_BLEND_FUNC>(tex_color, noise_color, <FB_BLEND_FUNC_ARGS>);
 }
 
 // Do nothing with the noise color, if feedback is disabled

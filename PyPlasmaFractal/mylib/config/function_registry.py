@@ -33,18 +33,8 @@ class ParamType(Enum):
 
 
 class FunctionParam(DynamicAttributes):
-    """Information about a parameter used in functions and how to represent it in the UI."""
+    """Information about a parameter used in (shader) functions and how to represent it in the UI."""
     
-    def _validate_float(self, value) -> None:
-        
-        if not isinstance(value, (int, float)):
-            raise ValueError("Float parameter requires numeric default")
-
-    def _validate_color(self, value) -> None:
-        
-        if not (isinstance(value, list) and len(value) == 4):
-            raise ValueError("Color parameter requires RGBA default [r,g,b,a]")
-
     def __init__(self, attributes: Dict[str, Any]):
         
         if 'param_type' not in attributes:
@@ -52,17 +42,27 @@ class FunctionParam(DynamicAttributes):
         else:
             attributes['param_type'] = ParamType(attributes['param_type'])
             
+        mandatory = ['name', 'display_name', 'param_type', 'default']
+            
         match attributes['param_type']:
             case ParamType.FLOAT:
-                mandatory = ['display_name', 'min', 'max', 'default']
+                mandatory = mandatory + ['min', 'max']
                 self._validate_float(attributes.get('default'))
             case ParamType.COLOR:
-                mandatory = ['display_name', 'default']
                 self._validate_color(attributes.get('default'))
             case _:
                 raise ValueError(f"Unsupported parameter type: {attributes['param_type']}")
                 
         super().__init__(attributes, mandatory_attrs=mandatory)
+
+
+    def _validate_float(self, value: Any):
+        if not isinstance(value, (float, int)):
+            raise ValueError(f"Invalid default value for FLOAT parameter: {value}")
+
+    def _validate_color(self, value: Any):
+        if not (isinstance(value, list) and len(value) == 3 and all(isinstance(v, (float, int)) and 0.0 <= v <= 1.0 for v in value)):
+            raise ValueError(f"Invalid default value for COLOR parameter: {value}")
         
 
 class FunctionInfo(DynamicAttributes):
@@ -207,7 +207,7 @@ class FunctionRegistry:
         return max(len(info.params) for info in self.functions.values())
 
 
-    def get_all_param_defaults(self) -> Dict[str, List[float]]:
+    def get_all_param_defaults(self) -> Dict[str, List[Any]]:
         """
         Retrieve default parameters for all functions in the registry.
 

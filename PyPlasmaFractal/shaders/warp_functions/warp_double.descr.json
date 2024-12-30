@@ -7,37 +7,43 @@
       "fractal_noise_variant": "Double",
       "params": [
         {
-          "display_name": "Amplitude",
-          "logarithmic": true,
-          "min": 0.0,
-          "max": 1.0,
-          "default": 0.05,
-          "description": "A scalar that scales the noise values to control the extent of the offset."
-        }
-      ]
-    },
-    "Polar": {
-      "display_name": "Polar",
-      "description": "Applies a polar-based offset to texture coordinates, influenced by noise values. This creates a circular pattern warp.",
-      "fractal_noise_variant": "Double",
-      "params": [
-        {
-          "display_name": "Radial Strength",
-          "logarithmic": true,
-          "min": 0.0,
-          "max": 1.0,
-          "default": 0.02,
-          "description": "Scales the radial component of the offset, affecting how far from the original position the warp can move."
+            "name": "amplitude",
+            "display_name": "Amplitude",
+            "param_type": "float",
+            "logarithmic": true,
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.05,
+            "description": "A scalar that scales the noise values to control the extent of the offset."
+          }
+          ]
         },
-        {
-          "display_name": "Rotation Factor",
-          "logarithmic": true,
-          "min": 0.0,
-          "max": 1.0,
-          "default": 0.1,
-          "description": "Scales the angular component of the distortion, determining the rotational influence of the noise's angular value."
+        "Polar": {
+          "display_name": "Polar",
+          "description": "Applies a polar-based offset to texture coordinates, influenced by noise values. This creates a circular pattern warp.",
+          "fractal_noise_variant": "Double",
+          "params": [
+          {
+            "name": "radial_strength",
+            "display_name": "Radial Strength",
+            "param_type": "float",
+            "logarithmic": true,
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.02,
+            "description": "Scales the radial component of the offset, affecting how far from the original position the warp can move."
+          },
+          {
+            "name": "rotation_factor",
+            "display_name": "Rotation Factor",
+            "param_type": "float",
+            "logarithmic": true,
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.1,
+            "description": "Scales the angular component of the distortion, determining the rotational influence of the noise's angular value."
+          }
+          ]
         }
-      ]
-    }
-  }
-}
+        }
+      }

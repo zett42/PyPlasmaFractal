@@ -7,9 +7,7 @@
 #include "common/transforms.glsl"
 
 // Applies a simple offset to texture coordinates based on noise derivatives.
-vec2 warpOffsetDeriv(vec2 texPos, vec4 noiseWithDerivatives, float time, float params[MAX_WARP_PARAMS]) {
-
-    float amplitude = params[0] * 0.01;
+vec2 warpOffsetDeriv(vec2 texPos, vec4 noiseWithDerivatives, float time, float amplitude) {
 
     vec2 derivatives = noiseWithDerivatives.yz;
 
@@ -37,11 +35,7 @@ vec2 warpOffsetDeriv(vec2 texPos, vec4 noiseWithDerivatives, float time, float p
 // Returns:
 // - vec2: The new texture coordinates after applying the swirling effect.
 
-vec2 warpSwirl(vec2 texPos, vec4 noiseWithDerivatives, float time, float params[MAX_WARP_PARAMS]) {
-
-    float radiusScale = params[0];
-    float angleScale  = params[1];
-    float isolation   = params[2];
+vec2 warpSwirl(vec2 texPos, vec4 noiseWithDerivatives, float time, float radiusScale, float angleScale, float isolation) {
 
     // Scale the isolation input from [0, 1] to a more effective range [0, 10]
     float scaledIsolationFactor = 10.0 * isolation; // Amplify the input value
@@ -87,12 +81,7 @@ vec2 warpSwirl(vec2 texPos, vec4 noiseWithDerivatives, float time, float params[
 ///               - params[3]: The midpoint for scaling the isolation effect, adjusting the center point of the sigmoid function.
 ///
 /// @return Returns a new 2D position vector that has been distorted by the noise-based warping effect.
-vec2 warpSwirlSigmoid(vec2 texPos, vec4 noiseWithDerivatives, float time, float params[MAX_WARP_PARAMS]) {
-
-    float radiusScale = params[0];
-    float angleScale  = params[1];
-    float isolation   = params[2];
-    float isolationMidpoint = params[3];
+vec2 warpSwirlSigmoid(vec2 texPos, vec4 noiseWithDerivatives, float time, float radiusScale, float angleScale, float isolation, float isolationMidpoint) {
 
     // Scale the isolation input from [0, 1] to a more effective range [0, 10]
     float steepness = 20.0 * isolation; // Amplify the input value for steepness
@@ -155,17 +144,10 @@ vec2 warpSwirlSigmoid(vec2 texPos, vec4 noiseWithDerivatives, float time, float 
 // Returns:
 // - vec2: The new texture coordinates after applying the swirling and warping effects.
 
-vec2 warpSwirlSigmoidDistorted(vec2 texPos, vec4 noiseWithDerivatives, float time, float params[MAX_WARP_PARAMS]) {
+vec2 warpSwirlSigmoidDistorted(vec2 texPos, vec4 noiseWithDerivatives, float time, float radiusScale, float angleScale, float isolation, float isolationMidpoint, float errorScale, float errorThreshold, float errorMidpoint, float errorStrength, float errorSpeed) {
  
-    float radiusScale = params[0];
-    float angleScale  = params[1];
-    float isolation   = params[2] * 20.0;
-    float isolationMidpoint = params[3];
-    float errorScale = 1.0 + params[4] * 99.0; 
-    float errorThreshold = params[5];
-    float errorMidpoint = params[6];
-    float errorStrength = params[7];
-    float errorSpeed = params[8];  
+    isolation = isolation * 20.0;
+    errorScale = 1.0 + errorScale * 99.0; 
 
     float noiseValue = noiseWithDerivatives.x;
     vec2 derivatives = noiseWithDerivatives.yz;
@@ -219,14 +201,12 @@ vec2 warpSwirlSigmoidDistorted(vec2 texPos, vec4 noiseWithDerivatives, float tim
 // Returns:
 // - vec2: New texture coordinates after applying duplication and dynamic transformations.
 
-vec2 warpInfiniteMirror(vec2 texPos, vec4 noiseWithDerivatives, float time, float params[MAX_WARP_PARAMS]) {
+vec2 warpInfiniteMirror(vec2 texPos, vec4 noiseWithDerivatives, float time, float duplicationScale, float influenceRadius, float nonLinearity, float baseRotationIntensity, float timeModulationIntensity, float frequency) {
     
-    float duplicationScale = params[0] * 4.0; // Scaled duplication scale
-    float influenceRadius = params[1];
-    float nonLinearity = params[2] * 10.0; // Scaled non-linearity
-    float baseRotationIntensity = params[3] * 2.0; // Base intensity of the rotation
-    float timeModulationIntensity = params[4]; // Time-dependent modulation intensity
-    float frequency = params[5] * 10.0; // Scaled frequency of the time-based modulation
+    duplicationScale = duplicationScale * 4.0; // Scaled duplication scale
+    nonLinearity = nonLinearity * 10.0; // Scaled non-linearity
+    baseRotationIntensity = baseRotationIntensity * 2.0; // Base intensity of the rotation
+    frequency = frequency * 10.0; // Scaled frequency of the time-based modulation
 
     float noiseValue = noiseWithDerivatives.x;
     vec2 derivatives = noiseWithDerivatives.yz;
@@ -252,25 +232,4 @@ vec2 warpInfiniteMirror(vec2 texPos, vec4 noiseWithDerivatives, float time, floa
     vec2 newPos = mix(texPos, 2.0 * rotatedPos - center, influence);
 
     return newPos - texPos;   
-}
-
-// This is just a playground function for developing new effects. It can be used to test new ideas and techniques.
-// NOTE: texPos is the texture coordinates, noiseWithDerivatives is a vec4 containing the noise value and its derivatives,
-// and param1, param2, param3, and param4 are user-controllable parameters that can be used in the function, with a range of [0, 1].
-vec2 warpTest(vec2 texPos, vec4 noiseWithDerivatives, float time, float params[MAX_WARP_PARAMS]) {
-
-    float displacementScale = params[0] * 0.05;
-    float falloffRate = params[1] * 10.0;  // New parameter to control the falloff rate
-    float noiseValue = noiseWithDerivatives.x;
-    vec2 derivatives = noiseWithDerivatives.yz;
-
-    // Smooth the derivatives to avoid sharp changes
-    vec2 smoothedDerivatives = normalize(derivatives) * smoothstep(0.0, 1.0, length(derivatives));
-
-    // Implementing falloff based on the noise value
-    float falloff = exp(-falloffRate * abs(noiseValue));
-
-    // Calculate displacement with moderated influence of derivatives and apply falloff
-    return displacementScale * noiseValue * smoothedDerivatives * falloff;
-
 }

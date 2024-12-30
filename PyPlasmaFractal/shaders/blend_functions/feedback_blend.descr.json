@@ -6,7 +6,9 @@
       "description": "Linearly blends the current frame's color with the previous frame's color based on an alpha value.",
       "params": [
         {
+          "name": "alpha",
           "display_name": "Feedback Decay",
+          "param_type": "float",
           "logarithmic": true,
           "min": 0.0,
           "max": 1.0,
@@ -20,7 +22,9 @@
       "description": "Adds the current frame's color to the previous frame's color, scaled by an alpha value.",
       "params": [
         {
+          "name": "alpha",
           "display_name": "Feedback Decay",
+          "param_type": "float",
           "logarithmic": true,
           "min": 0.0,
           "max": 1.0,
@@ -34,7 +38,9 @@
       "description": "Blends colors from the current frame using a sigmoid function for contrast control, influenced by the previous frame's luminance.",
       "params": [
         {
+          "name": "alpha",
           "display_name": "Feedback Decay",
+          "param_type": "float",
           "logarithmic": true,
           "min": 0.0,
           "max": 1.0,
@@ -42,7 +48,9 @@
           "description": "Base alpha value for sigmoid blending."
         },
         {
+          "name": "steepness",
           "display_name": "Feedback Steepness",
+          "param_type": "float",
           "logarithmic": false,
           "min": 0.0,
           "max": 1.0,
@@ -50,7 +58,9 @@
           "description": "Steepness of the sigmoid function.\nHigher values create a steeper curve."
         },
         {
+          "name": "midpoint",
           "display_name": "Feedback Midpoint",
+          "param_type": "float",
           "logarithmic": false,
           "min": 0.0,
           "max": 1.0,

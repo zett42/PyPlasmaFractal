@@ -7,6 +7,8 @@
       "fractal_noise_variant": "Deriv",
       "params": [
         {
+          "name": "radial_strength",
+          "param_type": "float",
           "display_name": "Radial Strength",
           "logarithmic": true,
           "min": 0.0,
@@ -15,6 +17,8 @@
           "description": "Controls the strength of the radial component of the swirl effect."
         },
         {
+          "name": "swirl_strength",
+          "param_type": "float",
           "display_name": "Swirl Strength",
           "logarithmic": true,
           "min": 0.0,
@@ -23,6 +27,8 @@
           "description": "Determines the intensity of the angular distortion in the swirl."
         },
         {
+          "name": "isolation_factor",
+          "param_type": "float",
           "display_name": "Isolation Factor",
           "logarithmic": true,
           "min": 0.0,
@@ -38,6 +44,8 @@
       "fractal_noise_variant": "Deriv",
       "params": [
         {
+          "name": "radial_strength",
+          "param_type": "float",
           "display_name": "Radial Strength",
           "logarithmic": true,
           "min": 0.0,
@@ -46,6 +54,8 @@
           "description": "Controls the strength of the radial component of the swirl effect."
         },
         {
+          "name": "swirl_strength",
+          "param_type": "float",
           "display_name": "Swirl Strength",
           "logarithmic": true,
           "min": 0.0,
@@ -54,6 +64,8 @@
           "description": "Determines the intensity of the angular distortion in the swirl."
         },
         {
+          "name": "transition_sharpness",
+          "param_type": "float",
           "display_name": "Transition Sharpness",
           "logarithmic": true,
           "min": 0.0,
@@ -62,6 +74,8 @@
           "description": "Adjusts the sharpness of the transition effect."
         },
         {
+          "name": "transition_point",
+          "param_type": "float",
           "display_name": "Transition Point",
           "logarithmic": false,
           "min": 0.0,
@@ -77,6 +91,8 @@
       "fractal_noise_variant": "Deriv",
       "params": [
         {
+          "name": "radial_strength",
+          "param_type": "float",
           "display_name": "Radial Strength",
           "logarithmic": true,
           "min": 0.0,
@@ -85,6 +101,8 @@
           "description": "Controls the strength of the radial component of the swirl effect."
         },
         {
+          "name": "swirl_strength",
+          "param_type": "float",
           "display_name": "Swirl Strength",
           "logarithmic": true,
           "min": 0.0,
@@ -93,6 +111,8 @@
           "description": "Determines the intensity of the angular distortion in the swirl."
         },
         {
+          "name": "transition_sharpness",
+          "param_type": "float",
           "display_name": "Transition Sharpness",
           "logarithmic": true,
           "min": 0.0,
@@ -101,6 +121,8 @@
           "description": "Adjusts the sharpness of the transition effect."
         },
         {
+          "name": "transition_point",
+          "param_type": "float",
           "display_name": "Transition Point",
           "logarithmic": false,
           "min": 0.0,
@@ -109,6 +131,8 @@
           "description": "Sets the midpoint for the sigmoid transition, controlling where the transition occurs."
         },
         {
+          "name": "error_scale",
+          "param_type": "float",
           "display_name": "Error Scale",
           "logarithmic": true,
           "min": 0.0,
@@ -117,6 +141,8 @@
           "description": "Scales the effect of noise-based error on the texture coordinates."
         },
         {
+          "name": "error_threshold",
+          "param_type": "float",
           "display_name": "Error Threshold",
           "logarithmic": true,
           "min": 0.0,
@@ -125,6 +151,8 @@
           "description": "Defines the threshold at which the error effect begins to apply."
         },
         {
+          "name": "error_midpoint",
+          "param_type": "float",
           "display_name": "Error Midpoint",
           "logarithmic": false,
           "min": 0.0,
@@ -133,6 +161,8 @@
           "description": "Sets the midpoint for the sigmoid function controlling error transitions."
         },
         {
+          "name": "error_strength",
+          "param_type": "float",
           "display_name": "Error Strength",
           "logarithmic": true,
           "min": 0.0,
@@ -141,6 +171,8 @@
           "description": "Magnifies the impact of the noise-induced error on the angular displacement."
         },
         {
+          "name": "error_speed",
+          "param_type": "float",
           "display_name": "Error Speed",
           "logarithmic": true,
           "min": 0.0,
@@ -156,6 +188,8 @@
       "fractal_noise_variant": "Deriv",
       "params": [
         {
+          "name": "amplitude",
+          "param_type": "float",
           "display_name": "Amplitude",
           "logarithmic": true,
           "min": 0.0,
@@ -171,6 +205,8 @@
       "fractal_noise_variant": "Deriv",
       "params": [
         {
+          "name": "duplication_scale",
+          "param_type": "float",
           "display_name": "Duplication Scale",
           "logarithmic": true,
           "min": 0.0,
@@ -179,6 +215,8 @@
           "description": "Scales the duplication effect, affecting spatial distribution."
         },
         {
+          "name": "influence_radius",
+          "param_type": "float",
           "display_name": "Influence Radius",
           "logarithmic": true,
           "min": 0.0,
@@ -187,6 +225,8 @@
           "description": "Defines the radius of influence for the effect."
         },
         {
+          "name": "non_linearity",
+          "param_type": "float",
           "display_name": "Non-Linearity",
           "logarithmic": true,
           "min": 0.0,
@@ -195,6 +235,8 @@
           "description": "Adjusts the non-linearity of the influence curve."
         },
         {
+          "name": "base_rotation",
+          "param_type": "float",
           "display_name": "Base Rotation",
           "logarithmic": true,
           "min": 0.0,
@@ -203,6 +245,8 @@
           "description": "Controls the base intensity of the rotation effect."
         },
         {
+          "name": "time_modulation",
+          "param_type": "float",
           "display_name": "Time Modulation",
           "logarithmic": true,
           "min": 0.0,
@@ -211,51 +255,14 @@
           "description": "Modulates the rotation intensity over time."
         },
         {
+          "name": "frequency",
+          "param_type": "float",
           "display_name": "Frequency",
           "logarithmic": true,
           "min": 0.0,
           "max": 1.0,
           "default": 2.0,
           "description": "Controls the oscillation speed of the time-based rotation."
-        }
-      ]
-    },
-    "Test": {
-      "display_name": "Test",
-      "description": "Function for testing new effects and ideas.",
-      "fractal_noise_variant": "Deriv",
-      "params": [
-        {
-          "display_name": "Param1",
-          "logarithmic": true,
-          "min": 0.0,
-          "max": 1.0,
-          "default": 0.1,
-          "description": "User-controllable parameter for testing."
-        },
-        {
-          "display_name": "Param2",
-          "logarithmic": true,
-          "min": 0.0,
-          "max": 1.0,
-          "default": 0.1,
-          "description": "User-controllable parameter for testing."
-        },
-        {
-          "display_name": "Param3",
-          "logarithmic": true,
-          "min": 0.0,
-          "max": 1.0,
-          "default": 0.0,
-          "description": "User-controllable parameter for testing."
-        },
-        {
-          "display_name": "Param4",
-          "logarithmic": true,
-          "min": 0.0,
-          "max": 1.0,
-          "default": 0.0,
-          "description": "User-controllable parameter for testing."
         }
       ]
     }
