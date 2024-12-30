@@ -12,9 +12,9 @@
     "contrast_steepness": 15.053999900817871,
     "contrast_midpoint": 0.6399999856948853,
     "enable_feedback": true,
-    "feedback_function": "Linear",
+    "feedback_function": "linear",
     "feedback_decay": 0.14000000059604645,
-    "warp_function": "InfiniteMirror",
+    "warp_function": "infinite_mirror",
     "warp_params": {
         "Offset": [
             0.05

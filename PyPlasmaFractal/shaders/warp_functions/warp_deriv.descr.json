@@ -1,7 +1,7 @@
 {
   "description": "Feedback warp functions",
   "functions": {
-    "Swirl": {
+    "swirl": {
       "display_name": "Swirl",
       "description": "Applies a swirling effect, useful to simulate the flow effect of liquids or gases.",
       "fractal_noise_variant": "Deriv",
@@ -38,7 +38,7 @@
         }
       ]
     },
-    "SwirlSigmoid": {
+    "swirl_sigmoid": {
       "display_name": "Swirl Sigmoid",
       "description": "Swirling effect with sigmoid transition for smooth blending.",
       "fractal_noise_variant": "Deriv",
@@ -85,7 +85,7 @@
         }
       ]
     },
-    "SwirlSigmoidDistorted": {
+    "swirl_sigmoid_distorted": {
       "display_name": "Swirl Sigmoid Distorted",
       "description": "Combines swirling with sigmoid transitions and additional noise distortions.",
       "fractal_noise_variant": "Deriv",
@@ -182,7 +182,7 @@
         }
       ]
     },
-    "OffsetDeriv": {
+    "offset_deriv": {
       "display_name": "Offset Derivatives",
       "description": "Applies a simple offset to texture coordinates based on noise derivatives.",
       "fractal_noise_variant": "Deriv",
@@ -199,7 +199,7 @@
         }
       ]
     },
-    "InfiniteMirror": {
+    "infinite_mirror": {
       "display_name": "Infinite Mirror",
       "description": "Creates fractal-like patterns by duplicating texture elements around dynamic centers.",
       "fractal_noise_variant": "Deriv",

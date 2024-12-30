@@ -1,6 +1,6 @@
 // Function to apply sigmoid-based contrast to values between 0 and 1
-float sigmoidContrast(float x, float contrastSteepness, float contrastMidpoint ) {
-    return 1.0 / (1.0 + exp(-contrastSteepness * (x - contrastMidpoint)));
+float sigmoid_contrast(float x, float steepness, float midpoint ) {
+    return 1.0 / (1.0 + exp(-steepness * (x - midpoint)));
 }
 
 // Calculate the perceived luminance of a color

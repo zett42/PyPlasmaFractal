@@ -1,7 +1,7 @@
 {
   "description": "Blend functions that define how colors from previous and current frame are mixed.",
   "functions": {
-    "Linear": {
+    "linear": {
       "display_name": "Linear",
       "description": "Linearly blends the current frame's color with the previous frame's color based on an alpha value.",
       "params": [
@@ -17,7 +17,7 @@
         }
       ]
     },
-    "Additive": {
+    "additive": {
       "display_name": "Additive",
       "description": "Adds the current frame's color to the previous frame's color, scaled by an alpha value.",
       "params": [
@@ -33,7 +33,7 @@
         }
       ]
     },
-    "Sigmoid": {
+    "sigmoid": {
       "display_name": "Sigmoid",
       "description": "Blends colors from the current frame using a sigmoid function for contrast control, influenced by the previous frame's luminance.",
       "params": [

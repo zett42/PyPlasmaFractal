@@ -12,41 +12,41 @@
     "contrast_steepness": 34.733001708984375,
     "contrast_midpoint": 0.5440000295639038,
     "enable_feedback": true,
-    "feedback_function": "Linear",
+    "feedback_function": "linear",
     "feedback_params": {
-        "Linear": [
+        "linear": [
             0.14800000190734863
         ],
-        "Additive": [
+        "additive": [
             0.01
         ],
-        "Sigmoid": [
+        "sigmoid": [
             0.01,
             0.1,
             0.5
         ]
     },
-    "warp_function": "SwirlSigmoid",
+    "warp_function": "swirl_sigmoid",
     "warp_params": {
-        "Offset": [
+        "offset": [
             0.05
         ],
-        "Polar": [
+        "polar": [
             0.02,
             0.1
         ],
-        "Swirl": [
+        "swirl": [
             0.02,
             0.08,
             0.0
         ],
-        "SwirlSigmoid": [
+        "swirl_sigmoid": [
             0.8410000205039978,
             0.2919999957084656,
             0.1850000023841858,
             0.7710000276565552
         ],
-        "SwirlSigmoidDistorted": [
+        "swirl_sigmoid_distorted": [
             0.02,
             0.08,
             0.0,
@@ -57,10 +57,10 @@
             0.3,
             0.3
         ],
-        "OffsetDeriv": [
+        "offset_deriv": [
             0.02
         ],
-        "InfiniteMirror": [
+        "infinite_mirror": [
             0.5,
             0.5,
             0.0,
@@ -68,7 +68,7 @@
             0.0,
             2.0
         ],
-        "Test": [
+        "test": [
             0.1,
             0.1,
             0.0,

@@ -13,24 +13,24 @@
     "contrast_midpoint": 0.5270000100135803,
     "enable_feedback": false,
     "feedback_decay": 0.004999999888241291,
-    "warp_function": "Swirl",
+    "warp_function": "swirl",
     "warp_params": {
-        "Offset": [
+        "offset": [
             0.05
         ],
-        "Polar": [
+        "polar": [
             0.02,
             0.1
         ],
-        "Swirl": [
+        "swirl": [
             0.21899999678134918,
             0.019999999552965164,
             0.07699999958276749
         ],
-        "OffsetDeriv": [
+        "offset_deriv": [
             0.02
         ],
-        "Test": [
+        "test": [
             0.1,
             0.1,
             0.0,
