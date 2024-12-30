@@ -19,9 +19,9 @@
 //  Perlin Noise 3D
 //  Return value range of -1.0->1.0
 //
-float Perlin3D_Std( vec3 P )
+float perlin_3d_std( vec3 P )
 {
-    //  https://github.com/BrianSharpe/Wombat/blob/master/Perlin3D.glsl
+    //  https://github.com/BrianSharpe/Wombat/blob/master/perlin_3d.glsl
 
     // establish our grid cell and unit position
     vec3 Pi = floor(P);

@@ -31,7 +31,7 @@
 //  Simplex Perlin Noise 3D Deriv
 //  Return value range of -1.0->1.0, with format vec4( value, xderiv, yderiv, zderiv )
 //
-vec4 SimplexPerlin3D_Deriv(vec3 P)
+vec4 simplex_perlin_3d_deriv(vec3 P)
 {
     //  https://github.com/BrianSharpe/Wombat/blob/master/SimplexPerlin3D_Deriv.glsl
 

@@ -29,7 +29,7 @@ vec4 fractal_noise_deriv_<NOISE_FUNC>(vec2 position, int octaves, float gain, fl
         vec3 pos = vec3(rotated_position * position_scale_per_octave, effective_time);
 
         // Retrieve noise value and its derivatives from noise function (template parameter)
-        vec4 noise_and_deriv = <NOISE_FUNC>_Deriv(pos);
+        vec4 noise_and_deriv = <NOISE_FUNC>_deriv(pos);
 
         // Accumulate grayscale, x and y derivatives
         grayscale += noise_and_deriv.x * amplitude; // Weight noise by current amplitude

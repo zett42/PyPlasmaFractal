@@ -4,10 +4,10 @@
 
 #include "noise_functions/simplex_perlin_3d_std.glsl"
 
-vec2 SimplexPerlin3D_Double(vec3 P, float P2z) {
+vec2 simplex_perlin_3d_double(vec3 P, float P2z) {
 
     return vec2(
-        SimplexPerlin3D_Std(P),
-        SimplexPerlin3D_Std(P + vec3(0.0, 0.0, P2z))
+        simplex_perlin_3d_std(P),
+        simplex_perlin_3d_std(P + vec3(0.0, 0.0, P2z))
     );
 }

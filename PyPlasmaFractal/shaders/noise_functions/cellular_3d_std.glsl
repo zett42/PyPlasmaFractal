@@ -28,7 +28,7 @@
 //  Cellular Noise 3D
 //  produces a range of 0.0->1.0
 //
-float Cellular3D_Std(vec3 P)
+float cellular_3d_std(vec3 P)
 {
     //	establish our grid cell and unit position
     vec3 Pi = floor(P);

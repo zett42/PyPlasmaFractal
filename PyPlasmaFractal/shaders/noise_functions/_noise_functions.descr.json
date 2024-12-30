@@ -1,21 +1,21 @@
 {
   "description": "Noise Algorithms",
   "functions": {
-    "Perlin3D": {
+    "perlin_3d": {
       "display_name": "Perlin",
       "description": "Generates smooth, gradient noise.",
       "min_value": -1.0,
       "max_value": 1.0,
       "params": []
     },
-    "SimplexPerlin3D": {
+    "simplex_perlin_3d": {
       "display_name": "Simplex",
       "description": "A variation of Perlin noise with more variety and contrast.",
       "min_value": -1.0,
       "max_value": 1.0,
       "params": []
     },
-    "Cellular3D": {
+    "cellular_3d": {
       "display_name": "Cellular",
       "description": "Produces a pattern based on cell-like structures.",
       "min_value": 0.0,

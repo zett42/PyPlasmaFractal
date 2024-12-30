@@ -9,7 +9,7 @@
 //  Computes two noise values for different Z planes
 //  Return value range of -1.0->1.0
 //
-vec2 Perlin3D_Double( vec3 P, float P2z )
+vec2 perlin_3d_double( vec3 P, float P2z )
 {
     vec3 Pi = floor(P);
     vec3 Pf = P - Pi;

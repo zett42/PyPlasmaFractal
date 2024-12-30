@@ -169,7 +169,7 @@ vec2 warp_swirl_sigmoid_distorted(vec2 tex_pos, vec4 noise_with_deriv, float tim
 
     // Adjust for error using noise
     vec3 error_noise_pos = vec3(tex_pos * error_scale, time * error_speed + 37.0);  // Add a constant for randomness
-    float error_noise = Perlin3D_Std(error_noise_pos);
+    float error_noise = perlin_3d_std(error_noise_pos);
     float error_value = (error_noise + 1.0) * 0.5;
 
     // Smooth transition for error effect

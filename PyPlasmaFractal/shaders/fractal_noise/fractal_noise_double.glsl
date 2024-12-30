@@ -31,7 +31,7 @@ vec2 fractal_noise_double_<NOISE_FUNC>(
         vec3 pos_x = vec3(rotated_position * position_scale_per_octave, effective_time_x);
   
         // Compute noise value for x and y
-        vec2 noise_value = <NOISE_FUNC>_Double(pos_x, effective_time_y);
+        vec2 noise_value = <NOISE_FUNC>_double(pos_x, effective_time_y);
 
         // Accumulate
         grayscale += noise_value * amplitude; // Weight noise by current amplitude

@@ -28,7 +28,7 @@
 //  Simplex Perlin Noise 3D
 //  Return value range of -1.0->1.0
 //
-float SimplexPerlin3D_Std( vec3 P )
+float simplex_perlin_3d_std( vec3 P )
 {
     //  https://github.com/BrianSharpe/Wombat/blob/master/SimplexPerlin3D.glsl
 

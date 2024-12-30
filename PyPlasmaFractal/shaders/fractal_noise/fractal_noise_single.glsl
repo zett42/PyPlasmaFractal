@@ -10,7 +10,7 @@
 //
 // Template Parameter:
 // - <NOISE_FUNC>: A template parameter representing the specific noise function to be used. This noise function
-//   must conform to the signature `float <NOISE_FUNC>_Std(vec3 pos)`, where `pos` includes both position (xy) and time (z)
+//   must conform to the signature `float <NOISE_FUNC>_std(vec3 pos)`, where `pos` includes both position (xy) and time (z)
 //   information for generating the noise value.
 //
 // Parameters:
@@ -54,7 +54,7 @@ float fractal_noise_single_<NOISE_FUNC>(
         vec3 pos = vec3(rotated_position * position_scale_per_octave, effective_time); 
 
         // Retrieve noise value from noise function (template parameter)
-        float noise_value = <NOISE_FUNC>_Std(pos);  
+        float noise_value = <NOISE_FUNC>_std(pos);  
 
         // Accumulate
         grayscale += noise_value * amplitude; // Weight noise by current amplitude

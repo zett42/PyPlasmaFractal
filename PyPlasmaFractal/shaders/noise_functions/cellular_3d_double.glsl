@@ -4,10 +4,10 @@
 
 #include "noise_functions/cellular_3d_std.glsl"
 
-vec2 Cellular3D_Double(vec3 P, float P2z) {
+vec2 cellular_3d_double(vec3 P, float P2z) {
 
     return vec2(
-        Cellular3D_Std(P),
-        Cellular3D_Std(P + vec3(0.0, 0.0, P2z))
+        cellular_3d_std(P),
+        cellular_3d_std(P + vec3(0.0, 0.0, P2z))
     );
 }

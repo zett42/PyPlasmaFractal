@@ -28,7 +28,7 @@
 //  Cellular Noise 3D Deriv
 //  Return value range of 0.0->1.0, with format vec4( value, xderiv, yderiv, zderiv )
 //
-vec4 Cellular3D_Deriv( vec3 P )
+vec4 cellular_3d_deriv( vec3 P )
 {
     //  https://github.com/BrianSharpe/Wombat/blob/master/Cellular3D_Deriv.glsl
 
