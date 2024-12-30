@@ -7,7 +7,7 @@ class GlslTypeMapper:
     """ 
    
     @staticmethod
-    def get_type(param_type: ParamType) -> str:
+    def get_glsl_type(param_type: ParamType) -> str:
         """
         Gets the GLSL type corresponding to the given ParamType.
         """        
@@ -46,7 +46,7 @@ class GlslGenerator:
         """
         Generates a GLSL uniform declaration from the given parameter.
         """
-        glsl_type = GlslTypeMapper.get_type(param.param_type)
+        glsl_type = GlslTypeMapper.get_glsl_type(param.param_type)
         return f"uniform {glsl_type} {GlslGenerator.get_uniform_name(param.name)};"
        
    
