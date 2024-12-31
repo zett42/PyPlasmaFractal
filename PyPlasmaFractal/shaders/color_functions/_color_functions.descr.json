@@ -1,32 +1,44 @@
 {
   "description": "Color mapping functions that convert grayscale values to colors",
   "functions": {
-    "GradientRGBA": {
+    "grayscale": {
+      "display_name": "Grayscale",
+      "description": "Grayscale output",
+      "params": []
+    },
+    "gradient": {
       "display_name": "Color Gradient",
       "description": "Maps grayscale values to a gradient between two colors",
       "params": [
         {
           "name": "start_color",
-          "display_name": "Start Color",
+          "display_name": "Low Color",
           "param_type": "color",
-          "default": [0, 0, 0, 255],
+          "default": [0.0, 0.0, 0.0, 1.0],
           "description": "Color for minimum grayscale value"
         },
         {
-          "name": "end_color",
-          "display_name": "End Color", 
+          "name": "mid_color",
+          "display_name": "Middle Color",
           "param_type": "color",
-          "default": [255, 255, 255, 255],
+          "default": [0.5, 0.3, 1.0, 1.0],
+          "description": "Color for intermediary grayscale value"
+        },
+        {
+          "name": "end_color",
+          "display_name": "High Color", 
+          "param_type": "color",
+          "default": [1.0, 0.8, 0.3, 1.0],
           "description": "Color for maximum grayscale value"
         },
         {
-            "name": "gamma",
-            "display_name": "Gamma",
-            "param_type": "float",
-            "min": 0.1,
-            "max": 5.0,
-            "default": 1.0,
-            "description": "Adjusts the gradient interpolation curve"
+          "name": "mid_position",
+          "display_name": "Position of mid color", 
+          "param_type": "float",
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.5,
+          "description": "Position of middle color in the gradient"
         }
       ]
     }

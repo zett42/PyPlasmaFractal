@@ -59,8 +59,11 @@ class GlslGenerator:
     
     
     @staticmethod
-    def generate_function_args(function: FunctionInfo) -> str:
+    def generate_function_args(function: FunctionInfo, initial_comma: bool = False) -> str:
         """
         Generates a string of function arguments to pass to the given function.
         """
-        return ", ".join(GlslGenerator.get_uniform_name(p.name) for p in function.params)
+        args = ", ".join(GlslGenerator.get_uniform_name(p.name) for p in function.params)
+        if args and initial_comma:
+            return f", {args}"
+        return args

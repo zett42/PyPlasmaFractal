@@ -21,6 +21,7 @@ class PlasmaFractalParams:
         self._noise_function_registry = shader_function_registries[ShaderFunctionType.NOISE]
         self._blend_function_registry = shader_function_registries[ShaderFunctionType.BLEND]
         self._warp_function_registry  = shader_function_registries[ShaderFunctionType.WARP]
+        self._color_function_registry = shader_function_registries[ShaderFunctionType.COLOR]
 
         # NOISE
         
@@ -70,6 +71,10 @@ class PlasmaFractalParams:
         self.warp_rotation_angle_increment = 0.0
         self.warp_time_offset_initial = 42.0
         self.warp_time_offset_increment = 12.0
+
+        # COLOR
+        self.color_function = self._color_function_registry.get_function_keys()[0]  # Default to first function
+        self.color_params = self._color_function_registry.get_all_param_defaults()
          
          
     def get_current_feedback_blend_function_info(self) -> FunctionInfo:
@@ -88,6 +93,15 @@ class PlasmaFractalParams:
     def get_current_warp_params(self) -> List[Any]:
         """ Return the current warp parameters. """
         return self.warp_params[self.warp_function]
+
+
+    def get_current_color_function_info(self) -> FunctionInfo:
+        """ Return the current color function info. """
+        return self._color_function_registry.get_function_info(self.color_function)
+
+    def get_current_color_params(self) -> List[Any]:
+        """ Return the current color parameters. """
+        return self.color_params[self.color_function]
 
 
     def apply_defaults(self) -> None:

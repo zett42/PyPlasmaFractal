@@ -295,7 +295,8 @@ class PyPlasmaFractalApp:
         function_dirs = {
             ShaderFunctionType.NOISE: 'noise_functions',
             ShaderFunctionType.BLEND: 'blend_functions',
-            ShaderFunctionType.WARP : 'warp_functions'
+            ShaderFunctionType.WARP : 'warp_functions',
+            ShaderFunctionType.COLOR : 'color_functions',
         }
         
         self.shader_function_registries = {}

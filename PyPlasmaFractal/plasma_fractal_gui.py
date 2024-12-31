@@ -12,7 +12,7 @@ import numpy as np
 from PyPlasmaFractal.mylib.config.config_path_manager import ConfigPathManager
 from PyPlasmaFractal.mylib.config.json_file_storage import JsonFileStorage
 from PyPlasmaFractal.mylib.config.source_manager import StorageSourceManager
-from PyPlasmaFractal.mylib.config.function_registry import FunctionRegistry
+from PyPlasmaFractal.mylib.config.function_registry import FunctionRegistry, ParamType
 from PyPlasmaFractal.mylib.config.function_registry import FunctionRegistry
 from PyPlasmaFractal.mylib.gui.ansi_style import AnsiStyle
 from PyPlasmaFractal.mylib.gui.icons import Icons
@@ -55,7 +55,8 @@ class PlasmaFractalGUI:
      
         self.noise_function_registry = function_registries[ShaderFunctionType.NOISE]
         self.blend_function_registry = function_registries[ShaderFunctionType.BLEND]
-        self.warp_function_registry = function_registries[ShaderFunctionType.WARP]
+        self.warp_function_registry  = function_registries[ShaderFunctionType.WARP]
+        self.color_function_registry = function_registries[ShaderFunctionType.COLOR]
      
         self.animation_paused = False
         
@@ -153,6 +154,10 @@ class PlasmaFractalGUI:
                             if feedback_tab.selected:
                                 self.handle_feedback_tab(params)
 
+                        with imgui.begin_tab_item("Color") as color_tab:
+                            if color_tab.selected:
+                                self.handle_color_tab(params)
+
                         with imgui.begin_tab_item("Presets") as presets_tab:
                             if presets_tab.selected:
                                 self.handle_presets_tab(params)
@@ -160,7 +165,7 @@ class PlasmaFractalGUI:
                         with imgui.begin_tab_item("Recording") as recording_tab:
                             if recording_tab.selected:
                                 self.handle_recording_tab(params)
-    
+
     
     def show_reset_button_and_confirm_dialog(self, params: PlasmaFractalParams):
         """
@@ -344,6 +349,25 @@ class PlasmaFractalGUI:
                                    params=params)
 
 
+    def handle_color_tab(self, params: PlasmaFractalParams):
+        """
+        Manages the UI controls for adjusting color-related settings in the plasma fractal visualization.
+
+        Args:
+            params (PlasmaFractalParams): The current settings of the plasma fractal that can be adjusted via the UI.
+        """
+              
+        with ih.resized_items(-160):
+
+            if ih.collapsing_header("Color Settings", self, attr='color_settings_open'):
+                
+                self.function_combo("Color Function", params, 'color_function', self.color_function_registry)
+
+                self.function_settings(header="Color Function Settings", header_attr='color_function_settings_open', 
+                                       registry=self.color_function_registry, function_attr='color_function', params_attr='color_params', 
+                                       params=params)
+
+
     def function_combo(self, combo_label: str, params: PlasmaFractalParams, params_attr: str, registry: FunctionRegistry):
         """
         Displays a combo box for selecting a function from the registry by display name,
@@ -390,54 +414,58 @@ class PlasmaFractalGUI:
         
 
     def function_settings(self, 
-                          header: str, 
-                          header_attr: str, 
-                          registry: FunctionRegistry,
-                          function_attr: str,
-                          params_attr: str,
-                          params: PlasmaFractalParams):
+                         header: str, 
+                         header_attr: str, 
+                         registry: FunctionRegistry,
+                         function_attr: str,
+                         params_attr: str,
+                         params: PlasmaFractalParams):
         """
         Display the settings for a specific function.
-
-        Args:
-            header (str): The header text to display for the collapsible section.
-            header_attr (str): The attribute name in the object to store the collapsed state.
-            registry (FunctionRegistry): The registry of available functions.
-            function_attr (str): The attribute name in the object to store the selected function.
-            params (PlasmaFractalParams): The object containing the overall parameters.
-
-        Returns:
-            None
         """
         if ih.collapsing_header(header, self, attr=header_attr):
             
-            # Dropdown for the available functions
-            # Make sure to create a unique identifier by appending the function_attr to the label            
+            # Dropdown for the available functions 
             self.function_combo(f"Function##{function_attr}", params, function_attr, registry)        
                       
             selected_function = getattr(params, function_attr)
-            
-            # Get the current function info
             function_info = registry.get_function_info(selected_function)
-            
-            # Get the parameters for the selected function
             function_params_dict = getattr(params, params_attr)
             function_params = function_params_dict[selected_function] 
             
-            # Generate sliders for the function's parameters
+            # Generate controls for the function's parameters
             for index, param_info in enumerate(function_info.params):
+                
+                changed = False
+                new_value = None
+    
+                match param_info.param_type:
+                    
+                    case ParamType.FLOAT:
+                        changed, new_value = imgui.slider_float(
+                            f"{param_info.display_name}##{header}", 
+                            function_params[index], 
+                            param_info.min, 
+                            param_info.max,
+                            flags=imgui.SLIDER_FLAGS_LOGARITHMIC if getattr(param_info, 'logarithmic', False) else 0
+                        )
+                        if changed:
+                            function_params[index] = new_value
 
-                changed, new_value = imgui.slider_float(f"{param_info.display_name}##{header}", 
-                                                        function_params[index], 
-                                                        param_info.min, 
-                                                        param_info.max, 
-                                                        flags=imgui.SLIDER_FLAGS_LOGARITHMIC if param_info.logarithmic else 0)
+                    case ParamType.COLOR:
+                        changed, new_value = imgui.color_edit4(
+                            f"{param_info.display_name}##{header}",
+                            *function_params[index],
+                            flags=imgui.COLOR_EDIT_FLOAT | imgui.COLOR_EDIT_ALPHA_BAR
+                        )
+                        if changed:
+                            function_params[index] = list(new_value)
+                    
+                    case _:
+                        raise ValueError(f"Unsupported parameter type: {param_info.param_type}")
                 
                 if (description := getattr(param_info, 'description', None)):
                     ih.show_tooltip(description)
-                
-                if changed:
-                    function_params[index] = new_value
 
 
     def handle_presets_tab(self, params: PlasmaFractalParams):

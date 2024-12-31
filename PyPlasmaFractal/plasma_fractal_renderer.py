@@ -56,6 +56,7 @@ class PlasmaFractalRenderer:
         self.noise_function_registry = shader_function_registries[ShaderFunctionType.NOISE]
         self.blend_function_registry = shader_function_registries[ShaderFunctionType.BLEND]
         self.warp_function_registry  = shader_function_registries[ShaderFunctionType.WARP]        
+        self.color_function_registry = shader_function_registries[ShaderFunctionType.COLOR]
 
 
     def _create_fullscreen_quad(self) -> moderngl.Buffer:
@@ -108,17 +109,18 @@ class PlasmaFractalRenderer:
             'NOISE_FUNC': params.noise_algorithm,
             'NOISE_MIN': noise_function_info.min_value,
             'NOISE_MAX': noise_function_info.max_value,
-            'FB_ENABLED': 'Enabled' if params.enable_feedback else 'Disabled',
+            'FB_ENABLED': 'enabled' if params.enable_feedback else 'disabled',
             'FB_BLEND_FUNC': params.feedback_function,
             'FB_BLEND_FUNC_UNIFORMS': GlslGenerator.generate_function_params_uniforms(params.get_current_feedback_blend_function_info()),
-            'FB_BLEND_FUNC_ARGS': GlslGenerator.generate_function_args(params.get_current_feedback_blend_function_info()),
+            'FB_BLEND_FUNC_ARGS': GlslGenerator.generate_function_args(params.get_current_feedback_blend_function_info(), initial_comma=True),
             'FB_WARP_FRACTAL_NOISE_VARIANT': params.get_current_warp_function_info().fractal_noise_variant,
             'FB_WARP_NOISE_FUNC': params.warp_noise_algorithm,
             'FB_WARP_XFORM_FUNC': params.warp_function,
             'FB_WARP_FUNC_UNIFORMS': GlslGenerator.generate_function_params_uniforms(params.get_current_warp_function_info()),
-            'FB_WARP_FUNC_ARGS': GlslGenerator.generate_function_args(params.get_current_warp_function_info()),
-            'MAX_WARP_PARAMS': self.warp_function_registry.max_param_count(),
-            'MAX_FEEDBACK_PARAMS': self.blend_function_registry.max_param_count(),
+            'FB_WARP_FUNC_ARGS': GlslGenerator.generate_function_args(params.get_current_warp_function_info(), initial_comma=True),
+            'COLOR_FUNC': params.color_function,
+            'COLOR_FUNC_UNIFORMS': GlslGenerator.generate_function_params_uniforms(params.get_current_color_function_info()),
+            'COLOR_FUNC_ARGS': GlslGenerator.generate_function_args(params.get_current_color_function_info(), initial_comma=True),
         }
         self.program, _ = self.shader_cache.get_or_create_program(fragment_template_params=fragment_template_params)
         self.vao = self.shader_cache.get_or_create_vao(self.program, self.vbo, 'in_pos')
@@ -167,6 +169,9 @@ class PlasmaFractalRenderer:
             self.set_function_uniforms(params.get_current_feedback_blend_function_info(), params.get_current_feedback_params())
 
             feedback_texture.use(location=0)
+
+        # Assign the color function parameters to their respective shader uniforms
+        self.set_function_uniforms(params.get_current_color_function_info(), params.get_current_color_params())
 
         
     def set_function_uniforms(self, function_info: FunctionInfo, values: List[Any]) -> None:
