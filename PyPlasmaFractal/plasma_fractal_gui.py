@@ -100,7 +100,7 @@ class PlasmaFractalGUI:
         self.desired_fps = 0.0
 
         # Initialize the fade manager for the control panel
-        self.fade_manager = WindowFadeManager()
+        self.fade_manager = WindowFadeManager(fade_delay=1.0)
 
         # Initialize the notification manager
         self.notifications = NotificationManager[self.Notification]()
