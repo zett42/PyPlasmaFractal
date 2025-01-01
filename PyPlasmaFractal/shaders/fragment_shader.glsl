@@ -106,7 +106,7 @@ void main() {
     grayscale = sigmoid_contrast(grayscale, u_contrast_steepness, u_contrast_midpoint); // Apply contrast adjustment
     grayscale = grayscale * u_brightness; // Apply brightness adjustment
 
-    // Apply colorization to the noise color
+    // Apply colorization
     vec4 noise_color = colorize_<COLOR_FUNC>(grayscale, v_pos, u_time <COLOR_FUNC_ARGS>);
 
     // Apply feedback to the noise color, if enabled
