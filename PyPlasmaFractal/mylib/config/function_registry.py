@@ -28,6 +28,7 @@ class DynamicAttributes:
 
 
 class ParamType(Enum):
+    INT   = "int"
     FLOAT = "float"
     COLOR = "color"
 
@@ -45,6 +46,9 @@ class FunctionParam(DynamicAttributes):
         mandatory = ['name', 'display_name', 'param_type', 'default']
             
         match attributes['param_type']:
+            case ParamType.INT:
+                mandatory = mandatory + ['min', 'max']
+                self._validate_int(attributes.get('default'))
             case ParamType.FLOAT:
                 mandatory = mandatory + ['min', 'max']
                 self._validate_float(attributes.get('default'))
@@ -56,6 +60,10 @@ class FunctionParam(DynamicAttributes):
         super().__init__(attributes, mandatory_attrs=mandatory)
 
 
+    def _validate_int(self, value: Any):
+        if not isinstance(value, int):
+            raise ValueError(f"Invalid default value for INT parameter: {value}")
+
     def _validate_float(self, value: Any):
         if not isinstance(value, (float, int)):
             raise ValueError(f"Invalid default value for FLOAT parameter: {value}")
@@ -63,7 +71,7 @@ class FunctionParam(DynamicAttributes):
     def _validate_color(self, value: Any):
         if not (isinstance(value, list) and len(value) == 4 and all(isinstance(v, (float, int)) and 0.0 <= v <= 1.0 for v in value)):
             raise ValueError(f"Invalid default value for COLOR parameter: {value} (expected list of 4 floats in range [0.0, 1.0], representing RGBA)")
-        
+
 
 class FunctionInfo(DynamicAttributes):
     """

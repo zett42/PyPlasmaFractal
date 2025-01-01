@@ -69,6 +69,8 @@ class PlasmaFractalGUI:
         self.feedback_warp_noise_settings_open = True
         self.feedback_warp_octave_settings_open = True
         self.feedback_warp_effect_settings_open = True
+        self.feedback_color_adjustment_open = True
+        self.color_function_settings_open = True
 
         # Initialize preset management
         self.preset_list = []
@@ -100,7 +102,7 @@ class PlasmaFractalGUI:
         self.desired_fps = 0.0
 
         # Initialize the fade manager for the control panel
-        self.fade_manager = WindowFadeManager(fade_delay=1.0)
+        self.fade_manager = WindowFadeManager()
 
         # Initialize the notification manager
         self.notifications = NotificationManager[self.Notification]()
@@ -359,13 +361,9 @@ class PlasmaFractalGUI:
               
         with ih.resized_items(-160):
 
-            if ih.collapsing_header("Color Settings", self, attr='color_settings_open'):
-                
-                self.function_combo("Color Function", params, 'color_function', self.color_function_registry)
-
-                self.function_settings(header="Color Function Settings", header_attr='color_function_settings_open', 
-                                       registry=self.color_function_registry, function_attr='color_function', params_attr='color_params', 
-                                       params=params)
+            self.function_settings(header="Color Function Settings", header_attr='color_function_settings_open', 
+                                    registry=self.color_function_registry, function_attr='color_function', params_attr='color_params', 
+                                    params=params)
 
 
     def function_combo(self, combo_label: str, params: PlasmaFractalParams, params_attr: str, registry: FunctionRegistry):
@@ -440,6 +438,16 @@ class PlasmaFractalGUI:
                 new_value = None
     
                 match param_info.param_type:
+
+                    case ParamType.INT:
+                        changed, new_value = imgui.slider_int(
+                            f"{param_info.display_name}##{header}", 
+                            function_params[index], 
+                            param_info.min, 
+                            param_info.max
+                        )
+                        if changed:
+                            function_params[index] = new_value
                     
                     case ParamType.FLOAT:
                         changed, new_value = imgui.slider_float(

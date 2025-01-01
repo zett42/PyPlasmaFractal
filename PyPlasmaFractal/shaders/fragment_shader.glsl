@@ -107,7 +107,7 @@ void main() {
     grayscale = grayscale * u_brightness; // Apply brightness adjustment
 
     // Apply colorization to the noise color
-    vec4 noise_color = colorize_<COLOR_FUNC>(grayscale <COLOR_FUNC_ARGS>);
+    vec4 noise_color = colorize_<COLOR_FUNC>(grayscale, v_pos, u_time <COLOR_FUNC_ARGS>);
 
     // Apply feedback to the noise color, if enabled
     f_color = apply_feedback_<FB_ENABLED>(noise_color);

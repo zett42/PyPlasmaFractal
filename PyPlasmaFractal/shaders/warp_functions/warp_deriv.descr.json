@@ -2,7 +2,7 @@
   "description": "Feedback warp functions",
   "functions": {
     "swirl": {
-      "display_name": "Swirl",
+      "display_name": "swirl",
       "description": "Applies a swirling effect, useful to simulate the flow effect of liquids or gases.",
       "fractal_noise_variant": "deriv",
       "params": [

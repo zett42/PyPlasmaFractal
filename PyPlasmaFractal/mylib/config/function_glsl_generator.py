@@ -12,6 +12,8 @@ class GlslTypeMapper:
         Gets the GLSL type corresponding to the given ParamType.
         """        
         match param_type:
+            case ParamType.INT:
+                return "int"
             case ParamType.FLOAT:
                 return "float"
             case ParamType.COLOR:
