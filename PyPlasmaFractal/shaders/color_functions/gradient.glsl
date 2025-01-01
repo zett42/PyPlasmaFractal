@@ -4,6 +4,8 @@
 /// Maps a grayscale value to a color gradient between two colors.
 /// 
 /// @param grayscale The grayscale value (0.0 to 1.0).
+/// @param pos The fragment position.
+/// @param time The current time.
 /// @param start_color The color for the minimum grayscale value.
 /// @param end_color The color for the maximum grayscale value.
 /// @param gamma Adjusts the gradient interpolation curve.
@@ -24,7 +26,7 @@ vec4 colorize_gradient3(float grayscale, vec2 pos, float time, vec4 start_color,
 /// Maps a grayscale value to a color gradient between two colors with noise.
 /// 
 /// @param grayscale The grayscale value (0.0 to 1.0).
-/// @param pos The position vector.
+/// @param pos The fragment position.
 /// @param time The current time.
 /// @param start_color The color for the minimum grayscale value.
 /// @param end_color The color for the maximum grayscale value.
@@ -69,7 +71,7 @@ vec4 colorize_gradient2_noise(
 /// Maps a grayscale value to a color gradient between three colors with noise.
 /// 
 /// @param grayscale The grayscale value (0.0 to 1.0).
-/// @param pos The position vector.
+/// @param pos The fragment position.
 /// @param time The current time.
 /// @param start_color The color for the minimum grayscale value.
 /// @param end_color1 The first color for the maximum grayscale value.

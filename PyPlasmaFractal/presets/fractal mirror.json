@@ -1,19 +1,47 @@
 {
     "speed": 0.10400000214576721,
-    "scale": 4.808000087738037,
-    "noise_algorithm": "simplex_perlin_3d",
-    "octaves": 7,
-    "gain": 0.5,
-    "time_scale_factor": 1.5809999704360962,
-    "position_scale_factor": 2.0,
-    "rotation_angle_increment": 0.0,
-    "time_offset_increment": 12.0,
+    "noise": {
+        "noise_algorithm": "simplex_perlin_3d",
+        "octaves": 7,
+        "gain": 0.5,
+        "scale": 4.808000087738037,
+        "speed": 1.0,
+        "time_offset": 0.0,
+        "time_scale_factor": 1.5809999704360962,
+        "position_scale_factor": 2.0,
+        "rotation_angle_increment": 0.0,
+        "time_offset_increment": 12.0
+    },
+    "warp_noise": {
+        "noise_algorithm": "simplex_perlin_3d",
+        "octaves": 1,
+        "gain": 0.3659999966621399,
+        "scale": 0.7329999804496765,
+        "speed": 0.25,
+        "time_offset": 42.0,
+        "time_scale_factor": 1.8270000219345093,
+        "position_scale_factor": 2.01200008392334,
+        "rotation_angle_increment": 0.0,
+        "time_offset_increment": 12.711000442504883
+    },
     "brightness": 1.5049999952316284,
     "contrast_steepness": 15.053999900817871,
     "contrast_midpoint": 0.6399999856948853,
     "enable_feedback": true,
-    "feedback_blend_mode": "linear",
-    "feedback_decay": 0.02199999988079071,
+    "feedback_function": "linear",
+    "feedback_params": {
+        "linear": [
+            0.02199999988079071
+        ],
+        "additive": [
+            0.01
+        ],
+        "sigmoid": [
+            0.01,
+            0.1,
+            0.5
+        ]
+    },
     "warp_function": "infinite_mirror",
     "warp_params": {
         "offset": [
@@ -45,15 +73,5 @@
             0.0,
             0.0
         ]
-    },
-    "warp_speed": 0.25,
-    "warp_noise_algorithm": "simplex_perlin_3d",
-    "warp_scale": 0.7329999804496765,
-    "warp_octaves": 1,
-    "warp_gain": 0.3659999966621399,
-    "warp_time_scale_factor": 1.8270000219345093,
-    "warp_position_scale_factor": 2.01200008392334,
-    "warp_rotation_angle_increment": 0.0,
-    "warp_time_offset_initial": 42.0,
-    "warp_time_offset_increment": 12.711000442504883
+    }
 }

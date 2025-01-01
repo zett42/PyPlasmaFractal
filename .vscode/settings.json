@@ -40,7 +40,10 @@
         "PyPlasmaFractal/mylib/recording/__init__.py": true,
         "PyPlasmaFractal/__init.py__": true,
         "tests/mylib/config/__pycache__": true,
-        "tests/mylib/gui/__pycache__": true
+        "tests/mylib/gui/__pycache__": true,
+        "PyPlasmaFractal/mylib/noise/__pycache__": true,
+        "tests/__pycache__": true,
+        "tests/mylib/config/test_json_merge/__pycache__": true
     },
     "hide-files.files": [
         ".vscode",
@@ -77,7 +80,10 @@
         "PyPlasmaFractal/mylib/recording/__init__.py",
         "PyPlasmaFractal/__init.py__",
         "tests/mylib/config/__pycache__",
-        "tests/mylib/gui/__pycache__"
+        "tests/mylib/gui/__pycache__",
+        "PyPlasmaFractal/mylib/noise/__pycache__",
+        "tests/__pycache__",
+        "tests/mylib/config/test_json_merge/__pycache__"
     ],
     "python.testing.pytestArgs": [
         "tests"

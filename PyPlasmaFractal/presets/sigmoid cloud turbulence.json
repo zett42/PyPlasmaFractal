@@ -1,13 +1,29 @@
 {
     "speed": 0.05000000074505806,
-    "scale": 0.9760000109672546,
-    "noise_algorithm": "perlin_3d",
-    "octaves": 2,
-    "gain": 0.44999998807907104,
-    "time_scale_factor": 1.5180000066757202,
-    "position_scale_factor": 2.0,
-    "rotation_angle_increment": 0.0,
-    "time_offset_increment": 12.0,
+    "noise": {
+        "noise_algorithm": "perlin_3d",
+        "octaves": 2,
+        "gain": 0.44999998807907104,
+        "scale": 0.9760000109672546,
+        "speed": 1.0,
+        "time_offset": 0.0,
+        "time_scale_factor": 1.5180000066757202,
+        "position_scale_factor": 2.0,
+        "rotation_angle_increment": 0.0,
+        "time_offset_increment": 12.0
+    },
+    "warp_noise": {
+        "noise_algorithm": "simplex_perlin_3d",
+        "octaves": 8,
+        "gain": 0.33799999952316284,
+        "scale": 0.4020000100135803,
+        "speed": 0.42399999499320984,
+        "time_offset": 42.0,
+        "time_scale_factor": 2.0,
+        "position_scale_factor": 1.9470000267028809,
+        "rotation_angle_increment": 0.0,
+        "time_offset_increment": 12.0
+    },
     "brightness": 1.8960000276565552,
     "contrast_steepness": 24.0939998626709,
     "contrast_midpoint": 0.6320000290870667,
@@ -74,15 +90,5 @@
             0.0,
             0.0
         ]
-    },
-    "warp_speed": 0.42399999499320984,
-    "warp_noise_algorithm": "simplex_perlin_3d",
-    "warp_scale": 0.4020000100135803,
-    "warp_octaves": 8,
-    "warp_gain": 0.33799999952316284,
-    "warp_time_scale_factor": 2.0,
-    "warp_position_scale_factor": 1.9470000267028809,
-    "warp_rotation_angle_increment": 0.0,
-    "warp_time_offset_initial": 42.0,
-    "warp_time_offset_increment": 12.0
+    }
 }

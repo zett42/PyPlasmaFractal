@@ -151,9 +151,12 @@ class PyPlasmaFractalApp:
             self.params.merge_dict(data)
         except StorageItemNotFoundError:
             # No configuration file found, use default values
-            pass
-        # TODO: unexpected exception handling
-
+            logging.warning(f"No configuration file found. Using default values.")
+        except Exception as e:
+            # Handle unexpected exceptions
+            logging.error(f"Failed to load configuration: {e}. Using default values.")
+            self.gui.notifications.push_notification(PlasmaFractalGUI.Notification.LOAD_CONFIG_ERROR, f"Failed to load configuration: {e}")
+        
         logging.debug(f"PlasmaFractalParams:\n{self.params.to_dict()}")
 
 
