@@ -150,13 +150,13 @@ class PlasmaFractalGUI:
                             if noise_tab.selected:
                                 self.handle_noise_tab(params)
 
-                        with imgui.begin_tab_item("Feedback") as feedback_tab:
-                            if feedback_tab.selected:
-                                self.handle_feedback_tab(params)
-
                         with imgui.begin_tab_item("Color") as color_tab:
                             if color_tab.selected:
                                 self.handle_color_tab(params)
+
+                        with imgui.begin_tab_item("Feedback") as feedback_tab:
+                            if feedback_tab.selected:
+                                self.handle_feedback_tab(params)
 
                         with imgui.begin_tab_item("Presets") as presets_tab:
                             if presets_tab.selected:
