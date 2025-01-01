@@ -65,7 +65,6 @@ class PlasmaFractalParams:
         self.warp_scale = 1.0
         self.warp_octaves = 1
         self.warp_gain = 0.3
-        self.warp_amplitude = 1.0  # Assuming a default value for amplitude
         self.warp_time_scale_factor = 1.0
         self.warp_position_scale_factor = 2.0
         self.warp_rotation_angle_increment = 0.0

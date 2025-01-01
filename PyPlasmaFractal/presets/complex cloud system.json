@@ -80,7 +80,6 @@
     "warp_scale": 1.0,
     "warp_octaves": 7,
     "warp_gain": 0.3140000104904175,
-    "warp_amplitude": 1.0,
     "warp_time_scale_factor": 1.2979999780654907,
     "warp_position_scale_factor": 2.0,
     "warp_rotation_angle_increment": 0.0,
