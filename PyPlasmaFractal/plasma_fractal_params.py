@@ -65,28 +65,27 @@ class PlasmaFractalParams(SerializableConfig):
     def get_current_feedback_blend_function_info(self) -> FunctionInfo:
         """ Return the current blend function info. """
         return self._blend_function_registry.get_function_info(self.feedback_function)
-
-    def get_current_feedback_params(self) -> List[Any]:
-        """ Return the current feedback parameters. """
-        return self.feedback_params[self.feedback_function]
-             
-    
+ 
     def get_current_warp_function_info(self) -> FunctionInfo:
         """ Return the current warp function info. """
         return self._warp_function_registry.get_function_info(self.warp_function)
-
-    def get_current_warp_params(self) -> List[Any]:
-        """ Return the current warp parameters. """
-        return self.warp_params[self.warp_function]
-
 
     def get_current_color_function_info(self) -> FunctionInfo:
         """ Return the current color function info. """
         return self._color_function_registry.get_function_info(self.color_function)
 
+
+    def get_current_feedback_params(self) -> List[Any]:
+        """Get ordered parameter values for GLSL function call."""
+        return list(self.feedback_params[self.feedback_function].values())
+    
+    def get_current_warp_params(self) -> List[Any]:
+        """Get ordered parameter values for GLSL function call."""
+        return list(self.warp_params[self.warp_function].values())
+    
     def get_current_color_params(self) -> List[Any]:
-        """ Return the current color parameters. """
-        return self.color_params[self.color_function]
+        """Get ordered parameter values for GLSL function call."""
+        return list(self.color_params[self.color_function].values())
 
 
     def apply_defaults(self) -> None:

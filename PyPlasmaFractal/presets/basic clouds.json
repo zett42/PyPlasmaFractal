@@ -31,26 +31,26 @@
     "feedback_decay": 0.004999999888241291,
     "warp_function": "swirl",
     "warp_params": {
-        "offset": [
-            0.05
-        ],
-        "polar": [
-            0.02,
-            0.1
-        ],
-        "swirl": [
-            0.21899999678134918,
-            0.019999999552965164,
-            0.07699999958276749
-        ],
-        "offset_deriv": [
-            0.02
-        ],
-        "test": [
-            0.1,
-            0.1,
-            0.0,
-            0.0
-        ]
+        "offset": {
+            "amplitude": 0.05
+        },
+        "polar": {
+            "radial_strength": 0.02,
+            "rotation_factor": 0.1
+        },
+        "swirl": {
+            "radial_strength": 0.219,
+            "swirl_strength": 0.02,
+            "isolation_factor": 0.077
+        },
+        "offset_deriv": {
+            "amplitude": 0.02
+        },
+        "test": {
+            "param1": 0.1,
+            "param2": 0.1,
+            "param3": 0.0,
+            "param4": 0.0
+        }
     }
 }

@@ -30,48 +30,48 @@
     "enable_feedback": true,
     "feedback_function": "linear",
     "feedback_params": {
-        "linear": [
-            0.02199999988079071
-        ],
-        "additive": [
-            0.01
-        ],
-        "sigmoid": [
-            0.01,
-            0.1,
-            0.5
-        ]
+        "linear": {
+            "alpha": 0.022
+        },
+        "additive": {
+            "alpha": 0.01
+        },
+        "sigmoid": {
+            "alpha": 0.01,
+            "steepness": 0.1,
+            "midpoint": 0.5
+        }
     },
     "warp_function": "infinite_mirror",
     "warp_params": {
-        "offset": [
-            0.05
-        ],
-        "polar": [
-            0.02,
-            0.1
-        ],
-        "swirl": [
-            0.21899999678134918,
-            0.019999999552965164,
-            0.07699999958276749
-        ],
-        "offset_deriv": [
-            0.02
-        ],
-        "infinite_mirror": [
-            0.19499999284744263,
-            0.5590000152587891,
-            0.15700000524520874,
-            0.0,
-            0.0,
-            1.0
-        ],
-        "test": [
-            0.45500001311302185,
-            0.3319999873638153,
-            0.0,
-            0.0
-        ]
+        "offset": {
+            "amplitude": 0.05
+        },
+        "polar": {
+            "radial_strength": 0.02,
+            "rotation_factor": 0.1
+        },
+        "swirl": {
+            "radial_strength": 0.219,
+            "swirl_strength": 0.02,
+            "isolation_factor": 0.077
+        },
+        "offset_deriv": {
+            "amplitude": 0.02
+        },
+        "infinite_mirror": {
+            "duplication_scale": 0.195,
+            "influence_radius": 0.559,
+            "non_linearity": 0.157,
+            "base_rotation": 0.0,
+            "time_modulation": 0.0,
+            "frequency": 1.0
+        },
+        "test": {
+            "param1": 0.455,
+            "param2": 0.332,
+            "param3": 0.0,
+            "param4": 0.0
+        }
     }
 }

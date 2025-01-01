@@ -2,7 +2,7 @@
   "description": "Color mapping functions that convert grayscale values to colors",
   "functions": {
     "grayscale": {
-      "display_name": "Grayscale",
+      "display_name": " Grayscale",
       "description": "Grayscale output",
       "params": []
     },
@@ -43,8 +43,8 @@
       ]
     },
     "gradient2_noise": {
-      "display_name": "Color Gradient with Noise",
-      "description": "Maps grayscale values to a gradient between two colors with noise",
+      "display_name": "Noisy Colors (Hue Shift)",
+      "description": "Colors spatially adjusted with noise",
       "params": [
         {
           "name": "start_color",
@@ -139,8 +139,8 @@
       ]
     },
     "gradient3_noise": {
-      "display_name": "Color Gradient with Three Colors and Noise",
-      "description": "Maps grayscale values to a gradient between three colors with noise",
+      "display_name": "Noisy Colors (Discrete)",
+      "description": "Colors spatially distributed with noise",
       "params": [
         {
           "name": "start_color",

@@ -215,14 +215,12 @@ class FunctionRegistry:
         return max(len(info.params) for info in self.functions.values())
 
 
-    def get_all_param_defaults(self) -> Dict[str, List[Any]]:
+    def get_all_param_defaults(self) -> Dict[str, Dict[str, Any]]:
         """
         Retrieve default parameters for all functions in the registry.
-
-        Returns:
-            Dict[str, List[float]]: Dictionary mapping function keys to a list of default parameter values.
+        Returns: Dictionary mapping function names to parameter dictionaries.
         """
         return {
-            key: [param.default for param in info.params] 
+            key: {param.name: param.default for param in info.params}
             for key, info in self.functions.items()
         }

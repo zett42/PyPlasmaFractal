@@ -32,34 +32,34 @@
     "feedback_decay": 0.14000000059604645,
     "warp_function": "infinite_mirror",
     "warp_params": {
-        "offset": [
-            0.05
-        ],
-        "polar": [
-            0.02,
-            0.1
-        ],
-        "swirl": [
-            0.21899999678134918,
-            0.019999999552965164,
-            0.07699999958276749
-        ],
-        "offset_deriv": [
-            0.02
-        ],
-        "infinite_mirror": [
-            0.4099999964237213,
-            0.22599999606609344,
-            0.9639999866485596,
-            0.0,
-            0.125,
-            0.11999999731779099
-        ],
-        "test": [
-            0.45500001311302185,
-            0.3319999873638153,
-            0.0,
-            0.0
-        ]
+        "offset": {
+            "amplitude": 0.05
+        },
+        "polar": {
+            "radial_strength": 0.02,
+            "rotation_factor": 0.1
+        },
+        "swirl": {
+            "radial_strength": 0.219,
+            "swirl_strength": 0.02,
+            "isolation_factor": 0.077
+        },
+        "offset_deriv": {
+            "amplitude": 0.02
+        },
+        "infinite_mirror": {
+            "duplication_scale": 0.41,
+            "influence_radius": 0.226,
+            "non_linearity": 0.964,
+            "base_rotation": 0.0,
+            "time_modulation": 0.125,
+            "frequency": 0.12
+        },
+        "test": {
+            "param1": 0.455,
+            "param2": 0.332,
+            "param3": 0.0,
+            "param4": 0.0
+        }
     }
 }

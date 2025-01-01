@@ -30,65 +30,65 @@
     "enable_feedback": true,
     "feedback_function": "linear",
     "feedback_params": {
-        "linear": [
-            0.01
-        ],
-        "additive": [
-            0.01
-        ],
-        "sigmoid": [
-            0.01,
-            0.1,
-            0.5
-        ]
+        "linear": {
+            "alpha": 0.01
+        },
+        "additive": {
+            "alpha": 0.01
+        },
+        "sigmoid": {
+            "alpha": 0.01,
+            "steepness": 0.1,
+            "midpoint": 0.5
+        }
     },
     "warp_function": "swirl_sigmoid_distorted",
     "warp_params": {
-        "offset": [
-            0.05
-        ],
-        "polar": [
-            0.02,
-            0.1
-        ],
-        "swirl": [
-            0.02,
-            0.08,
-            0.0
-        ],
-        "swirl_sigmoid": [
-            0.02,
-            0.08,
-            0.0,
-            0.5
-        ],
-        "swirl_sigmoid_distorted": [
-            0.02,
-            0.08,
-            0.0,
-            0.5,
-            0.15199999511241913,
-            0.3230000138282776,
-            0.45899999141693115,
-            0.2980000078678131,
-            0.2160000056028366
-        ],
-        "offset_deriv": [
-            0.02
-        ],
-        "infinite_mirror": [
-            0.5,
-            0.5,
-            0.0,
-            0.0,
-            0.0,
-            2.0
-        ],
-        "test": [
-            0.1,
-            0.1,
-            0.0,
-            0.0
-        ]
+        "offset": {
+            "amplitude": 0.05
+        },
+        "polar": {
+            "radial_strength": 0.02,
+            "rotation_factor": 0.1
+        },
+        "swirl": {
+            "radial_strength": 0.02,
+            "swirl_strength": 0.08,
+            "isolation_factor": 0.0
+        },
+        "swirl_sigmoid": {
+            "radial_strength": 0.02,
+            "swirl_strength": 0.08,
+            "transition_sharpness": 0.0,
+            "transition_point": 0.5
+        },
+        "swirl_sigmoid_distorted": {
+            "radial_strength": 0.02,
+            "swirl_strength": 0.08,
+            "transition_sharpness": 0.0,
+            "transition_point": 0.5,
+            "error_scale": 0.152,
+            "error_threshold": 0.323,
+            "error_midpoint": 0.459,
+            "error_strength": 0.298,
+            "error_speed": 0.216
+        },
+        "offset_deriv": {
+            "amplitude": 0.02
+        },
+        "infinite_mirror": {
+            "duplication_scale": 0.5,
+            "influence_radius": 0.5,
+            "non_linearity": 0.0,
+            "base_rotation": 0.0,
+            "time_modulation": 0.0,
+            "frequency": 2.0
+        },
+        "test": {
+            "param1": 0.1,
+            "param2": 0.1,
+            "param3": 0.0,
+            "param4": 0.0
+        }
     }
 }
