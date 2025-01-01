@@ -140,13 +140,11 @@ class PlasmaFractalRenderer:
         ]
 
         feedback_attributes = [            
-            'warp_speed',
             'warp_octaves',
             'warp_gain',
             'warp_time_scale_factor',
             'warp_position_scale_factor',
             'warp_rotation_angle_increment',
-            'warp_time_offset_initial',
             'warp_time_offset_increment',
         ]
 
@@ -163,6 +161,8 @@ class PlasmaFractalRenderer:
                 self.program[f'u_{attr}'] = getattr(params, attr)
 
             self.program['u_warp_scale'] = (params.warp_scale * view_scale.x, params.warp_scale * view_scale.y)
+
+            self.program['u_warp_time'] = params.warp_time_offset_initial + time * params.warp_speed
 
             # Assign the function parameters to their respective shader uniforms
             self.set_function_uniforms(params.get_current_warp_function_info(), params.get_current_warp_params())

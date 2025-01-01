@@ -31,14 +31,13 @@ uniform float u_contrast_steepness;     // Sigmoid function steepness for contra
 uniform float u_contrast_midpoint;      // Midpoint for sigmoid contrast function
 
 // Parameters for fractal noise that warps the feedback texture
-uniform float u_warp_speed;              // Noise mutation speed
 uniform vec2 u_warp_scale;               // Noise scale factor
 uniform int u_warp_octaves;              // Number of warping noise octaves
 uniform float u_warp_gain;               // Noise gain factor
 uniform float u_warp_time_scale_factor;  // Time scaling for warping noise
 uniform float u_warp_position_scale_factor; // Position scaling for warping noise
 uniform float u_warp_rotation_angle_increment; // Rotation angle increase for warping noise
-uniform float u_warp_time_offset_initial;      // Time offset initial for warping noise
+uniform float u_warp_time;              // Combined warp time
 uniform float u_warp_time_offset_increment;    // Time offset increase for warping noise
 
 // Declare uniforms for configurable function parameters
@@ -76,7 +75,7 @@ vec4 apply_feedback_enabled(vec4 noise_color) {
         fractal_noise_<FB_WARP_FRACTAL_NOISE_VARIANT>_<FB_WARP_NOISE_FUNC>( 
             scaled_position, u_warp_octaves, u_warp_gain, u_warp_time_scale_factor, 
             u_warp_position_scale_factor, u_warp_rotation_angle_increment, 
-            u_warp_time_offset_increment, u_warp_time_offset_initial + u_time * u_warp_speed ),
+            u_warp_time_offset_increment, u_warp_time ),
         u_time
         <FB_WARP_FUNC_ARGS>);
     
