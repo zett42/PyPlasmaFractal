@@ -7,13 +7,11 @@ from pathlib import Path
 import platform
 from typing import *
 import imgui
-import numpy as np
-
+ 
 from PyPlasmaFractal.mylib.config.config_path_manager import ConfigPathManager
 from PyPlasmaFractal.mylib.config.json_file_storage import JsonFileStorage
 from PyPlasmaFractal.mylib.config.source_manager import StorageSourceManager
 from PyPlasmaFractal.mylib.config.function_registry import FunctionRegistry, ParamType
-from PyPlasmaFractal.mylib.config.function_registry import FunctionRegistry
 from PyPlasmaFractal.mylib.gui.ansi_style import AnsiStyle
 from PyPlasmaFractal.mylib.gui.icons import Icons
 from PyPlasmaFractal.mylib.gui.notification_manager import NotificationManager
@@ -21,7 +19,7 @@ from PyPlasmaFractal.mylib.gui.window_fade_manager import WindowFadeManager
 import PyPlasmaFractal.mylib.gui.imgui_helper as ih
 from PyPlasmaFractal.mylib.color.adjust_color import modify_rgba_color_hsv, sigmoid_contrast
 from PyPlasmaFractal.plasma_fractal_types import ShaderFunctionType
-from .plasma_fractal_params import PlasmaFractalParams, FunctionRegistry
+from .plasma_fractal_params import PlasmaFractalParams
 
 class PlasmaFractalGUI:
     """

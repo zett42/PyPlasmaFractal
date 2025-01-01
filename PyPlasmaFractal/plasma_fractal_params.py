@@ -1,7 +1,6 @@
 from typing import *
 from PyPlasmaFractal.mylib.config.serializable_config import SerializableConfig
 from PyPlasmaFractal.mylib.config.function_registry import *
-from PyPlasmaFractal.mylib.config.json_merge import MergePolicy, handle_type_mismatch_gracefully, json_deep_merge
 from PyPlasmaFractal.mylib.noise.fractal_noise_params import FractalNoiseParams
 from PyPlasmaFractal.plasma_fractal_types import ShaderFunctionType
 
@@ -91,4 +90,3 @@ class PlasmaFractalParams(SerializableConfig):
     def apply_defaults(self) -> None:
         """ Reset all attributes to their default values. """
         self.__init__(self._shader_function_registries)
-
