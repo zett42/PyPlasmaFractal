@@ -191,30 +191,6 @@ class FunctionRegistry:
         return self.functions[key]
 
 
-    def get_function_display_name(self, key: Hashable) -> str:
-        """
-        Retrieve the function display name for a given function name.
-        """
-        return self.functions[key].display_name
-    
-    
-    def get_function_params(self, key: Hashable) -> List[FunctionParam]:
-        """
-        Retrieve the function parameters for a given function name.
-        """
-        return self.functions[key].params
-
-
-    def max_param_count(self) -> int:
-        """
-        Compute the maximum number of parameters among all functions in the registry.
-
-        Returns:
-            int: The maximum number of parameters.
-        """
-        return max(len(info.params) for info in self.functions.values())
-
-
     def get_all_param_defaults(self) -> Dict[str, Dict[str, Any]]:
         """
         Retrieve default parameters for all functions in the registry.

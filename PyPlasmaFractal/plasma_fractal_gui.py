@@ -380,7 +380,7 @@ class PlasmaFractalGUI:
         """
         # Retrieve all function keys and their display names
         function_keys = registry.get_function_keys()
-        function_display_names = [registry.get_function_display_name(key) for key in function_keys]
+        function_display_names = [registry.get_function_info(key).display_name for key in function_keys]
 
         # Create a sorted list of (display_name, key) tuples
         sorted_functions = sorted(zip(function_display_names, function_keys))
