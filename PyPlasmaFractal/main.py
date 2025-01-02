@@ -307,7 +307,7 @@ class PyPlasmaFractalApp:
             try:
                 self.shader_function_registries[func_type] = FunctionRegistry(JsonFileStorage(shaders_path / dir_name), descriptor_filter)
             except Exception as e:
-                raise RuntimeError(f"Failed to register shader functions for type {func_type}") from e
+                raise RuntimeError(f"Failed to register shader functions for type {func_type}: {str(e)}") from e
             
         
     def main_loop(self):

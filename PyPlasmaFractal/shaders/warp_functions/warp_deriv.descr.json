@@ -260,7 +260,7 @@
           "display_name": "Frequency",
           "logarithmic": true,
           "min": 0.0,
-          "max": 1.0,
+          "max": 4.0,
           "default": 2.0,
           "description": "Controls the oscillation speed of the time-based rotation."
         }
