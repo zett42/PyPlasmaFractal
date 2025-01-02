@@ -11,7 +11,7 @@ class GlslTypeMapper:
         """
         Gets the GLSL type corresponding to the given ParamType.
         """        
-        match param_type.type_name:
+        match param_type.name:
             case "int":
                 return "int"
             case "float":
@@ -19,7 +19,7 @@ class GlslTypeMapper:
             case "color":
                 return "vec4"
             case _:
-                raise ValueError(f"Unsupported param type: {param_type.type_name}")
+                raise ValueError(f"Unsupported param type: {param_type.name}")
 
 
 class GlslGenerator:

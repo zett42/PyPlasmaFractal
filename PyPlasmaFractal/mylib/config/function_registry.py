@@ -34,14 +34,8 @@ class ParamType(ABC):
     
     @property
     @abstractmethod
-    def type_name(self) -> str:
+    def name(self) -> str:
         """Return the type name for this parameter type."""
-        pass
-
-    @property
-    @abstractmethod
-    def mandatory_attributes(self) -> Set[str]:
-        """Return the mandatory attributes for this parameter type."""
         pass
 
     @abstractmethod
@@ -50,9 +44,20 @@ class ParamType(ABC):
         pass
 
     @abstractmethod
-    def convert(self, value: Any, attributes: Dict[str, Any]) -> Any:
-        """"""
+    def convert(self, value: Any, constrains: Dict[str, Any]) -> Any:
+        """
+        Convert a value to this parameter type.
+        
+        Args:
+            value (Any): The value to convert.
+            constrains (Dict[str, Any]): Constrains to check during conversion.
+        """
         pass
+    
+    @abstractmethod
+    def describe_attributes(self) -> Dict[str, 'ParamType']:
+        """Describe the attributes of this parameter type, if it is structured type."""
+        pass    
 
 
 class IntParamType(ParamType):
@@ -61,27 +66,26 @@ class IntParamType(ParamType):
     """
     
     @property
-    def type_name(self) -> str:
+    def name(self) -> str:
         return "int"
  
-    @property
-    def mandatory_attributes(self) -> Set[str]:
-        return {'min', 'max'}
-
     def create_default(self) -> int:
         return 0
                
-    def convert(self, value: Any, attributes: Dict[str, Any]) -> int:
+    def convert(self, value: Any, constrains: Dict[str, Any]) -> int:
         try:
             converted = int(value)
         except (TypeError, ValueError):
             raise ValueError(f"Cannot convert {value} to integer")
             
-        min_val = attributes['min']
-        max_val = attributes['max']
+        min_val = constrains['min']
+        max_val = constrains['max']
         if not (min_val <= converted <= max_val):
             raise ValueError(f"Value {converted} outside range [{min_val}, {max_val}]")
         return converted
+    
+    def describe_attributes(self) -> Dict[str, ParamType]:
+        return {}
 
 
 class FloatParamType(ParamType):
@@ -90,27 +94,26 @@ class FloatParamType(ParamType):
     """
     
     @property
-    def type_name(self) -> str:
+    def name(self) -> str:
         return "float"
     
-    @property
-    def mandatory_attributes(self) -> Set[str]:
-        return {'min', 'max'}
- 
     def create_default(self) -> float:
         return 0.0
           
-    def convert(self, value: Any, attributes: Dict[str, Any]) -> float:
+    def convert(self, value: Any, constrains: Dict[str, Any]) -> float:
         try:
             converted = float(value)
         except (TypeError, ValueError):
             raise ValueError(f"Cannot convert {value} to float")
             
-        min_val = attributes['min']
-        max_val = attributes['max']
+        min_val = constrains['min']
+        max_val = constrains['max']
         if not (min_val <= converted <= max_val):
             raise ValueError(f"Value {converted} outside range [{min_val}, {max_val}]")
         return converted
+
+    def describe_attributes(self) -> Dict[str, ParamType]:
+        return {}
 
 
 class ColorParamType(ParamType):
@@ -119,19 +122,15 @@ class ColorParamType(ParamType):
     """
     
     @property
-    def type_name(self) -> str:
+    def name(self) -> str:
         return "color"
     
-    @property
-    def mandatory_attributes(self) -> Set[str]:
-        return set()  # No mandatory attributes for RGBA colors
-    
-    
+      
     def create_default(self) -> List[float]:
         return [0.0, 0.0, 0.0, 1.0]  # Black with full opacity
     
 
-    def convert(self, value: Any, attributes: Dict[str, Any]) -> List[float]:
+    def convert(self, value: Any, constrains: Dict[str, Any]) -> List[float]:
         
         if isinstance(value, str):  # Handle hex colors
             return self._from_hex(value)
@@ -179,6 +178,10 @@ class ColorParamType(ParamType):
         return normalized
 
 
+    def describe_attributes(self) -> Dict[str, ParamType]:
+        return {}
+
+
 class FunctionParam(DynamicAttributes):
     """Information about a parameter used in (shader) functions and how to represent it in the UI."""
     
@@ -194,13 +197,10 @@ class FunctionParam(DynamicAttributes):
         # Convert param_type to ParamType instance        
         attributes['param_type'] = param_types.get(attributes.get('param_type', 'float'), FloatParamType())
         
-        # Combine default mandatory attributes with param_type's mandatory attributes
-        mandatory = ['name', 'display_name', 'param_type', 'default'] + list(attributes['param_type'].mandatory_attributes)
-
         # Call super to validate and set attributes                          
-        super().__init__(attributes, mandatory_attrs=mandatory)
+        super().__init__(attributes, mandatory_attrs=['name', 'display_name', 'param_type', 'default'])
         
-        # Convert default value and update attribute
+        # Convert default value
         try:
             self.default = self.param_type.convert(self.default, attributes)
         except Exception as e:
@@ -258,9 +258,9 @@ class FunctionRegistry:
         # Build type name to instance mapping
         self.param_types = {}
         for param_type in all_param_types:
-            if param_type.type_name in self.param_types:
-                raise ValueError(f"Duplicate parameter type name: {param_type.type_name}")
-            self.param_types[param_type.type_name] = param_type
+            if param_type.name in self.param_types:
+                raise ValueError(f"Duplicate parameter type name: {param_type.name}")
+            self.param_types[param_type.name] = param_type
         
         self.load(name_filter, merge=True)
 

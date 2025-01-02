@@ -434,10 +434,11 @@ class PlasmaFractalGUI:
             
             # Generate controls for the function's parameters
             for param_info in function_info.params:
+                
                 param_name = param_info.name
                 
-                match param_info.param_type:
-                    case ParamType.INT:
+                match param_info.param_type.name:
+                    case 'int':
                         changed, new_value = imgui.slider_int(
                             f"{param_info.display_name}##{header}", 
                             function_params[param_name], 
@@ -447,7 +448,7 @@ class PlasmaFractalGUI:
                         if changed:
                             function_params[param_name] = new_value
                     
-                    case ParamType.FLOAT:
+                    case 'float':
                         changed, new_value = imgui.slider_float(
                             f"{param_info.display_name}##{header}", 
                             function_params[param_name], 
@@ -458,7 +459,7 @@ class PlasmaFractalGUI:
                         if changed:
                             function_params[param_name] = new_value
                     
-                    case ParamType.COLOR:
+                    case 'color':
                         changed, new_value = imgui.color_edit4(
                             f"{param_info.display_name}##{header}",
                             *function_params[param_name],
