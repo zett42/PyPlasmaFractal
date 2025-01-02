@@ -28,27 +28,37 @@ class DynamicAttributes:
 
 
 class ParamType(ABC):
+    """
+    Abstract base class for parameter types used in functions.
+    """
     
     @property
     @abstractmethod
     def type_name(self) -> str:
+        """Return the type name for this parameter type."""
         pass
 
     @property
     @abstractmethod
     def mandatory_attributes(self) -> Set[str]:
+        """Return the mandatory attributes for this parameter type."""
         pass
 
     @abstractmethod
     def create_default(self) -> Any:
+        """Create a default value for this parameter type."""
         pass
 
     @abstractmethod
     def convert(self, value: Any, attributes: Dict[str, Any]) -> Any:
+        """"""
         pass
 
 
 class IntParamType(ParamType):
+    """
+    A class for handling integer parameter types.
+    """
     
     @property
     def type_name(self) -> str:
@@ -58,7 +68,7 @@ class IntParamType(ParamType):
     def mandatory_attributes(self) -> Set[str]:
         return {'min', 'max'}
 
-    def create_default(self) -> int:        
+    def create_default(self) -> int:
         return 0
                
     def convert(self, value: Any, attributes: Dict[str, Any]) -> int:
@@ -75,6 +85,9 @@ class IntParamType(ParamType):
 
 
 class FloatParamType(ParamType):
+    """
+    A class for handling float parameter types.
+    """
     
     @property
     def type_name(self) -> str:
@@ -84,7 +97,7 @@ class FloatParamType(ParamType):
     def mandatory_attributes(self) -> Set[str]:
         return {'min', 'max'}
  
-    def create_default(self) -> float:        
+    def create_default(self) -> float:
         return 0.0
           
     def convert(self, value: Any, attributes: Dict[str, Any]) -> float:
@@ -101,6 +114,9 @@ class FloatParamType(ParamType):
 
 
 class ColorParamType(ParamType):
+    """
+    A class for handling color parameter types.
+    """
     
     @property
     def type_name(self) -> str:
@@ -167,6 +183,13 @@ class FunctionParam(DynamicAttributes):
     """Information about a parameter used in (shader) functions and how to represent it in the UI."""
     
     def __init__(self, attributes: Dict[str, Any], param_types: Dict[str, ParamType]):
+        """
+        Initialize the FunctionParam instance.
+        
+        Args:
+            attributes (Dict[str, Any]): Dictionary of attributes to set on the instance.
+            param_types (Dict[str, ParamType]): Dictionary of parameter types to use.
+        """
 
         # Convert param_type to ParamType instance        
         attributes['param_type'] = param_types.get(attributes.get('param_type', 'float'), FloatParamType())
@@ -188,6 +211,13 @@ class FunctionInfo(DynamicAttributes):
     """Contains information about a function, including its parameters."""
     
     def __init__(self, attributes: Dict[str, Any], param_types: Dict[str, ParamType]):
+        """
+        Initialize the FunctionInfo instance.
+        
+        Args:
+            attributes (Dict[str, Any]): Dictionary of attributes to set on the instance.
+            param_types (Dict[str, ParamType]): Dictionary of parameter types to use.
+        """
         
         # Convert params to FunctionParam instances
         attributes['params'] = [FunctionParam(param, param_types) for param in attributes['params']]
