@@ -306,10 +306,13 @@ class PyPlasmaFractalApp:
             ShaderFunctionType.COLOR : 'color_functions',
         }
         
+        custom_param_types = [ FractalNoiseParamsType() ]
+        
         self.shader_function_registries = {}
+        
         for func_type, dir_name in function_dirs.items():
             try:
-                self.shader_function_registries[func_type] = FunctionRegistry(JsonFileStorage(shaders_path / dir_name), descriptor_filter)
+                self.shader_function_registries[func_type] = FunctionRegistry(JsonFileStorage(shaders_path / dir_name), descriptor_filter, custom_param_types)
             except Exception as e:
                 raise RuntimeError(f"Failed to register shader functions for type {func_type}: {str(e)}") from e
             
