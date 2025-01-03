@@ -9,6 +9,7 @@ from typing import *
 import imgui
  
 from PyPlasmaFractal.mylib.config.config_path_manager import ConfigPathManager
+from PyPlasmaFractal.mylib.config.function_info import FunctionParam
 from PyPlasmaFractal.mylib.config.json_file_storage import JsonFileStorage
 from PyPlasmaFractal.mylib.config.source_manager import StorageSourceManager
 from PyPlasmaFractal.mylib.config.function_registry import FunctionRegistry, ParamType
@@ -432,47 +433,62 @@ class PlasmaFractalGUI:
             function_params_dict = getattr(params, params_attr)
             function_params = function_params_dict[selected_function]
             
-            # Generate controls for the function's parameters
-            for param_info in function_info.params:
+            # Create unique attribute names for each group's header state
+            group_state_prefix = f"{header_attr}_group_"
+            
+            # Display parameters by groups
+            for i, group in enumerate(function_info.param_groups):
                 
-                param_name = param_info.name
+                group_state_attr = f"{group_state_prefix}{i}"
+                if not hasattr(self, group_state_attr):
+                    setattr(self, group_state_attr, True)  # Initialize group state if not exists
                 
-                match param_info.param_type.name:
-                    case 'int':
-                        changed, new_value = imgui.slider_int(
-                            f"{param_info.display_name}##{header}", 
-                            function_params[param_name], 
-                            param_info.min, 
-                            param_info.max
-                        )
-                        if changed:
-                            function_params[param_name] = new_value
-                    
-                    case 'float':
-                        changed, new_value = imgui.slider_float(
-                            f"{param_info.display_name}##{header}", 
-                            function_params[param_name], 
-                            param_info.min, 
-                            param_info.max,
-                            flags=imgui.SLIDER_FLAGS_LOGARITHMIC if getattr(param_info, 'logarithmic', False) else 0
-                        )
-                        if changed:
-                            function_params[param_name] = new_value
-                    
-                    case 'color':
-                        changed, new_value = imgui.color_edit4(
-                            f"{param_info.display_name}##{header}",
-                            *function_params[param_name],
-                            flags=imgui.COLOR_EDIT_FLOAT | imgui.COLOR_EDIT_ALPHA_BAR
-                        )
-                        if changed:
-                            function_params[param_name] = list(new_value)
-                    
-                    case _:
-                        raise ValueError(f"Unsupported parameter type: {param_info.param_type}")
-                
-                if (description := getattr(param_info, 'description', None)):
-                    ih.show_tooltip(description)
+                if ih.collapsing_header(group.display_name, self, attr=group_state_attr, flags=imgui.TREE_NODE_DEFAULT_OPEN):
+                    for param_info in group.params:
+                        self.param_control(param_info, function_params, header)
+
+
+    def param_control(self, param_info: FunctionParam, function_params: Dict, header: str):
+        """Display the appropriate control for a parameter based on its type."""
+        
+        param_name = param_info.name
+        
+        match param_info.param_type.name:
+            case 'int':
+                changed, new_value = imgui.slider_int(
+                    f"{param_info.display_name}##{header}", 
+                    function_params[param_name], 
+                    param_info.min, 
+                    param_info.max
+                )
+                if changed:
+                    function_params[param_name] = new_value
+            
+            case 'float':
+                changed, new_value = imgui.slider_float(
+                    f"{param_info.display_name}##{header}", 
+                    function_params[param_name], 
+                    param_info.min, 
+                    param_info.max,
+                    flags=imgui.SLIDER_FLAGS_LOGARITHMIC if getattr(param_info, 'logarithmic', False) else 0
+                )
+                if changed:
+                    function_params[param_name] = new_value
+            
+            case 'color':
+                changed, new_value = imgui.color_edit4(
+                    f"{param_info.display_name}##{header}",
+                    *function_params[param_name],
+                    flags=imgui.COLOR_EDIT_FLOAT | imgui.COLOR_EDIT_ALPHA_BAR
+                )
+                if changed:
+                    function_params[param_name] = list(new_value)
+            
+            case _:
+                raise ValueError(f"Unsupported parameter type: {param_info.param_type}")
+        
+        if (description := getattr(param_info, 'description', None)):
+            ih.show_tooltip(description)
 
 
     def handle_presets_tab(self, params: PlasmaFractalParams):

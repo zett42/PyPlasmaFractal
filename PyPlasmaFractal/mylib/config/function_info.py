@@ -240,6 +240,14 @@ class FunctionParam(DynamicAttributes):
             raise ValueError(f"Failed to convert default value for parameter '{self.name}': {str(e)}") from e
 
 
+class ParamGroup:
+    """Represents a group of related parameters."""
+    
+    def __init__(self, display_name: str):
+        self.display_name = display_name
+        self.params = []  # Will be populated with FunctionParam instances
+
+
 class FunctionInfo(DynamicAttributes):
     """Contains information about a function, including its parameters."""
     
@@ -256,3 +264,23 @@ class FunctionInfo(DynamicAttributes):
 
         # Convert params to FunctionParam instances
         self.params = [FunctionParam(param, param_types) for param in self.params]
+        
+        # Create parameter groups if defined
+        self.param_groups = []
+        param_name_to_param = {p.name: p for p in self.params}
+        grouped_params = set()
+        
+        # Create groups from param_groups array if it exists
+        if 'param_groups' in attributes:
+            for group_info in attributes['param_groups']:
+                group = ParamGroup(group_info['display_name'])
+                group.params = [param_name_to_param[name] for name in group_info['params']]
+                grouped_params.update(group_info['params'])
+                self.param_groups.append(group)
+        
+        # Create "Parameters" group for ungrouped parameters
+        ungrouped_params = [p for p in self.params if p.name not in grouped_params]
+        if ungrouped_params or not self.param_groups:  # Add Parameters group if there are ungrouped params or no groups at all
+            group = ParamGroup("Parameters")
+            group.params = ungrouped_params
+            self.param_groups.append(group)
