@@ -61,3 +61,22 @@ vec4 adjust_hue_saturation(vec4 color, float hue_shift, float saturation_inc) {
     hsv.y = clamp(hsv.y + saturation_inc, 0.0, 1.0); // Adjust saturation
     return vec4(hsv2rgb(hsv), color.a);
 }
+
+/// Shift the hue of a RGBA color
+/// 
+/// @param color The RGBA color to adjust
+/// @param hue_shift The amount to shift the hue by
+/// 
+/// @return The adjusted RGBA color (alpha is unchanged)
+
+vec4 shift_hue(vec4 color, float hue_shift) {
+    float angle = hue_shift * 6.28318530718; // 2 * PI
+    float s = sin(angle);
+    float c = cos(angle);
+    mat3 hue_rotation = mat3(
+        vec3(0.299, 0.587, 0.114) + vec3(0.701, -0.587, -0.114) * c + vec3(0.168, -0.330, 1.000) * s,
+        vec3(0.299, 0.587, 0.114) + vec3(-0.299, 0.413, -0.114) * c + vec3(0.328, 0.035, -1.000) * s,
+        vec3(0.299, 0.587, 0.114) + vec3(-0.300, -0.588, 0.886) * c + vec3(-0.497, 0.330, 0.000) * s
+    );
+    return vec4(hue_rotation * color.rgb, color.a);
+}

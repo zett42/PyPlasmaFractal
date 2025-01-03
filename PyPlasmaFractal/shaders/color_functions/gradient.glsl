@@ -1,3 +1,4 @@
+#include "common/color_adjustment.glsl"
 #include "noise_functions/simplex_perlin_3d_std.glsl"
 #apply_template "fractal_noise/fractal_noise_single.glsl", NOISE_FUNC = simplex_perlin_3d
 
@@ -41,23 +42,11 @@ vec4 colorize_gradient3(float grayscale, vec2 pos, float time, vec4 start_color,
 ///
 /// @return The interpolated color with noise.
 
-vec4 shift_hue(vec4 color, float hue_shift) {
-    float angle = hue_shift * 6.28318530718; // 2 * PI
-    float s = sin(angle);
-    float c = cos(angle);
-    mat3 hue_rotation = mat3(
-        vec3(0.299, 0.587, 0.114) + vec3(0.701, -0.587, -0.114) * c + vec3(0.168, -0.330, 1.000) * s,
-        vec3(0.299, 0.587, 0.114) + vec3(-0.299, 0.413, -0.114) * c + vec3(0.328, 0.035, -1.000) * s,
-        vec3(0.299, 0.587, 0.114) + vec3(-0.300, -0.588, 0.886) * c + vec3(-0.497, 0.330, 0.000) * s
-    );
-    return vec4(hue_rotation * color.rgb, color.a);
-}
-
 vec4 colorize_gradient2_noise(
-    float grayscale, vec2 pos, float time, vec4 start_color, vec4 end_color,
-    float noise_scale, int noise_octaves, float noise_gain, float noise_time_scale_factor,
+    float grayscale, vec2 pos, float time, vec4 start_color, vec4 end_color, float hue_shift_factor,
+    float noise_scale, int noise_octaves, float noise_gain,
     float noise_position_scale_factor, float noise_rotation_angle_increment,
-    float noise_time_offset_increment, float hue_shift_factor) {
+    float noise_time_scale_factor, float noise_time_offset_increment) {
 
     float noise_value = fractal_noise_single_simplex_perlin_3d(
         pos * noise_scale, noise_octaves, noise_gain, noise_time_scale_factor,
@@ -91,9 +80,9 @@ vec4 colorize_gradient2_noise(
 vec4 colorize_gradient3_noise(
 
     float grayscale, vec2 pos, float time, vec4 start_color, vec4 end_color1, vec4 end_color2, vec4 end_color3,
-    float noise_speed, float noise_scale, int noise_octaves, float noise_gain, float noise_time_scale_factor,
+    float noise_speed, float noise_scale, int noise_octaves, float noise_gain,
     float noise_position_scale_factor, float noise_rotation_angle_increment,
-    float noise_time_offset_increment) {
+    float noise_time_scale_factor, float noise_time_offset_increment) {
 
     float noise_value = fractal_noise_single_simplex_perlin_3d(
         pos * noise_scale, noise_octaves, noise_gain, noise_time_scale_factor,
