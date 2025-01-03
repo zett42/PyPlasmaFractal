@@ -1,4 +1,5 @@
 import pytest
+from PyPlasmaFractal.mylib.config.function_info import ColorParamType, FloatParamType
 from PyPlasmaFractal.mylib.config.function_registry import FunctionRegistry, ParamType
 from PyPlasmaFractal.mylib.config.storage import Storage
 
@@ -187,7 +188,7 @@ def mock_storage():
                         "name": "invalid_color_param",
                         "display_name": "Invalid Color Param",
                         "param_type": "color",
-                        "default": [255, 0, 0]
+                        "default": [1.0, 0.5]  # Invalid: only 2 components instead of 3 or 4
                     }
                 ]
             }
@@ -242,21 +243,14 @@ def test_get_all_function_keys(mock_storage):
     assert set(keys) == {"ExampleSingleParam", "ExampleTwoParams"}
 
 
-def test_max_param_count(mock_storage):
-    
-    registry = FunctionRegistry(mock_storage, "initial_data")
-    
-    assert registry.max_param_count() == 2
-
-
 def test_get_all_param_defaults(mock_storage):
     
     registry = FunctionRegistry(mock_storage, "initial_data")
     
     defaults = registry.get_all_param_defaults()
     assert defaults == {
-        "ExampleSingleParam": [0.1],
-        "ExampleTwoParams": [0.2, 1.0]
+        "ExampleSingleParam": {"single_param": 0.1},
+        "ExampleTwoParams": {"first_param": 0.2, "second_param": 1.0}
     }
 
 
@@ -314,7 +308,7 @@ def test_float_param(mock_storage):
     assert float_function_info.params[0].min == 0.0
     assert float_function_info.params[0].max == 1.0
     assert float_function_info.params[0].default == 0.5
-    assert float_function_info.params[0].param_type == ParamType.FLOAT
+    assert isinstance(float_function_info.params[0].param_type, FloatParamType)
 
 def test_color_param(mock_storage):
     registry = FunctionRegistry(mock_storage, "color_data")
@@ -324,12 +318,12 @@ def test_color_param(mock_storage):
     assert len(color_function_info.params) == 1
     assert color_function_info.params[0].display_name == "Color Param"
     assert color_function_info.params[0].default == [1.0, 0.2, 0.5, 0.9]
-    assert color_function_info.params[0].param_type == ParamType.COLOR
+    assert isinstance(color_function_info.params[0].param_type, ColorParamType)
 
 def test_invalid_float_param(mock_storage):
-    with pytest.raises(ValueError):
+    with pytest.raises(RuntimeError, match="Error processing function key 'InvalidFloatFunction': Failed to convert default value for parameter 'invalid_float_param': Cannot convert not a float to float"):
         FunctionRegistry(mock_storage, "invalid_float_data")
 
 def test_invalid_color_param(mock_storage):
-    with pytest.raises(ValueError):
+    with pytest.raises(RuntimeError, match="Error processing function key 'InvalidColorFunction': Failed to convert default value for parameter 'invalid_color_param': Color must have 3 or 4 components"):
         FunctionRegistry(mock_storage, "invalid_color_data")

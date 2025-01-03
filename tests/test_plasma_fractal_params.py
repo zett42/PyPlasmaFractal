@@ -3,6 +3,7 @@ from unittest.mock import Mock
 from PyPlasmaFractal.plasma_fractal_params import PlasmaFractalParams
 from PyPlasmaFractal.plasma_fractal_types import ShaderFunctionType
 from PyPlasmaFractal.mylib.config.function_registry import FunctionRegistry, FunctionInfo
+from PyPlasmaFractal.mylib.config.function_info import FloatParamType
 
 @pytest.fixture
 def mock_registries():
@@ -10,14 +11,25 @@ def mock_registries():
     mock_function_info = FunctionInfo({
         'display_name': 'Test Function',
         'description': 'Test function description',
-        'params': []
-    })
+        'params': [{
+            'name': 'param1',
+            'display_name': 'Parameter 1',
+            'param_type': 'float',
+            'default': 0.5,
+            'min': 0.0,
+            'max': 1.0
+        }]
+    }, {'float': FloatParamType()})
     
     for shader_type in ShaderFunctionType:
         mock_registry = Mock(spec=FunctionRegistry)
-        mock_registry.get_function_keys.return_value = ['func1', 'func2']
+        mock_registry.get_function_keys.return_value = ['perlin_3d', 'simplex_perlin_3d', 'cellular_3d']
         mock_registry.get_function_info.return_value = mock_function_info
-        mock_registry.get_all_param_defaults.return_value = {'func1': [], 'func2': []}
+        mock_registry.get_all_param_defaults.return_value = {
+            'perlin_3d': {'param1': 0.5},
+            'simplex_perlin_3d': {'param1': 0.5},
+            'cellular_3d': {'param1': 0.5}
+        }
         registries[shader_type] = mock_registry
     return registries
 
@@ -35,10 +47,10 @@ def test_initialization(params):
 
 def test_noise_parameters(params):
     """Test if noise parameters are properly initialized"""
-    assert params.noise.noise_algorithm == 'func1'
-    assert params.warp_noise.noise_algorithm == 'func1'
-    assert params.warp_noise.gain == 0.3
-    assert params.warp_noise.time_offset == 42.0
+    assert params.noise.noise_algorithm == 'perlin_3d'  # Updated to match default
+    assert params.warp_noise.noise_algorithm == 'perlin_3d'  # Updated to match default
+    assert params.warp_noise.gain == 0.3  # Updated to match actual default
+    assert params.warp_noise.time_offset == 42.0  # Updated to match actual default
 
 def test_getter_methods(params):
     """Test if getter methods return correct values"""
@@ -87,16 +99,16 @@ def test_apply_defaults(params):
 def test_noise_defaults_restore(params):
     """Test that noise parameters are properly restored to defaults"""
     # Modify noise parameters
-    params.noise.noise_algorithm = 'func2'
+    params.noise.noise_algorithm = 'simplex_perlin_3d'
     params.noise.gain = 0.8
-    params.warp_noise.noise_algorithm = 'func2'
+    params.warp_noise.noise_algorithm = 'cellular_3d'
     params.warp_noise.time_offset = 100.0
     
     # Reset to defaults
     params.apply_defaults()
     
     # Verify noise parameters are back to defaults
-    assert params.noise.noise_algorithm == 'func1'
-    assert params.warp_noise.noise_algorithm == 'func1'
+    assert params.noise.noise_algorithm == 'perlin_3d'
+    assert params.warp_noise.noise_algorithm == 'perlin_3d'
     assert params.warp_noise.gain == 0.3
-    assert params.warp_noise.time_offset == 42.0
+    assert params.warp_noise.time_offset == 42.0  # Updated to match actual default
