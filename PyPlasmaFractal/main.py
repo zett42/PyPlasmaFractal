@@ -17,13 +17,14 @@ Major dependencies:
 - glfw: Manages window creation, input processing, and system interactions.
 - imgui: Enables the creation and management of an interactive GUI.
 """
+# Standard library and third-party imports
 import logging
-from pathlib import Path
+import os
 import sys
 import time
-import moderngl
-import os
+from pathlib import Path
 import imgui
+import moderngl
 from imgui.integrations.glfw import GlfwRenderer
 
 # Ensure the package root is in sys.path so that the local modules can be imported when PyInstaller runs the script
@@ -36,27 +37,30 @@ print("Current directory:", current_dir)
 print("Parent directory:", parent_dir)
 print("sys.path:", sys.path)
 
+# Local modules - libraries
 from PyPlasmaFractal.mylib.config.config_path_manager import ConfigPathManager
 from PyPlasmaFractal.mylib.config.json_file_storage import JsonFileStorage
 from PyPlasmaFractal.mylib.config.storage import StorageItemNotFoundError
-from PyPlasmaFractal.mylib.python_utils.format_exception import format_exception_ansi_colors
-from PyPlasmaFractal.mylib.gfx.frame_rate_limiter import FrameRateLimiter
-from PyPlasmaFractal.mylib.gfx.fps import FpsCalculator
-from PyPlasmaFractal.mylib.named_tuples import Size
-from PyPlasmaFractal.plasma_fractal_resources import resource_path
-from PyPlasmaFractal.mylib.gfx.fullscreen_texture_renderer import FullscreenTextureRenderer
-from PyPlasmaFractal.mylib.gfx.texture_render_manager import PingpongTextureRenderManager
-from PyPlasmaFractal.mylib.recording.video_recorder import VideoRecorder
-from PyPlasmaFractal.mylib.gui.window_config_manager import WindowConfigManager
-from PyPlasmaFractal.mylib.gfx.animation_timer import AnimationTimer
-from PyPlasmaFractal.mylib.gui.icons import Icons
 from PyPlasmaFractal.mylib.config.function_registry import FunctionRegistry
+from PyPlasmaFractal.mylib.gfx.animation_timer import AnimationTimer
+from PyPlasmaFractal.mylib.gfx.fps import FpsCalculator
+from PyPlasmaFractal.mylib.gfx.frame_rate_limiter import FrameRateLimiter
+from PyPlasmaFractal.mylib.gfx.fullscreen_texture_renderer import FullscreenTextureRenderer
 from PyPlasmaFractal.mylib.gfx.separable_gaussian_blur import SeparableGaussianBlur
+from PyPlasmaFractal.mylib.gfx.texture_render_manager import PingpongTextureRenderManager
+from PyPlasmaFractal.mylib.gui.icons import Icons
+from PyPlasmaFractal.mylib.gui.window_config_manager import WindowConfigManager
+from PyPlasmaFractal.mylib.python_utils.format_exception import format_exception_ansi_colors
+from PyPlasmaFractal.mylib.named_tuples import Size
+from PyPlasmaFractal.mylib.recording.video_recorder import VideoRecorder
+from PyPlasmaFractal.mylib.noise.fractal_noise_params import FractalNoiseParamsType
 
-from PyPlasmaFractal.plasma_fractal_types import ShaderFunctionType
-from PyPlasmaFractal.plasma_fractal_renderer import PlasmaFractalRenderer
-from PyPlasmaFractal.plasma_fractal_params import PlasmaFractalParams
+# Local modules - application
 from PyPlasmaFractal.plasma_fractal_gui import PlasmaFractalGUI
+from PyPlasmaFractal.plasma_fractal_params import PlasmaFractalParams
+from PyPlasmaFractal.plasma_fractal_renderer import PlasmaFractalRenderer
+from PyPlasmaFractal.plasma_fractal_resources import resource_path
+from PyPlasmaFractal.plasma_fractal_types import ShaderFunctionType
 
 glfw = None  # Global variable to store the GLFW module reference, which is imported later in the code
 
