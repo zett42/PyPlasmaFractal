@@ -52,7 +52,7 @@
         },
         {
           "display_name": "Noise Settings",
-          "params": ["noise_scale", "noise_octaves", "noise_gain", 
+          "params": ["noise_speed", "noise_scale", "noise_octaves", "noise_gain", 
                     "noise_position_scale_factor", "noise_rotation_angle_increment", 
                     "noise_time_scale_factor", "noise_time_offset_increment"]
         }
@@ -81,6 +81,16 @@
           "default": 0.1,
           "description": "Factor to scale the hue shift based on noise value",
           "logarithmic": true
+        },
+        {
+          "name": "noise_speed",
+          "display_name": "Speed",
+          "param_type": "float",
+          "logarithmic": true,
+          "min": 0.0,
+          "max": 5.0,
+          "default": 1.0,
+          "description": "Noise animation speed"
         },
         {
           "name": "noise_scale",

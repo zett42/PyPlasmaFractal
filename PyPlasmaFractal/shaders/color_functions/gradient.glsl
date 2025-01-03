@@ -44,7 +44,7 @@ vec4 colorize_gradient3(float grayscale, vec2 pos, float time, vec4 start_color,
 
 vec4 colorize_gradient2_noise(
     float grayscale, vec2 pos, float time, vec4 start_color, vec4 end_color, float hue_shift_factor,
-    float noise_scale, int noise_octaves, float noise_gain,
+    float noise_speed, float noise_scale, int noise_octaves, float noise_gain,
     float noise_position_scale_factor, float noise_rotation_angle_increment,
     float noise_time_scale_factor, float noise_time_offset_increment) {
 
