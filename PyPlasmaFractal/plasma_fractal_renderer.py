@@ -82,7 +82,8 @@ class PlasmaFractalRenderer:
     def update_params(self, 
                       params: PlasmaFractalParams,
                       feedback_texture: moderngl.Texture, 
-                      time: float, 
+                      noise_time: float,
+                      warp_time: float, 
                       aspect_ratio: float):
         """
         Applies the rendering parameters to generate the final shader programs from templates and configures them.
@@ -90,10 +91,9 @@ class PlasmaFractalRenderer:
         Args:
             params (PlasmaFractalParams): The parameters for the plasma fractal rendering.
             feedback_texture (moderngl.Texture): The feedback texture used for the feedback effect.
-            time (float): The current time.
-
-        Returns:
-            None
+            noise_time (float): The current time for main noise.
+            warp_time (float): The current time for warp noise.
+            aspect_ratio (float): The aspect ratio of the viewport.
         """
         #logging.debug("Updating params:" + '\n'.join(f"    {key}={value}" for key, value in vars(params).items()))
 
@@ -125,7 +125,7 @@ class PlasmaFractalRenderer:
         self.program, _ = self.shader_cache.get_or_create_program(fragment_template_params=fragment_template_params)
         self.vao = self.shader_cache.get_or_create_vao(self.program, self.vbo, 'in_pos')
 
-        self.program['u_time'].value = time
+        self.program['u_time'].value = noise_time
 
         attributes = [
             'brightness', 
@@ -159,7 +159,7 @@ class PlasmaFractalRenderer:
 
             self.program['u_warp_scale'] = (params.warp_noise.scale * view_scale.x, params.warp_noise.scale * view_scale.y)
 
-            self.program['u_warp_time'] = params.warp_noise.time_offset + time * params.warp_noise.speed
+            self.program['u_warp_time'] = warp_time  # Use the time directly from warp timer
 
             # Assign the function parameters to their respective shader uniforms
             self.set_function_uniforms(params.get_current_warp_function_info(), params.get_current_warp_params())

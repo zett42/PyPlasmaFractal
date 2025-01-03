@@ -99,6 +99,8 @@ class PyPlasmaFractalApp:
 
         # Initialize timing-related variables
         self.timer = AnimationTimer()
+        self.noise_timer = AnimationTimer(parent=self.timer)
+        self.warp_timer = AnimationTimer(parent=self.timer)
         self.fps_calculator = FpsCalculator() 
         self.desired_fps = 60.0
 
@@ -342,10 +344,10 @@ class PyPlasmaFractalApp:
 
             self.handle_gui()
 
-            elapsed_time = self.handle_time()
+            self.update_timers()
 
             if not self.gui.animation_paused:
-                self.render_frame(main_renderer, gaussian_blur, elapsed_time)
+                self.render_frame(main_renderer, gaussian_blur)
 
             texture_to_screen.render(self.feedback_manager.current_texture, self.ctx.screen)
 
@@ -364,7 +366,7 @@ class PyPlasmaFractalApp:
             self.first_frame = False
     
     
-    def render_frame(self, main_renderer: PlasmaFractalRenderer, gaussian_blur: SeparableGaussianBlur, elapsed_time: float):
+    def render_frame(self, main_renderer: PlasmaFractalRenderer, gaussian_blur: SeparableGaussianBlur):
         """
         Render a single frame of the fractal visuals.
         """
@@ -384,7 +386,8 @@ class PyPlasmaFractalApp:
 
         # Update the main renderer with the current parameters and render to the destination texture
         main_renderer.update_params(self.params, self.feedback_manager.previous_texture, 
-                                    self.timer.accumulated_time, self.feedback_manager.aspect_ratio)
+                                    self.noise_timer.accumulated_time, self.warp_timer.accumulated_time,
+                                    self.feedback_manager.aspect_ratio)
         
         # Render the fractal to the destination texture
         self.feedback_manager.render_to_texture(main_renderer.current_vao)
@@ -430,9 +433,12 @@ class PyPlasmaFractalApp:
         self.gui.update(self.params)
 
 
-    def handle_time(self) -> float:
-        """Update the timer and return the current accumulated time."""
-        return self.timer.update(self.gui.animation_paused, self.params.speed)
+    def update_timers(self):
+        """Update all timers."""
+
+        self.timer.update(self.gui.animation_paused, self.params.speed)  # Pause state is propagated to child timers
+        self.noise_timer.update(speed=self.params.noise.speed)
+        self.warp_timer.update(speed=self.params.warp_noise.speed)
 
 
     def handle_recording(self):
@@ -451,9 +457,6 @@ class PyPlasmaFractalApp:
 
                 # Temporarily resize feedback texture to recording size
                 self.feedback_manager.resize(*self.recorder.get_aligned_dimensions(self.gui.recording_width, self.gui.recording_height))
-
-                # During recording, the time is frame-based and starts at the current time of the timer.
-                self.timer.paused = True
 
                 video_path = self.user_videos_directory / self.gui.recording_file_name
                 try:
