@@ -432,6 +432,12 @@ class PlasmaFractalGUI:
             # Display parameters by groups
             for i, group in enumerate(function_info.param_groups):
                 
+                # If group name is empty, display parameters directly under the main header
+                if not group.display_name:
+                    for param_info in group.params:
+                        self.param_control(param_info, function_params, header)
+                    continue
+                
                 group_state_attr = f"{group_state_prefix}{i}"
                 if not hasattr(self, group_state_attr):
                     setattr(self, group_state_attr, True)  # Initialize group state if not exists

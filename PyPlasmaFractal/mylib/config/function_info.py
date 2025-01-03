@@ -243,7 +243,7 @@ class FunctionParam(DynamicAttributes):
 class ParamGroup:
     """Represents a group of related parameters."""
     
-    def __init__(self, display_name: str):
+    def __init__(self, display_name: str = ""):
         self.display_name = display_name
         self.params = []  # Will be populated with FunctionParam instances
 
@@ -281,6 +281,6 @@ class FunctionInfo(DynamicAttributes):
         # Create "Parameters" group for ungrouped parameters
         ungrouped_params = [p for p in self.params if p.name not in grouped_params]
         if ungrouped_params or not self.param_groups:  # Add Parameters group if there are ungrouped params or no groups at all
-            group = ParamGroup("Parameters")
+            group = ParamGroup()
             group.params = ungrouped_params
             self.param_groups.append(group)
