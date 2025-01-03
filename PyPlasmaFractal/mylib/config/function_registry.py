@@ -1,7 +1,9 @@
 from abc import ABC, abstractmethod
-from typing import List, Hashable, Dict, Any, Set, Tuple, Union
+from typing import List, Hashable, Dict, Any, Set, Tuple, Union, TypeVar, Generic, Type
 import fnmatch
 from PyPlasmaFractal.mylib.config.storage import Storage
+
+T = TypeVar('T')
 
 
 class DynamicAttributes:
@@ -10,7 +12,7 @@ class DynamicAttributes:
     """
     def __init__(self, attributes: Dict[str, Any], mandatory_attrs: List[str]):
         """
-        Initialize the instance with given attributes.
+        Initialize the instance with given attributes from a dictionary.
 
         Args:
             attributes (Dict[str, Any]): Dictionary of attributes to set on the instance.
@@ -21,8 +23,8 @@ class DynamicAttributes:
         """
         for attr in mandatory_attrs:
             if attr not in attributes:
-                raise KeyError(f"Mandatory attribute '{attr}' is required.")
-            
+                raise KeyError(f"Mandatory attribute '{attr}' is missing.")
+        
         for key, value in attributes.items():
             setattr(self, key, value)
 
@@ -39,25 +41,46 @@ class ParamType(ABC):
         pass
 
     @abstractmethod
-    def create_default(self) -> Any:
-        """Create a default value for this parameter type."""
+    def create_instance(self) -> Any:
+        """Create a new instance of this parameter type."""
         pass
 
     @abstractmethod
-    def convert(self, value: Any, constrains: Dict[str, Any]) -> Any:
+    def convert(self, value: Any, constraints: Dict[str, Any]) -> Any:
         """
         Convert a value to this parameter type.
         
         Args:
             value (Any): The value to convert.
-            constrains (Dict[str, Any]): Constrains to check during conversion.
+            constraints (Dict[str, Any]): Constrains to check during conversion.
         """
         pass
+
+
+class StructuredParamType(ParamType):
+    """Base class for structured parameter types that can be created from dictionaries."""
     
     @abstractmethod
-    def describe_attributes(self) -> Dict[str, 'ParamType']:
-        """Describe the attributes of this parameter type, if it is structured type."""
-        pass    
+    def describe_attributes(self) -> Dict[str, ParamType]:
+        """Describe the child attributes of this parameter type."""
+        pass
+
+    def convert(self, value: Any, constraints: Dict[str, Any]) -> Any:
+        """Convert a value to this parameter type using dictionary-based conversion."""
+
+        instance = self.create_instance()
+        
+        if isinstance(value, instance.__class__):
+            return value
+        
+        if isinstance(value, dict):
+            # Set only attributes that exist in the instance
+            for key, val in value.items():
+                if hasattr(instance, key):
+                    setattr(instance, key, val)
+            return instance
+            
+        raise ValueError(f"Cannot convert {value} to {self.name}")
 
 
 class IntParamType(ParamType):
@@ -69,24 +92,21 @@ class IntParamType(ParamType):
     def name(self) -> str:
         return "int"
  
-    def create_default(self) -> int:
+    def create_instance(self) -> int:
         return 0
                
-    def convert(self, value: Any, constrains: Dict[str, Any]) -> int:
+    def convert(self, value: Any, constraints: Dict[str, Any]) -> int:
         try:
             converted = int(value)
         except (TypeError, ValueError):
             raise ValueError(f"Cannot convert {value} to integer")
             
-        min_val = constrains['min']
-        max_val = constrains['max']
+        min_val = constraints['min']
+        max_val = constraints['max']
         if not (min_val <= converted <= max_val):
             raise ValueError(f"Value {converted} outside range [{min_val}, {max_val}]")
         return converted
     
-    def describe_attributes(self) -> Dict[str, ParamType]:
-        return {}
-
 
 class FloatParamType(ParamType):
     """
@@ -97,23 +117,20 @@ class FloatParamType(ParamType):
     def name(self) -> str:
         return "float"
     
-    def create_default(self) -> float:
+    def create_instance(self) -> float:
         return 0.0
           
-    def convert(self, value: Any, constrains: Dict[str, Any]) -> float:
+    def convert(self, value: Any, constraints: Dict[str, Any]) -> float:
         try:
             converted = float(value)
         except (TypeError, ValueError):
             raise ValueError(f"Cannot convert {value} to float")
             
-        min_val = constrains['min']
-        max_val = constrains['max']
+        min_val = constraints['min']
+        max_val = constraints['max']
         if not (min_val <= converted <= max_val):
             raise ValueError(f"Value {converted} outside range [{min_val}, {max_val}]")
         return converted
-
-    def describe_attributes(self) -> Dict[str, ParamType]:
-        return {}
 
 
 class ColorParamType(ParamType):
@@ -126,11 +143,11 @@ class ColorParamType(ParamType):
         return "color"
     
       
-    def create_default(self) -> List[float]:
+    def create_instance(self) -> List[float]:
         return [0.0, 0.0, 0.0, 1.0]  # Black with full opacity
     
 
-    def convert(self, value: Any, constrains: Dict[str, Any]) -> List[float]:
+    def convert(self, value: Any, constraints: Dict[str, Any]) -> List[float]:
         
         if isinstance(value, str):  # Handle hex colors
             return self._from_hex(value)
@@ -178,9 +195,27 @@ class ColorParamType(ParamType):
         return normalized
 
 
-    def describe_attributes(self) -> Dict[str, ParamType]:
-        return {}
-
+class DynamicEnumType(ParamType, Generic[T]):
+    """
+    A class for handling dynamic enum parameter types.
+    """
+    
+    def __init__(self, allowed_values: Set[T], default: T = None):
+        self.allowed_values = set(allowed_values)
+        self.default = default or (next(iter(allowed_values)) if allowed_values else None)
+    
+    @property
+    def name(self) -> str:
+        return "dynamic_enum"
+    
+    def create_instance(self) -> T:
+        return self.default
+    
+    def convert(self, value: Any, attributes: Dict[str, Any]) -> T:
+        if value not in self.allowed_values:
+            raise ValueError(f"Value {value} is not a valid value (allowed: {self.allowed_values})")
+        return value
+    
 
 class FunctionParam(DynamicAttributes):
     """Information about a parameter used in (shader) functions and how to represent it in the UI."""
@@ -193,12 +228,12 @@ class FunctionParam(DynamicAttributes):
             attributes (Dict[str, Any]): Dictionary of attributes to set on the instance.
             param_types (Dict[str, ParamType]): Dictionary of parameter types to use.
         """
-
-        # Convert param_type to ParamType instance        
-        attributes['param_type'] = param_types.get(attributes.get('param_type', 'float'), FloatParamType())
-        
+       
         # Call super to validate and set attributes                          
         super().__init__(attributes, mandatory_attrs=['name', 'display_name', 'param_type', 'default'])
+
+        # Convert param_type to ParamType instance 
+        self.param_type = param_types.get(self.param_type, FloatParamType())
         
         # Convert default value
         try:
@@ -218,11 +253,11 @@ class FunctionInfo(DynamicAttributes):
             attributes (Dict[str, Any]): Dictionary of attributes to set on the instance.
             param_types (Dict[str, ParamType]): Dictionary of parameter types to use.
         """
-        
-        # Convert params to FunctionParam instances
-        attributes['params'] = [FunctionParam(param, param_types) for param in attributes['params']]
-        
+               
         super().__init__(attributes, mandatory_attrs=['display_name', 'params'])
+
+        # Convert params to FunctionParam instances
+        self.params = [FunctionParam(param, param_types) for param in self.params]
 
 
 class FunctionRegistry:
