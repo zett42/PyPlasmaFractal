@@ -40,6 +40,10 @@ uniform float u_warp_rotation_angle_increment; // Rotation angle increase for wa
 uniform float u_warp_time;              // Combined warp time
 uniform float u_warp_time_offset_increment;    // Time offset increase for warping noise
 
+// Parameters for feedback color adjustment
+uniform float u_feedback_hue_shift;      // Amount to shift the hue of feedback
+uniform float u_feedback_saturation;     // Amount to adjust saturation of feedback
+
 // Declare uniforms for configurable function parameters
 <FB_BLEND_FUNC_UNIFORMS>
 <FB_WARP_FUNC_UNIFORMS>
@@ -64,6 +68,15 @@ out vec4 f_color;            // Fragment shader output color
 #apply_template "fractal_noise/fractal_noise_double.glsl", NOISE_FUNC = <FB_WARP_NOISE_FUNC>
 #apply_template "fractal_noise/fractal_noise_deriv.glsl", NOISE_FUNC = <FB_WARP_NOISE_FUNC>
 
+// Function to adjust color of feedback if enabled
+vec4 apply_color_adjust_enabled(vec4 color) {
+    return adjust_hue_saturation(color, u_feedback_hue_shift, u_feedback_saturation);
+}
+
+// Function that passes through color without adjustment
+vec4 apply_color_adjust_disabled(vec4 color) {
+    return color;
+}
 
 // Function to apply feedback to the noise color, if enabled
 vec4 apply_feedback_enabled(vec4 noise_color) {
@@ -80,6 +93,9 @@ vec4 apply_feedback_enabled(vec4 noise_color) {
         <FB_WARP_FUNC_ARGS>);
     
     vec4 tex_color = texture(u_texture, v_tex + offset);
+    
+    // Apply color adjustments based on template parameter
+    tex_color = apply_color_adjust_<FB_COLOR_ADJUST_ENABLED>(tex_color);
     
     return blend_<FB_BLEND_FUNC>(tex_color, noise_color <FB_BLEND_FUNC_ARGS>);
 }

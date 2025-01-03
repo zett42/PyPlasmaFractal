@@ -271,6 +271,17 @@ class PlasmaFractalGUI:
                                    registry=self.blend_function_registry, function_attr='feedback_function', params_attr='feedback_params', 
                                    params=params)
 
+            if ih.collapsing_header("Feedback Color Settings", self, attr='feedback_color_settings_open'):
+                ih.checkbox("Enable Color Adjustment", params, 'enable_feedback_color_adjust')
+                if params.enable_feedback_color_adjust:
+                    ih.slider_float("Hue Shift", params, 'feedback_hue_shift', min_value=-1.0, max_value=1.0, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)
+                    ih.show_tooltip("Shift the hue of the feedback texture.\nValue is normalized (0-1).")
+                    
+                    ih.slider_float("Saturation Adjust", params, 'feedback_saturation', min_value=-1.0, max_value=1.0, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)
+                    ih.show_tooltip("Adjust the saturation of the feedback texture.\n"
+                                  "Negative values decrease saturation,\n"
+                                  "positive values increase it.")
+
             if ih.collapsing_header("Feedback Blur Settings", self, attr='feedback_blur_settings_open'):
                                    
                 ih.checkbox("Enable Blur", params, 'enable_feedback_blur')

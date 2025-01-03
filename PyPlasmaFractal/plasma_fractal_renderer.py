@@ -121,6 +121,7 @@ class PlasmaFractalRenderer:
             'COLOR_FUNC': params.color_function,
             'COLOR_FUNC_UNIFORMS': GlslGenerator.generate_function_params_uniforms(params.get_current_color_function_info()),
             'COLOR_FUNC_ARGS': GlslGenerator.generate_function_args(params.get_current_color_function_info(), initial_comma=True),
+            'FB_COLOR_ADJUST_ENABLED': 'enabled' if params.enable_feedback_color_adjust else 'disabled',
         }
         self.program, _ = self.shader_cache.get_or_create_program(fragment_template_params=fragment_template_params)
         self.vao = self.shader_cache.get_or_create_vao(self.program, self.vbo, 'in_pos')
@@ -166,6 +167,10 @@ class PlasmaFractalRenderer:
             self.set_function_uniforms(params.get_current_feedback_blend_function_info(), params.get_current_feedback_params())
 
             feedback_texture.use(location=0)
+
+            if params.enable_feedback_color_adjust:
+                self.program['u_feedback_hue_shift'] = params.feedback_hue_shift / 50.0
+                self.program['u_feedback_saturation'] = params.feedback_saturation / 50.0
 
         # Assign the color function parameters to their respective shader uniforms
         self.set_function_uniforms(params.get_current_color_function_info(), params.get_current_color_params())

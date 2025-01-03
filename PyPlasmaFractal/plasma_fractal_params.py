@@ -46,6 +46,11 @@ class PlasmaFractalParams(SerializableConfig):
         # Feedback blend function settings
         self.feedback_function = self._blend_function_registry.get_function_keys()[0]   # Default to first function
         self.feedback_params = self._blend_function_registry.get_all_param_defaults()
+
+        # Feedback color adjust settings
+        self.enable_feedback_color_adjust = False
+        self.feedback_hue_shift = 0.0
+        self.feedback_saturation = 0.0
         
         # Feedback blur settings
         self.enable_feedback_blur = False
@@ -59,7 +64,7 @@ class PlasmaFractalParams(SerializableConfig):
         # COLOR
         self.color_function = self._color_function_registry.get_function_keys()[0]  # Default to first function
         self.color_params = self._color_function_registry.get_all_param_defaults()
-         
+        
          
     def get_current_feedback_blend_function_info(self) -> FunctionInfo:
         """ Return the current blend function info. """
