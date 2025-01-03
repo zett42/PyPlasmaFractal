@@ -1,6 +1,6 @@
 from typing import *
 from PyPlasmaFractal.mylib.config.serializable_config import SerializableConfig
-from PyPlasmaFractal.mylib.config.function_registry import FloatParamType, IntParamType, ParamType, DynamicEnumType, StructuredParamType
+from PyPlasmaFractal.mylib.config.function_info import ParamType, StructuredParamType, FloatParamType, IntParamType, DynamicEnumType 
 
 class FractalNoiseParams(SerializableConfig):
     """

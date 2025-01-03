@@ -1,4 +1,4 @@
-from .function_registry import FunctionInfo, FunctionParam, ParamType
+from .function_info import FunctionInfo, FunctionParam, ParamType
 
 
 class GlslTypeMapper:
