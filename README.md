@@ -1,17 +1,9 @@
-![PyPlasmaFractal Header](images/screenshot.png)
+![PyPlasmaFractal Header](images/screenshot2.png)
 Screenshot
 
-[![PyPlasmaFractal Video](https://img.youtube.com/vi/nlJ_fTiE-dk/0.jpg)](https://www.youtube.com/watch?v=nlJ_fTiE-dk "PyPlasmaFractal Video #1")
+[![PyPlasmaFractal Video](https://img.youtube.com/vi/P58PxfewxO4/0.jpg)](https://www.youtube.com/watch?v=P58PxfewxO4 "PyPlasmaFractal Video - Colorful Flow")
 <br>
-Video #1 (recorded in-app)
-
-[![PyPlasmaFractal Video](https://img.youtube.com/vi/CHkkzqfMnjE/0.jpg)](https://www.youtube.com/watch?v=CHkkzqfMnjE "PyPlasmaFractal Video #2")
-<br>
-Video #2 (recorded in-app)
-
-[![PyPlasmaFractal Video](https://img.youtube.com/vi/wIrYRui0nZc/0.jpg)](https://www.youtube.com/watch?v=wIrYRui0nZc "PyPlasmaFractal Video #3")
-<br>
-Video #3 (recorded in-app)
+Video (recorded in-app)
 
 # PyPlasmaFractal
 
