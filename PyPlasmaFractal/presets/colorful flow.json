@@ -1,34 +1,34 @@
 {
-    "speed": 0.05000000074505806,
+    "speed": 0.10400000214576721,
     "noise": {
-        "noise_algorithm": "perlin_3d",
-        "octaves": 2,
-        "gain": 0.44999998807907104,
-        "time_scale_factor": 1.5180000066757202,
+        "noise_algorithm": "simplex_perlin_3d",
+        "octaves": 3,
+        "gain": 0.5,
+        "time_scale_factor": 1.5809999704360962,
         "position_scale_factor": 2.0,
         "rotation_angle_increment": 0.0,
         "time_offset_increment": 12.0,
-        "scale": 0.9760000109672546,
+        "scale": 2.6080000400543213,
         "speed": 1.0,
         "time_offset": 0.0
     },
     "warp_noise": {
-        "noise_algorithm": "simplex_perlin_3d",
+        "noise_algorithm": "perlin_3d",
         "octaves": 8,
-        "gain": 0.33799999952316284,
-        "time_scale_factor": 2.0,
-        "position_scale_factor": 1.9470000267028809,
+        "gain": 0.3659999966621399,
+        "time_scale_factor": 1.8270000219345093,
+        "position_scale_factor": 2.01200008392334,
         "rotation_angle_increment": 0.0,
         "time_offset_increment": 12.0,
         "scale": 0.4020000100135803,
-        "speed": 0.42399999499320984,
+        "speed": 0.25,
         "time_offset": 42.0
     },
-    "brightness": 1.9559999704360962,
-    "contrast_steepness": 20.555999755859375,
-    "contrast_midpoint": 0.5220000147819519,
+    "brightness": 1.4589999914169312,
+    "contrast_steepness": 21.746999740600586,
+    "contrast_midpoint": 0.3529999852180481,
     "enable_feedback": true,
-    "feedback_function": "linear",
+    "feedback_function": "sigmoid",
     "feedback_params": {
         "linear": {
             "alpha": 0.01
@@ -37,26 +37,26 @@
             "alpha": 0.01
         },
         "sigmoid": {
-            "alpha": 0.01,
-            "steepness": 0.1,
+            "alpha": 0.013000000268220901,
+            "steepness": 0.31200000643730164,
             "midpoint": 0.5
         }
     },
     "enable_feedback_blur": false,
     "feedback_blur_radius": 2,
     "feedback_blur_radius_power": 1.0,
-    "warp_function": "swirl_sigmoid",
+    "warp_function": "swirl",
     "warp_params": {
         "swirl": {
-            "radial_strength": 0.074,
-            "swirl_strength": 0.013,
-            "isolation_factor": 0.005
+            "radial_strength": 0.219,
+            "swirl_strength": 0.02,
+            "isolation_factor": 0.077
         },
         "swirl_sigmoid": {
             "radial_strength": 0.02,
             "swirl_strength": 0.08,
-            "transition_sharpness": 0.014,
-            "transition_point": 0.71
+            "transition_sharpness": 0.0,
+            "transition_point": 0.5
         },
         "swirl_sigmoid_distorted": {
             "radial_strength": 0.02,
@@ -73,12 +73,12 @@
             "amplitude": 0.02
         },
         "infinite_mirror": {
-            "duplication_scale": 0.5,
-            "influence_radius": 0.5,
-            "non_linearity": 0.0,
+            "duplication_scale": 0.41,
+            "influence_radius": 0.226,
+            "non_linearity": 0.964,
             "base_rotation": 0.0,
-            "time_modulation": 0.0,
-            "frequency": 2.0
+            "time_modulation": 0.125,
+            "frequency": 0.12
         },
         "offset": {
             "amplitude": 0.05
@@ -125,11 +125,11 @@
                 1.0,
                 1.0
             ],
-            "hue_shift_factor": 0.1,
+            "hue_shift_factor": 0.18199999630451202,
             "noise_scale": 1.0,
             "noise_octaves": 1,
             "noise_gain": 0.5,
-            "noise_position_scale_factor": 2.0,
+            "noise_position_scale_factor": 1.0,
             "noise_rotation_angle_increment": 0.1,
             "noise_time_scale_factor": 1.0,
             "noise_time_offset_increment": 0.1
@@ -159,11 +159,11 @@
                 1.0,
                 1.0
             ],
-            "noise_speed": 1.0,
+            "noise_speed": 0.27900001406669617,
             "noise_scale": 1.0,
-            "noise_octaves": 1,
+            "noise_octaves": 2,
             "noise_gain": 0.5,
-            "noise_position_scale_factor": 2.0,
+            "noise_position_scale_factor": 1.0,
             "noise_rotation_angle_increment": 0.1,
             "noise_time_scale_factor": 1.0,
             "noise_time_offset_increment": 0.1
