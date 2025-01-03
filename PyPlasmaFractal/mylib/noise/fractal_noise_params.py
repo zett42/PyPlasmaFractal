@@ -29,8 +29,10 @@ class FractalNoiseParams(SerializableConfig):
 class NoiseAlgorithmType(DynamicEnumType[str]):
     """
     A class for handling noise algorithm parameter types.
-    This is a derived class just to be able to identify the type dynamically.
     """
+    def __init__(self):
+        super().__init__({'perlin_3d', 'simplex_perlin_3d', 'cellular_3d'})
+    
     @property
     def name(self) -> str:
         return "noise_algorithm"
@@ -50,7 +52,7 @@ class FractalNoiseParamsType(StructuredParamType):
     
     def describe_attributes(self) -> Dict[str, 'ParamType']:
         return {
-            'noise_algorithm': NoiseAlgorithmType({'perlin_3d', 'simplex_perlin_3d', 'cellular_3d'}),
+            'noise_algorithm': NoiseAlgorithmType(),
             'octaves': IntParamType(min=1, max=12),
             'gain': FloatParamType(min=0.0, max=1.0),
             'time_scale_factor': FloatParamType(min=0.1, max=10.0),

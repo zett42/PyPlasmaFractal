@@ -53,7 +53,7 @@ from PyPlasmaFractal.mylib.gui.window_config_manager import WindowConfigManager
 from PyPlasmaFractal.mylib.python_utils.format_exception import format_exception_ansi_colors
 from PyPlasmaFractal.mylib.named_tuples import Size
 from PyPlasmaFractal.mylib.recording.video_recorder import VideoRecorder
-from PyPlasmaFractal.mylib.noise.fractal_noise_params import FractalNoiseParamsType
+from PyPlasmaFractal.mylib.noise.fractal_noise_params import FractalNoiseParamsType, NoiseAlgorithmType
 
 # Local modules - application
 from PyPlasmaFractal.plasma_fractal_gui import PlasmaFractalGUI
@@ -306,7 +306,7 @@ class PyPlasmaFractalApp:
             ShaderFunctionType.COLOR : 'color_functions',
         }
         
-        custom_param_types = [ FractalNoiseParamsType() ]
+        custom_param_types = [ NoiseAlgorithmType(), FractalNoiseParamsType() ]
         
         self.shader_function_registries = {}
         
