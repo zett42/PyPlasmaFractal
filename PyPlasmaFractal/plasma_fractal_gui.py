@@ -61,12 +61,10 @@ class PlasmaFractalGUI:
         
         # Initialize the visibility state for the different settings tabs
         self.noise_settings_open = True
-        self.fractal_settings_open = True
         self.output_settings_open = True
         self.feedback_general_settings_open = True
         self.feedback_blur_settings_open = True
         self.feedback_warp_noise_settings_open = True
-        self.feedback_warp_octave_settings_open = True
         self.feedback_warp_effect_settings_open = True
         self.feedback_color_adjustment_open = True
         self.color_function_settings_open = True
@@ -219,14 +217,12 @@ class PlasmaFractalGUI:
         with ih.resized_items(-160):
 
             if ih.collapsing_header("Noise Settings", self, attr='noise_settings_open'):
+
+                self.function_combo("Noise Algorithm", params.noise, 'noise_algorithm', self.noise_function_registry)
                 
                 ih.slider_float("Scale", params.noise, 'scale', min_value=0.01, max_value=100.0, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)
                 ih.show_tooltip("Adjust the scale of the noise.")
-
-                self.function_combo("Noise Algorithm", params.noise, 'noise_algorithm', self.noise_function_registry)
-
-            if ih.collapsing_header("Fractal Settings", self, attr='fractal_settings_open'):
-                
+              
                 ih.slider_int("Num. Octaves", params.noise, 'octaves', min_value=1, max_value=12)
                 ih.show_tooltip("Set the number of noise octaves for fractal generation.\n"
                                 "Higher values increase detail but can be computationally intensive.")
@@ -311,6 +307,8 @@ class PlasmaFractalGUI:
       
             if ih.collapsing_header("Warp Noise Settings", self, attr='feedback_warp_noise_settings_open'):
 
+                self.function_combo("Noise Algorithm", params.warp_noise, 'noise_algorithm', self.noise_function_registry)
+
                 ih.slider_float("Speed", params.warp_noise, 'speed', min_value=0.01, max_value=10.0)
                 ih.show_tooltip("Adjust the speed of the warp effect.\n"
                                 "Higher values result in faster movement of the noise pattern.")
@@ -321,11 +319,6 @@ class PlasmaFractalGUI:
                 ih.slider_float("Scale", params.warp_noise, 'scale', min_value=0.01, max_value=10.0)
                 ih.show_tooltip("Adjust the scale of the warp noise.")
                 
-                self.function_combo("Noise Algorithm", params.warp_noise, 'noise_algorithm', self.noise_function_registry)
-
-
-            if ih.collapsing_header("Warp Fractal Settings", self, attr='feedback_warp_octave_settings_open'):
-
                 ih.slider_int("Num. Octaves", params.warp_noise, 'octaves', min_value=1, max_value=12)
                 ih.show_tooltip("Set the number of noise octaves for fractal generation in the warp effect.\n"
                                 "Higher values increase detail but can be computationally intensive.")
