@@ -384,7 +384,7 @@ class PyPlasmaFractalApp:
 
         # Update the main renderer with the current parameters and render to the destination texture
         main_renderer.update_params(self.params, self.feedback_manager.previous_texture, 
-                                    elapsed_time, self.feedback_manager.aspect_ratio)
+                                    self.timer.accumulated_time, self.feedback_manager.aspect_ratio)
         
         # Render the fractal to the destination texture
         self.feedback_manager.render_to_texture(main_renderer.current_vao)
@@ -431,12 +431,7 @@ class PyPlasmaFractalApp:
 
 
     def handle_time(self) -> float:
-        
-        if self.recorder.is_recording:
-            # For consistent results during recording, use the recording time, starting at the accumulated time from the timer (which is paused), 
-            # otherwise the time could depend on system load.
-            return self.timer.accumulated_time + self.recorder.recording_time * self.params.speed
-        
+        """Update the timer and return the current accumulated time."""
         return self.timer.update(self.gui.animation_paused, self.params.speed)
 
 
@@ -468,6 +463,9 @@ class PyPlasmaFractalApp:
                     logging.error(f"The recording could not be started: {e}")
                     self.gui.notifications.push_notification(PlasmaFractalGUI.Notification.RECORDING_ERROR, str(e))
 
+                # Configure timer for recording
+                self.timer.step_mode = True
+
             else:
                 logging.debug("Stopping recording")
 
@@ -482,11 +480,16 @@ class PyPlasmaFractalApp:
                 # Restore feedback texture size
                 width, height = glfw.get_framebuffer_size(self.window)
                 self.feedback_manager.resize(width, height)
+
+                # Restore normal timer operation
+                self.timer.step_mode = False
                 
 
         # Capture frame if recording is active
         if self.recorder.is_recording:
 
+            # Step the timer by a fixed amount for consistent timing
+            self.timer.step(1.0 / self.recorder.fps)
             try:
                 self.recorder.capture_frame(self.feedback_manager.current_texture)
             except Exception as e:
