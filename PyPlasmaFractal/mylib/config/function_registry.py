@@ -1,106 +1,44 @@
-from enum import Enum
 from typing import List, Hashable, Dict, Any
 import fnmatch
+from PyPlasmaFractal.mylib.config.function_info import FunctionInfo, ParamType, ColorParamType, FloatParamType, IntParamType
 from PyPlasmaFractal.mylib.config.storage import Storage
-
-
-class DynamicAttributes:
-    """
-    Base class for handling objects with mandatory and optional attributes.
-    """
-    def __init__(self, attributes: Dict[str, Any], mandatory_attrs: List[str]):
-        """
-        Initialize the instance with given attributes.
-
-        Args:
-            attributes (Dict[str, Any]): Dictionary of attributes to set on the instance.
-            mandatory_attrs (List[str]): List of attribute names that are mandatory.
-
-        Raises:
-            KeyError: If any mandatory attribute is missing from attributes.
-        """
-        for attr in mandatory_attrs:
-            if attr not in attributes:
-                raise KeyError(f"Mandatory attribute '{attr}' is required.")
-            
-        for key, value in attributes.items():
-            setattr(self, key, value)
-
-
-class ParamType(Enum):
-    FLOAT = "float"
-    COLOR = "color"
-
-
-class FunctionParam(DynamicAttributes):
-    """Information about a parameter used in (shader) functions and how to represent it in the UI."""
-    
-    def __init__(self, attributes: Dict[str, Any]):
-        
-        if 'param_type' not in attributes:
-            attributes['param_type'] = ParamType.FLOAT
-        else:
-            attributes['param_type'] = ParamType(attributes['param_type'])
-            
-        mandatory = ['name', 'display_name', 'param_type', 'default']
-            
-        match attributes['param_type']:
-            case ParamType.FLOAT:
-                mandatory = mandatory + ['min', 'max']
-                self._validate_float(attributes.get('default'))
-            case ParamType.COLOR:
-                self._validate_color(attributes.get('default'))
-            case _:
-                raise ValueError(f"Unsupported parameter type: {attributes['param_type']}")
-                
-        super().__init__(attributes, mandatory_attrs=mandatory)
-
-
-    def _validate_float(self, value: Any):
-        if not isinstance(value, (float, int)):
-            raise ValueError(f"Invalid default value for FLOAT parameter: {value}")
-
-    def _validate_color(self, value: Any):
-        if not (isinstance(value, list) and len(value) == 4 and all(isinstance(v, (float, int)) and 0.0 <= v <= 1.0 for v in value)):
-            raise ValueError(f"Invalid default value for COLOR parameter: {value} (expected list of 4 floats in range [0.0, 1.0], representing RGBA)")
-        
-
-class FunctionInfo(DynamicAttributes):
-    """
-    Contains information about a function, including its parameters.
-    """
-    def __init__(self, attributes: Dict[str, Any]):
-        """
-        Initialize a FunctionInfo instance.
-
-        Args:
-            attributes (Dict[str, Any]): Dictionary of attributes for the function.
-
-        Raises:
-            KeyError: If any mandatory attribute is missing from attributes.
-        """
-        # Make sure params are converted to FunctionParam instances (instead of just dictionaries)      
-        attributes['params'] = [FunctionParam(param) for param in attributes['params']]
-        
-        super().__init__(attributes, mandatory_attrs = ['display_name', 'description', 'params'])
-
 
 class FunctionRegistry:
     """
     A class for storing and managing function information.
     """
-    def __init__(self, storage: Storage, name_filter: str = "*"):
+    
+    DEFAULT_PARAM_TYPES = [
+        IntParamType(),
+        FloatParamType(),
+        ColorParamType()
+    ]
+    
+    def __init__(self, storage: Storage, name_filter: str = "*", param_types: List[ParamType] = None):
         """
         Initialize the FunctionRegistry instance.
 
         Args:
             storage (Storage): Storage instance for loading and saving functions.
             name_filter (str): Pattern to match data names to load.
+            param_types (List[ParamType]): Additional parameter types beyond the defaults.
         """
         self.storage = storage
         self.name_filter = name_filter
         self.description = None
         self.functions = {}
+        
+        # Combine default and custom param types
+        all_param_types = list(self.DEFAULT_PARAM_TYPES)
+        if param_types:
+            all_param_types.extend(param_types)
+        
+        # Build type name to instance mapping
+        self.param_types = {}
+        for param_type in all_param_types:
+            if param_type.name in self.param_types:
+                raise ValueError(f"Duplicate parameter type name: {param_type.name}")
+            self.param_types[param_type.name] = param_type
         
         self.load(name_filter, merge=True)
 
@@ -142,9 +80,14 @@ class FunctionRegistry:
             KeyError: If a function key already exists in the registry.
         """
         for key, info in new_functions.items():
+            
             if key in self.functions:
                 raise KeyError(f"Function key '{key}' already exists in the registry.")
-            self.functions[key] = FunctionInfo(info)
+            
+            try:
+                self.functions[key] = FunctionInfo(info, self.param_types)
+            except Exception as e:
+                raise RuntimeError(f"Error processing function key '{key}': {str(e)}") from e
 
             
     def get_function_keys(self) -> List[str]:
@@ -183,38 +126,12 @@ class FunctionRegistry:
         return self.functions[key]
 
 
-    def get_function_display_name(self, key: Hashable) -> str:
-        """
-        Retrieve the function display name for a given function name.
-        """
-        return self.functions[key].display_name
-    
-    
-    def get_function_params(self, key: Hashable) -> List[FunctionParam]:
-        """
-        Retrieve the function parameters for a given function name.
-        """
-        return self.functions[key].params
-
-
-    def max_param_count(self) -> int:
-        """
-        Compute the maximum number of parameters among all functions in the registry.
-
-        Returns:
-            int: The maximum number of parameters.
-        """
-        return max(len(info.params) for info in self.functions.values())
-
-
-    def get_all_param_defaults(self) -> Dict[str, List[Any]]:
+    def get_all_param_defaults(self) -> Dict[str, Dict[str, Any]]:
         """
         Retrieve default parameters for all functions in the registry.
-
-        Returns:
-            Dict[str, List[float]]: Dictionary mapping function keys to a list of default parameter values.
+        Returns: Dictionary mapping function names to parameter dictionaries.
         """
         return {
-            key: [param.default for param in info.params] 
+            key: {param.name: param.default for param in info.params}
             for key, info in self.functions.items()
         }

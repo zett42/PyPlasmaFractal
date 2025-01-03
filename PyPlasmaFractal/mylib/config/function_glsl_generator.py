@@ -1,4 +1,4 @@
-from .function_registry import FunctionInfo, FunctionParam, ParamType
+from .function_info import FunctionInfo, FunctionParam, ParamType
 
 
 class GlslTypeMapper:
@@ -11,13 +11,15 @@ class GlslTypeMapper:
         """
         Gets the GLSL type corresponding to the given ParamType.
         """        
-        match param_type:
-            case ParamType.FLOAT:
+        match param_type.name:
+            case "int":
+                return "int"
+            case "float":
                 return "float"
-            case ParamType.COLOR:
+            case "color":
                 return "vec4"
             case _:
-                raise ValueError(f"Unsupported param type: {param_type}")
+                raise ValueError(f"Unsupported param type: {param_type.name}")
 
 
 class GlslGenerator:
@@ -59,8 +61,11 @@ class GlslGenerator:
     
     
     @staticmethod
-    def generate_function_args(function: FunctionInfo) -> str:
+    def generate_function_args(function: FunctionInfo, initial_comma: bool = False) -> str:
         """
         Generates a string of function arguments to pass to the given function.
         """
-        return ", ".join(GlslGenerator.get_uniform_name(p.name) for p in function.params)
+        args = ", ".join(GlslGenerator.get_uniform_name(p.name) for p in function.params)
+        if args and initial_comma:
+            return f", {args}"
+        return args

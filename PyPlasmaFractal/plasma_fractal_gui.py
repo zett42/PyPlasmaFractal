@@ -7,13 +7,12 @@ from pathlib import Path
 import platform
 from typing import *
 import imgui
-import numpy as np
-
+ 
 from PyPlasmaFractal.mylib.config.config_path_manager import ConfigPathManager
+from PyPlasmaFractal.mylib.config.function_info import FunctionParam
 from PyPlasmaFractal.mylib.config.json_file_storage import JsonFileStorage
 from PyPlasmaFractal.mylib.config.source_manager import StorageSourceManager
-from PyPlasmaFractal.mylib.config.function_registry import FunctionRegistry
-from PyPlasmaFractal.mylib.config.function_registry import FunctionRegistry
+from PyPlasmaFractal.mylib.config.function_registry import FunctionRegistry, ParamType
 from PyPlasmaFractal.mylib.gui.ansi_style import AnsiStyle
 from PyPlasmaFractal.mylib.gui.icons import Icons
 from PyPlasmaFractal.mylib.gui.notification_manager import NotificationManager
@@ -21,7 +20,7 @@ from PyPlasmaFractal.mylib.gui.window_fade_manager import WindowFadeManager
 import PyPlasmaFractal.mylib.gui.imgui_helper as ih
 from PyPlasmaFractal.mylib.color.adjust_color import modify_rgba_color_hsv, sigmoid_contrast
 from PyPlasmaFractal.plasma_fractal_types import ShaderFunctionType
-from .plasma_fractal_params import PlasmaFractalParams, FunctionRegistry
+from .plasma_fractal_params import PlasmaFractalParams
 
 class PlasmaFractalGUI:
     """
@@ -46,7 +45,7 @@ class PlasmaFractalGUI:
         NEW_PRESET_LOADED = auto()         # Send by the GUI when a new preset is loaded
         RECORDING_STATE_CHANGED = auto()   # Send by the GUI when the recording state changes
         RECORDING_ERROR = auto()           # Received by the GUI when an error occurs during recording
-
+        LOAD_CONFIG_ERROR = auto()         # Received by the GUI when an error occurs while loading the configuration
 
     def __init__(self, path_manager: ConfigPathManager, 
                  function_registries: Dict[ShaderFunctionType, FunctionRegistry],
@@ -55,19 +54,20 @@ class PlasmaFractalGUI:
      
         self.noise_function_registry = function_registries[ShaderFunctionType.NOISE]
         self.blend_function_registry = function_registries[ShaderFunctionType.BLEND]
-        self.warp_function_registry = function_registries[ShaderFunctionType.WARP]
+        self.warp_function_registry  = function_registries[ShaderFunctionType.WARP]
+        self.color_function_registry = function_registries[ShaderFunctionType.COLOR]
      
         self.animation_paused = False
         
         # Initialize the visibility state for the different settings tabs
         self.noise_settings_open = True
-        self.fractal_settings_open = True
         self.output_settings_open = True
         self.feedback_general_settings_open = True
         self.feedback_blur_settings_open = True
         self.feedback_warp_noise_settings_open = True
-        self.feedback_warp_octave_settings_open = True
         self.feedback_warp_effect_settings_open = True
+        self.feedback_color_adjustment_open = True
+        self.color_function_settings_open = True
 
         # Initialize preset management
         self.preset_list = []
@@ -149,6 +149,10 @@ class PlasmaFractalGUI:
                             if noise_tab.selected:
                                 self.handle_noise_tab(params)
 
+                        with imgui.begin_tab_item("Color") as color_tab:
+                            if color_tab.selected:
+                                self.handle_color_tab(params)
+
                         with imgui.begin_tab_item("Feedback") as feedback_tab:
                             if feedback_tab.selected:
                                 self.handle_feedback_tab(params)
@@ -160,7 +164,7 @@ class PlasmaFractalGUI:
                         with imgui.begin_tab_item("Recording") as recording_tab:
                             if recording_tab.selected:
                                 self.handle_recording_tab(params)
-    
+
     
     def show_reset_button_and_confirm_dialog(self, params: PlasmaFractalParams):
         """
@@ -213,34 +217,32 @@ class PlasmaFractalGUI:
         with ih.resized_items(-160):
 
             if ih.collapsing_header("Noise Settings", self, attr='noise_settings_open'):
+
+                self.function_combo("Noise Algorithm", params.noise, 'noise_algorithm', self.noise_function_registry)
                 
-                ih.slider_float("Scale", params, 'scale', min_value=0.01, max_value=100.0, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)
+                ih.slider_float("Scale", params.noise, 'scale', min_value=0.01, max_value=100.0, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)
                 ih.show_tooltip("Adjust the scale of the noise.")
-
-                self.function_combo("Noise Algorithm", params, 'noise_algorithm', self.noise_function_registry)
-
-            if ih.collapsing_header("Fractal Settings", self, attr='fractal_settings_open'):
-                
-                ih.slider_int("Num. Octaves", params, 'octaves', min_value=1, max_value=12)
+              
+                ih.slider_int("Num. Octaves", params.noise, 'octaves', min_value=1, max_value=12)
                 ih.show_tooltip("Set the number of noise octaves for fractal generation.\n"
                                 "Higher values increase detail but can be computationally intensive.")
                 
-                ih.slider_float("Gain/Octave", params, 'gain', min_value=0.1, max_value=1.0)
+                ih.slider_float("Gain/Octave", params.noise, 'gain', min_value=0.1, max_value=1.0)
                 ih.show_tooltip("Adjust the gain applied to the noise value produced by each octave.\n"
                                 "A typical value is 0.5, which reduces the influence of higher octaves.")
                 
-                ih.slider_float("Pos. Scale/Octave", params, 'position_scale_factor', min_value=0.1, max_value=10.0)
+                ih.slider_float("Pos. Scale/Octave", params.noise, 'position_scale_factor', min_value=0.1, max_value=10.0)
                 ih.show_tooltip("Adjust the position scale applied to each octave.\n"
                                 "A typical value is 2.0, which allows each octave to contribute smaller details.")
                 
-                ih.slider_float("Rotation/Octave", params, 'rotation_angle_increment', min_value=0.0, max_value=math.pi * 2, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)
+                ih.slider_float("Rotation/Octave", params.noise, 'rotation_angle_increment', min_value=0.0, max_value=math.pi * 2, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)
                 ih.show_tooltip("Adjust the rotation angle increment applied to each octave.")
                 
-                ih.slider_float("Time Scale/Octave", params, 'time_scale_factor', min_value=0.1, max_value=2.0)
+                ih.slider_float("Time Scale/Octave", params.noise, 'time_scale_factor', min_value=0.1, max_value=2.0)
                 ih.show_tooltip("Adjust the time scale factor applied to each octave.\n"
                                 "Higher values speed up the temporal changes of each octave.")
                 
-                ih.slider_float("Time Offset/Octave", params, 'time_offset_increment', min_value=0.0, max_value=20.0)
+                ih.slider_float("Time Offset/Octave", params.noise, 'time_offset_increment', min_value=0.0, max_value=20.0)
                 ih.show_tooltip("Adjust the time offset increment applied to each octave,\n"
                                 "to increase noise variation.")
 
@@ -305,43 +307,58 @@ class PlasmaFractalGUI:
       
             if ih.collapsing_header("Warp Noise Settings", self, attr='feedback_warp_noise_settings_open'):
 
-                ih.slider_float("Speed", params, 'warp_speed', min_value=0.01, max_value=10.0)
+                self.function_combo("Noise Algorithm", params.warp_noise, 'noise_algorithm', self.noise_function_registry)
+
+                ih.slider_float("Speed", params.warp_noise, 'speed', min_value=0.01, max_value=10.0)
                 ih.show_tooltip("Adjust the speed of the warp effect.\n"
                                 "Higher values result in faster movement of the noise pattern.")
                 
-                ih.slider_float("Scale", params, 'warp_scale', min_value=0.01, max_value=10.0)
+                ih.slider_float("Time Offset", params.warp_noise, 'time_offset', min_value=0.0, max_value=100.0)
+                ih.show_tooltip("Initial time offset for the warp effect.")
+
+                ih.slider_float("Scale", params.warp_noise, 'scale', min_value=0.01, max_value=10.0)
                 ih.show_tooltip("Adjust the scale of the warp noise.")
                 
-                self.function_combo("Noise Algorithm", params, 'warp_noise_algorithm', self.noise_function_registry)
-
-
-            if ih.collapsing_header("Warp Fractal Settings", self, attr='feedback_warp_octave_settings_open'):
-
-                ih.slider_int("Num. Octaves", params, 'warp_octaves', min_value=1, max_value=12)
+                ih.slider_int("Num. Octaves", params.warp_noise, 'octaves', min_value=1, max_value=12)
                 ih.show_tooltip("Set the number of noise octaves for fractal generation in the warp effect.\n"
                                 "Higher values increase detail but can be computationally intensive.")
                 
-                ih.slider_float("Gain/Octave", params, 'warp_gain', min_value=0.1, max_value=1.0)
+                ih.slider_float("Gain/Octave", params.warp_noise, 'gain', min_value=0.1, max_value=1.0)
                 ih.show_tooltip("Adjust the gain applied to the noise value produced by each octave.\n"
                                 "A typical value is 0.5, which reduces the influence of higher octaves.")
                 
-                ih.slider_float("Pos. Scale/Octave", params, 'warp_position_scale_factor', min_value=0.1, max_value=10.0)
+                ih.slider_float("Pos. Scale/Octave", params.warp_noise, 'position_scale_factor', min_value=0.1, max_value=10.0)
                 ih.show_tooltip("Adjust the position scale applied to each octave.\n"
                                 "A typical value is 2.0, which allows each octave to contribute smaller details.")
                 
-                ih.slider_float("Rotation/Octave", params, 'warp_rotation_angle_increment', min_value=0.0, max_value=math.pi * 2, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)
+                ih.slider_float("Rotation/Octave", params.warp_noise, 'rotation_angle_increment', min_value=0.0, max_value=math.pi * 2, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)
                 ih.show_tooltip("Adjust the rotation angle increment applied to each octave.")
                 
-                ih.slider_float("Time Scale/Octave", params, 'warp_time_scale_factor', min_value=0.1, max_value=2.0)
+                ih.slider_float("Time Scale/Octave", params.warp_noise, 'time_scale_factor', min_value=0.1, max_value=2.0)
                 ih.show_tooltip("Adjust the time scale factor applied to each octave.\n"
                                 "Higher values speed up the temporal changes of each octave.")
                 
-                ih.slider_float("Time Offset/Octave", params, 'warp_time_offset_increment', min_value=0.0, max_value=20.0)
+                ih.slider_float("Time Offset/Octave", params.warp_noise, 'time_offset_increment', min_value=0.0, max_value=20.0)
                 ih.show_tooltip("Adjust the time offset increment applied to each octave,\nto increase noise variation.")
 
             self.function_settings(header="Warp Function Settings", header_attr='feedback_warp_effect_settings_open', 
                                    registry=self.warp_function_registry, function_attr='warp_function', params_attr='warp_params',
                                    params=params)
+
+
+    def handle_color_tab(self, params: PlasmaFractalParams):
+        """
+        Manages the UI controls for adjusting color-related settings in the plasma fractal visualization.
+
+        Args:
+            params (PlasmaFractalParams): The current settings of the plasma fractal that can be adjusted via the UI.
+        """
+              
+        with ih.resized_items(-160):
+
+            self.function_settings(header="Color Function Settings", header_attr='color_function_settings_open', 
+                                    registry=self.color_function_registry, function_attr='color_function', params_attr='color_params', 
+                                    params=params)
 
 
     def function_combo(self, combo_label: str, params: PlasmaFractalParams, params_attr: str, registry: FunctionRegistry):
@@ -357,7 +374,7 @@ class PlasmaFractalGUI:
         """
         # Retrieve all function keys and their display names
         function_keys = registry.get_function_keys()
-        function_display_names = [registry.get_function_display_name(key) for key in function_keys]
+        function_display_names = [registry.get_function_info(key).display_name for key in function_keys]
 
         # Create a sorted list of (display_name, key) tuples
         sorted_functions = sorted(zip(function_display_names, function_keys))
@@ -390,54 +407,81 @@ class PlasmaFractalGUI:
         
 
     def function_settings(self, 
-                          header: str, 
-                          header_attr: str, 
-                          registry: FunctionRegistry,
-                          function_attr: str,
-                          params_attr: str,
-                          params: PlasmaFractalParams):
-        """
-        Display the settings for a specific function.
-
-        Args:
-            header (str): The header text to display for the collapsible section.
-            header_attr (str): The attribute name in the object to store the collapsed state.
-            registry (FunctionRegistry): The registry of available functions.
-            function_attr (str): The attribute name in the object to store the selected function.
-            params (PlasmaFractalParams): The object containing the overall parameters.
-
-        Returns:
-            None
-        """
+                         header: str, 
+                         header_attr: str, 
+                         registry: FunctionRegistry,
+                         function_attr: str,
+                         params_attr: str,
+                         params: PlasmaFractalParams):
+        
+        """Display the setting controls for a specific function."""
+        
         if ih.collapsing_header(header, self, attr=header_attr):
             
-            # Dropdown for the available functions
-            # Make sure to create a unique identifier by appending the function_attr to the label            
+            # Dropdown for the available functions 
             self.function_combo(f"Function##{function_attr}", params, function_attr, registry)        
                       
             selected_function = getattr(params, function_attr)
-            
-            # Get the current function info
             function_info = registry.get_function_info(selected_function)
-            
-            # Get the parameters for the selected function
             function_params_dict = getattr(params, params_attr)
-            function_params = function_params_dict[selected_function] 
+            function_params = function_params_dict[selected_function]
             
-            # Generate sliders for the function's parameters
-            for index, param_info in enumerate(function_info.params):
+            # Create unique attribute names for each group's header state
+            group_state_prefix = f"{header_attr}_group_"
+            
+            # Display parameters by groups
+            for i, group in enumerate(function_info.param_groups):
+                
+                group_state_attr = f"{group_state_prefix}{i}"
+                if not hasattr(self, group_state_attr):
+                    setattr(self, group_state_attr, True)  # Initialize group state if not exists
+                
+                if ih.collapsing_header(group.display_name, self, attr=group_state_attr, flags=imgui.TREE_NODE_DEFAULT_OPEN):
+                    for param_info in group.params:
+                        self.param_control(param_info, function_params, header)
 
-                changed, new_value = imgui.slider_float(f"{param_info.display_name}##{header}", 
-                                                        function_params[index], 
-                                                        param_info.min, 
-                                                        param_info.max, 
-                                                        flags=imgui.SLIDER_FLAGS_LOGARITHMIC if param_info.logarithmic else 0)
-                
-                if (description := getattr(param_info, 'description', None)):
-                    ih.show_tooltip(description)
-                
+
+    def param_control(self, param_info: FunctionParam, function_params: Dict, header: str):
+        """Display the appropriate control for a parameter based on its type."""
+        
+        param_name = param_info.name
+        
+        match param_info.param_type.name:
+            case 'int':
+                changed, new_value = imgui.slider_int(
+                    f"{param_info.display_name}##{header}", 
+                    function_params[param_name], 
+                    param_info.min, 
+                    param_info.max
+                )
                 if changed:
-                    function_params[index] = new_value
+                    function_params[param_name] = new_value
+            
+            case 'float':
+                changed, new_value = imgui.slider_float(
+                    f"{param_info.display_name}##{header}", 
+                    function_params[param_name], 
+                    param_info.min, 
+                    param_info.max,
+                    flags=imgui.SLIDER_FLAGS_LOGARITHMIC if getattr(param_info, 'logarithmic', False) else 0
+                )
+                if changed:
+                    function_params[param_name] = new_value
+            
+            case 'color':
+                changed, new_value = imgui.color_edit4(
+                    f"{param_info.display_name}##{header}",
+                    *function_params[param_name],
+                    flags=imgui.COLOR_EDIT_FLOAT | imgui.COLOR_EDIT_ALPHA_BAR
+                )
+                if changed:
+                    function_params[param_name] = list(new_value)
+            
+            case _:
+                raise ValueError(f"Unsupported parameter type: {param_info.param_type}")
+        
+        if (description := getattr(param_info, 'description', None)):
+            ih.show_tooltip(description)
 
 
     def handle_presets_tab(self, params: PlasmaFractalParams):

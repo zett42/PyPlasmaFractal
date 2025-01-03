@@ -13,8 +13,6 @@ precision highp float;
 
 #define NOISE_MIN           <NOISE_MIN>            // Minimum noise value
 #define NOISE_MAX           <NOISE_MAX>            // Maximum noise value
-#define MAX_FEEDBACK_PARAMS <MAX_FEEDBACK_PARAMS>  // Maximum number of feedback blend parameters
-#define MAX_WARP_PARAMS     <MAX_WARP_PARAMS>      // Maximum number of warp parameters
 
 // General uniforms
 uniform float u_time;                   // Elapsed time in seconds
@@ -33,21 +31,19 @@ uniform float u_contrast_steepness;     // Sigmoid function steepness for contra
 uniform float u_contrast_midpoint;      // Midpoint for sigmoid contrast function
 
 // Parameters for fractal noise that warps the feedback texture
-uniform float u_warp_speed;              // Noise mutation speed
 uniform vec2 u_warp_scale;               // Noise scale factor
 uniform int u_warp_octaves;              // Number of warping noise octaves
 uniform float u_warp_gain;               // Noise gain factor
 uniform float u_warp_time_scale_factor;  // Time scaling for warping noise
 uniform float u_warp_position_scale_factor; // Position scaling for warping noise
 uniform float u_warp_rotation_angle_increment; // Rotation angle increase for warping noise
-uniform float u_warp_time_offset_initial;      // Time offset initial for warping noise
+uniform float u_warp_time;              // Combined warp time
 uniform float u_warp_time_offset_increment;    // Time offset increase for warping noise
 
-// Declare uniforms for configurable feedback blend parameters
+// Declare uniforms for configurable function parameters
 <FB_BLEND_FUNC_UNIFORMS>
-
-// Declare uniforms for configurable warp function parameters
 <FB_WARP_FUNC_UNIFORMS>
+<COLOR_FUNC_UNIFORMS>
 
 // Input/Output
 in vec2 v_tex;               // Texture coordinates from vertex shader
@@ -57,10 +53,11 @@ out vec4 f_color;            // Fragment shader output color
 #include "common/color_adjustment.glsl"
 #include "common/transforms.glsl"
 
-// Include user-selectable functions for noise, warp, and blend operations
+// Include user-selectable functions for noise, warp, blend, and color operations
 #include "noise_functions\*.glsl"
 #include "warp_functions\*.glsl"
-#include "blend_functions/feedback_blend.glsl"
+#include "blend_functions\*.glsl"
+#include "color_functions\*.glsl"
 
 // Use the noise implementation specified by template argument for the fractal noise functions
 #apply_template "fractal_noise/fractal_noise_single.glsl", NOISE_FUNC = <NOISE_FUNC>
@@ -69,7 +66,7 @@ out vec4 f_color;            // Fragment shader output color
 
 
 // Function to apply feedback to the noise color, if enabled
-vec4 applyFeedback_Enabled(vec4 noise_color) {
+vec4 apply_feedback_enabled(vec4 noise_color) {
 
     vec2 scaled_position = v_pos * u_warp_scale;  // Scale position by provided scale factor
 
@@ -78,17 +75,17 @@ vec4 applyFeedback_Enabled(vec4 noise_color) {
         fractal_noise_<FB_WARP_FRACTAL_NOISE_VARIANT>_<FB_WARP_NOISE_FUNC>( 
             scaled_position, u_warp_octaves, u_warp_gain, u_warp_time_scale_factor, 
             u_warp_position_scale_factor, u_warp_rotation_angle_increment, 
-            u_warp_time_offset_increment, u_warp_time_offset_initial + u_time * u_warp_speed ),
-        u_time,
+            u_warp_time_offset_increment, u_warp_time ),
+        u_time
         <FB_WARP_FUNC_ARGS>);
     
     vec4 tex_color = texture(u_texture, v_tex + offset);
     
-    return blend_<FB_BLEND_FUNC>(tex_color, noise_color, <FB_BLEND_FUNC_ARGS>);
+    return blend_<FB_BLEND_FUNC>(tex_color, noise_color <FB_BLEND_FUNC_ARGS>);
 }
 
 // Do nothing with the noise color, if feedback is disabled
-vec4 applyFeedback_Disabled(vec4 noise_color) {
+vec4 apply_feedback_disabled(vec4 noise_color) {
     return noise_color;
 }
 
@@ -107,8 +104,10 @@ void main() {
 
     grayscale = sigmoid_contrast(grayscale, u_contrast_steepness, u_contrast_midpoint); // Apply contrast adjustment
     grayscale = grayscale * u_brightness; // Apply brightness adjustment
-    vec4 noise_color = vec4(grayscale, grayscale, grayscale, 1.0); // Set output color to grayscale
+
+    // Apply colorization
+    vec4 noise_color = colorize_<COLOR_FUNC>(grayscale, v_pos, u_time <COLOR_FUNC_ARGS>);
 
     // Apply feedback to the noise color, if enabled
-    f_color = applyFeedback_<FB_ENABLED>(noise_color);
+    f_color = apply_feedback_<FB_ENABLED>(noise_color);
 }

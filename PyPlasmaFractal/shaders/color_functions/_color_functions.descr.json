@@ -1,32 +1,274 @@
 {
   "description": "Color mapping functions that convert grayscale values to colors",
   "functions": {
-    "GradientRGBA": {
+    "grayscale": {
+      "display_name": " Grayscale",
+      "description": "Grayscale output",
+      "params": []
+    },
+    "gradient3": {
       "display_name": "Color Gradient",
       "description": "Maps grayscale values to a gradient between two colors",
       "params": [
         {
           "name": "start_color",
-          "display_name": "Start Color",
+          "display_name": "Low Color",
           "param_type": "color",
-          "default": [0, 0, 0, 255],
+          "default": [0.0, 0.0, 0.0, 1.0],
+          "description": "Color for minimum grayscale value"
+        },
+        {
+          "name": "mid_color",
+          "display_name": "Middle Color",
+          "param_type": "color",
+          "default": [0.5, 0.3, 1.0, 1.0],
+          "description": "Color for intermediary grayscale value"
+        },
+        {
+          "name": "end_color",
+          "display_name": "High Color", 
+          "param_type": "color",
+          "default": [1.0, 0.8, 0.3, 1.0],
+          "description": "Color for maximum grayscale value"
+        },
+        {
+          "name": "mid_position",
+          "display_name": "Position of mid color", 
+          "param_type": "float",
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.5,
+          "description": "Position of middle color in the gradient"
+        }
+      ]
+    },
+    "gradient2_noise": {
+      "display_name": "Noisy Colors (Hue Shift)",
+      "description": "Colors spatially adjusted with noise",
+      "param_groups": [
+        {
+          "display_name": "Color Settings",
+          "params": ["start_color", "end_color", "hue_shift_factor"]
+        },
+        {
+          "display_name": "Noise Settings",
+          "params": ["noise_scale", "noise_octaves", "noise_gain", 
+                    "noise_position_scale_factor", "noise_rotation_angle_increment", 
+                    "noise_time_scale_factor", "noise_time_offset_increment"]
+        }
+      ],
+      "params": [
+        {
+          "name": "start_color",
+          "display_name": "Low Color",
+          "param_type": "color",
+          "default": [0.0, 0.0, 0.0, 1.0],
           "description": "Color for minimum grayscale value"
         },
         {
           "name": "end_color",
-          "display_name": "End Color", 
+          "display_name": "High Color", 
           "param_type": "color",
-          "default": [255, 255, 255, 255],
+          "default": [1.0, 0.8, 0.3, 1.0],
           "description": "Color for maximum grayscale value"
         },
         {
-            "name": "gamma",
-            "display_name": "Gamma",
-            "param_type": "float",
-            "min": 0.1,
-            "max": 5.0,
-            "default": 1.0,
-            "description": "Adjusts the gradient interpolation curve"
+          "name": "hue_shift_factor",
+          "display_name": "Hue Shift Factor",
+          "param_type": "float",
+          "min": 0.0,
+          "max": 10.0,
+          "default": 0.1,
+          "description": "Factor to scale the hue shift based on noise value",
+          "logarithmic": true
+        },
+        {
+          "name": "noise_scale",
+          "display_name": "Scale",
+          "param_type": "float",
+          "min": 0.0,
+          "max": 10.0,
+          "default": 1.0,
+          "description": "Adjust the scale of the noise",
+          "logarithmic": true
+        },
+        {
+          "name": "noise_octaves",
+          "display_name": "Num. Octaves",
+          "param_type": "int",
+          "min": 1,
+          "max": 10,
+          "default": 1,
+          "description": "Set the number of noise octaves for fractal generation"
+        },
+        {
+          "name": "noise_gain",
+          "display_name": "Gain/Octave",
+          "param_type": "float",
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.5,
+          "description": "Adjust the gain applied to the noise value produced by each octave"
+        },
+        {
+          "name": "noise_position_scale_factor",
+          "display_name": "Pos. Scale/Octave",
+          "param_type": "float",
+          "logarithmic": true,
+          "min": 0.0,
+          "max": 10.0,
+          "default": 2.0,
+          "description": "Adjust the position scale applied to each octave"
+        },
+        {
+          "name": "noise_rotation_angle_increment",
+          "display_name": "Rotation/Octave",
+          "param_type": "float",
+          "min": 0.0,
+          "max": 6.28318530718,
+          "default": 0.1,
+          "description": "Adjust the rotation angle increment applied to each octave"
+        },
+        {
+          "name": "noise_time_scale_factor",
+          "display_name": "Time Scale/Octave",
+          "param_type": "float",
+          "logarithmic": true,
+          "min": 0.0,
+          "max": 10.0,
+          "default": 1.0,
+          "description": "Adjust the time scale factor applied to each octave"
+        },
+        {
+          "name": "noise_time_offset_increment",
+          "display_name": "Time Offset/Octave",
+          "param_type": "float",
+          "min": 0.0,
+          "max": 10.0,
+          "default": 0.1,
+          "description": "Adjust the time offset increment applied to each octave"
+        }
+      ]
+    },
+    "gradient3_noise": {
+      "display_name": "Noisy Colors (Discrete)",
+      "description": "Colors spatially distributed with noise",
+      "param_groups": [
+        {
+          "display_name": "Color Settings",
+          "params": ["start_color", "end_color1", "end_color2", "end_color3"]
+        },
+        {
+          "display_name": "Noise Settings",
+          "params": ["noise_speed", "noise_scale", "noise_octaves", "noise_gain",
+                    "noise_position_scale_factor", "noise_rotation_angle_increment", 
+                    "noise_time_scale_factor", "noise_time_offset_increment"]
+        }
+      ],
+      "params": [
+        {
+          "name": "start_color",
+          "display_name": "Low Color",
+          "param_type": "color",
+          "default": [0.0, 0.0, 0.0, 1.0],
+          "description": "Color for minimum grayscale value"
+        },
+        {
+          "name": "end_color1",
+          "display_name": "High Color 1", 
+          "param_type": "color",
+          "default": [1.0, 0.8, 0.3, 1.0],
+          "description": "First color for maximum grayscale value"
+        },
+        {
+          "name": "end_color2",
+          "display_name": "High Color 2", 
+          "param_type": "color",
+          "default": [0.3, 0.8, 1.0, 1.0],
+          "description": "Second color for maximum grayscale value"
+        },
+        {
+          "name": "end_color3",
+          "display_name": "High Color 3", 
+          "param_type": "color",
+          "default": [0.8, 0.3, 1.0, 1.0],
+          "description": "Third color for maximum grayscale value"
+        },
+        {
+          "name": "noise_speed",
+          "display_name": "Speed",
+          "param_type": "float",
+          "logarithmic": true,
+          "min": 0.0,
+          "max": 5.0,
+          "default": 1.0,
+          "description": "Noise animation speed"
+        },
+        {
+          "name": "noise_scale",
+          "display_name": "Scale",
+          "param_type": "float",
+          "logarithmic": true,
+          "min": 0.0,
+          "max": 10.0,
+          "default": 1.0,
+          "description": "Adjust the scale of the noise"
+        },
+        {
+          "name": "noise_octaves",
+          "display_name": "Num. Octaves",
+          "param_type": "int",
+          "min": 1,
+          "max": 10,
+          "default": 1,
+          "description": "Set the number of noise octaves for fractal generation"
+        },
+        {
+          "name": "noise_gain",
+          "display_name": "Gain/Octave",
+          "param_type": "float",
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.5,
+          "description": "Adjust the gain applied to the noise value produced by each octave"
+        },
+        {
+          "name": "noise_position_scale_factor",
+          "display_name": "Pos. Scale/Octave",
+          "param_type": "float",
+          "logarithmic": true,
+          "min": 0.0,
+          "max": 10.0,
+          "default": 2.0,
+          "description": "Adjust the position scale applied to each octave"
+        },
+        {
+          "name": "noise_rotation_angle_increment",
+          "display_name": "Rotation/Octave",
+          "param_type": "float",
+          "min": 0.0,
+          "max": 6.28318530718,
+          "default": 0.1,
+          "description": "Adjust the rotation angle increment applied to each octave"
+        },
+        {
+          "name": "noise_time_scale_factor",
+          "display_name": "Time Scale/Octave",
+          "param_type": "float",
+          "logarithmic": true,
+          "min": 0.0,
+          "max": 10.0,
+          "default": 1.0,
+          "description": "Adjust the time scale factor applied to each octave"
+        },
+        {
+          "name": "noise_time_offset_increment",
+          "display_name": "Time Offset/Octave",
+          "param_type": "float",
+          "min": 0.0,
+          "max": 10.0,
+          "default": 0.1,
+          "description": "Adjust the time offset increment applied to each octave"
         }
       ]
     }

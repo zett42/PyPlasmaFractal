@@ -75,7 +75,7 @@ def slider_int(label: str, obj: object, attr: str = None, index: Optional[int] =
     )
 
 
-def slider_float(label: str, obj: object, attr: str = None, index: Optional[IndexType] = None, min_value: float = 0.0, max_value: float = 1.0, flags: int = 0) -> bool:
+def slider_float(label: str, obj: object, attr: str = None, index: Optional[IndexType] = None, min_value: float = 0.0, max_value: float = 1.0, flags: int = 0, format="%.3f") -> bool:
     """
     Creates and manages an ImGui float slider for modifying a property of an object or a specific index within a collection.
 
@@ -95,7 +95,7 @@ def slider_float(label: str, obj: object, attr: str = None, index: Optional[Inde
         obj, 
         attr=attr,
         index=index,
-        interaction_func=lambda display_value, current_value: imgui.slider_float(label, display_value, min_value, max_value, flags=flags)
+        interaction_func=lambda display_value, current_value: imgui.slider_float(label, display_value, min_value, max_value, flags=flags, format=format)
     )
 
 
