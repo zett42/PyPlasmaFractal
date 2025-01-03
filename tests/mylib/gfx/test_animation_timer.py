@@ -160,3 +160,62 @@ def test_nested_speed_adjustment_continuity(mock_time):
     mock_time.advance(0.1)
     child.update()
     assert child.accumulated_time == pytest.approx(0.7)  # 0.1 + (0.1 * 6.0)
+
+
+def test_step_mode_basic():
+    timer = AnimationTimer()
+    assert not timer.step_mode  # Default should be False
+    
+    timer.step_mode = True
+    assert timer.step_mode
+    
+    # Normal update should not change time in step mode
+    initial_time = timer.accumulated_time
+    timer.update()
+    assert timer.accumulated_time == initial_time
+    
+    # Step should advance time by specified amount
+    timer.step(0.1)
+    assert timer.accumulated_time == pytest.approx(0.1)
+
+
+def test_step_mode_with_speed():
+    timer = AnimationTimer()
+    timer.step_mode = True
+    timer.speed = 2.0
+    
+    timer.step(0.1)
+    assert timer.accumulated_time == pytest.approx(0.2)  # 0.1 * 2.0
+
+
+def test_step_mode_hierarchical():
+    parent = AnimationTimer()
+    child = AnimationTimer(parent)
+    
+    # Setting step mode on parent should propagate to child
+    parent.step_mode = True
+    assert child.step_mode
+    
+    # Set speeds for testing hierarchy
+    parent.speed = 2.0
+    child.speed = 3.0
+    
+    # Step should respect speed hierarchy
+    parent.step(0.1)
+    assert parent.accumulated_time == pytest.approx(0.2)  # 0.1 * 2.0
+    assert child.accumulated_time == pytest.approx(0.6)   # 0.1 * 2.0 * 3.0
+
+
+def test_step_mode_pause_interaction():
+    timer = AnimationTimer()
+    timer.step_mode = True
+    timer.paused = True
+    
+    # Step should not advance time when paused
+    timer.step(0.1)
+    assert timer.accumulated_time == 0.0
+    
+    # Resume and verify step works
+    timer.paused = False
+    timer.step(0.1)
+    assert timer.accumulated_time == pytest.approx(0.1)
