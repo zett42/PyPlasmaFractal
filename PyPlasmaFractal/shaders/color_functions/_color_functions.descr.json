@@ -6,9 +6,29 @@
       "description": "Grayscale output",
       "params": []
     },
-    "gradient3": {
-      "display_name": "Color Gradient",
+    "gradient2": {
+      "display_name": "Color Gradient (2 Colors)",
       "description": "Maps grayscale values to a gradient between two colors",
+      "params": [
+        {
+          "name": "start_color",
+          "display_name": "Low Color",
+          "param_type": "color",
+          "default": [0.0, 0.0, 0.0, 1.0],
+          "description": "Color for minimum grayscale value"
+        },
+        {
+          "name": "end_color",
+          "display_name": "High Color", 
+          "param_type": "color",
+          "default": [1.0, 0.8, 0.3, 1.0],
+          "description": "Color for maximum grayscale value"
+        }
+      ]
+    },
+    "gradient3": {
+      "display_name": "Color Gradient (3 Colors)",
+      "description": "Maps grayscale values to a gradient between three colors",
       "params": [
         {
           "name": "start_color",

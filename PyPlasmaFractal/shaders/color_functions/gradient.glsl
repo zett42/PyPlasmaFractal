@@ -3,6 +3,20 @@
 #apply_template "fractal_noise/fractal_noise_single.glsl", NOISE_FUNC = simplex_perlin_3d
 
 /// Maps a grayscale value to a color gradient between two colors.
+///
+/// @param grayscale The grayscale value (0.0 to 1.0).
+/// @param pos The fragment position.
+/// @param time The current time.
+/// @param start_color The color for the minimum grayscale value.
+/// @param end_color The color for the maximum grayscale value.
+///
+/// @return The interpolated color.
+
+vec4 colorize_gradient2(float grayscale, vec2 pos, float time, vec4 start_color, vec4 end_color) {
+    return mix(start_color, end_color, grayscale);
+}
+
+/// Maps a grayscale value to a color gradient between two colors.
 /// 
 /// @param grayscale The grayscale value (0.0 to 1.0).
 /// @param pos The fragment position.
@@ -40,8 +54,6 @@ vec4 colorize_gradient3(float grayscale, vec2 pos, float time, vec4 start_color,
 /// @param noise_scale Scale factor for noise.
 /// @param gamma Adjusts the gradient interpolation curve.
 ///
-/// @return The interpolated color with noise.
-
 vec4 colorize_gradient2_noise(
     float grayscale, vec2 pos, float time, vec4 start_color, vec4 end_color, float hue_shift_factor,
     float noise_speed, float noise_scale, int noise_octaves, float noise_gain,
@@ -75,8 +87,6 @@ vec4 colorize_gradient2_noise(
 /// @param noise_time_offset_increment Time offset increment for noise.
 /// @param hue_shift_factor Factor to scale the hue shift based on noise value.
 ///
-/// @return The interpolated color with noise.
-
 vec4 colorize_gradient3_noise(
 
     float grayscale, vec2 pos, float time, vec4 start_color, vec4 end_color1, vec4 end_color2, vec4 end_color3,
