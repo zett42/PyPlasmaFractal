@@ -1,10 +1,15 @@
 import imgui
 import math
 from typing import Any, Dict
+from pathlib import Path
+import platform
+import os
+import logging
 
 from PyPlasmaFractal.mylib.config.function_info import FunctionParam
 from PyPlasmaFractal.mylib.config.function_registry import FunctionRegistry
 from PyPlasmaFractal.mylib.gui.ansi_style import AnsiStyle
+from PyPlasmaFractal.mylib.gui.icons import Icons
 import PyPlasmaFractal.mylib.gui.imgui_helper as ih
 from PyPlasmaFractal.plasma_fractal_params import PlasmaFractalParams
 
@@ -186,3 +191,53 @@ def param_control(param_info: FunctionParam, function_params: Dict, header: str)
     
     if (description := getattr(param_info, 'description', None)):
         ih.show_tooltip(description)
+
+
+def confirm_dialog(message: str, title: str) -> bool:
+    """
+    Displays a confirmation dialog with a message and Yes/No buttons.
+
+    Args:
+        message (str): The message to display in the dialog.
+        title (str): The title of the dialog window.
+
+    Returns:
+        bool: True if user clicked Yes, False otherwise.
+    """
+    user_confirmed = False
+
+    if imgui.begin_popup_modal(title, flags=imgui.WINDOW_ALWAYS_AUTO_RESIZE)[0]:
+        imgui.spacing()
+        imgui.text(f'{Icons.WARNING} {message}')
+        imgui.spacing()
+
+        if imgui.button("Yes"):
+            user_confirmed = True
+            imgui.close_current_popup()
+
+        imgui.same_line()
+        if imgui.button("No"):
+            imgui.close_current_popup()
+
+        imgui.end_popup()
+
+    return user_confirmed
+
+
+def open_folder_button(directory: Path):
+    """
+    Creates a button that opens the specified directory in the system's file explorer.
+
+    Args:
+        directory (Path): Directory to open
+    """
+    if imgui.button("Open Folder"):
+        try:
+            if platform.system() == "Windows":
+                os.startfile(directory)
+            elif platform.system() == "Darwin":  # macOS
+                os.system(f'open "{directory}"')
+            else:  # Assume Linux
+                os.system(f'xdg-open "{directory}"')
+        except Exception as e:
+            logging.error(f"Failed to open directory: {e}")

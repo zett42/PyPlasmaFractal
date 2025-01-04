@@ -1,25 +1,18 @@
-﻿from enum import Enum, auto
-import datetime
+﻿import datetime
 import logging
-import math
-import os
 from pathlib import Path
-import platform
 from typing import *
 import imgui
  
-from PyPlasmaFractal.gui.utils.common_controls import function_settings, noise_controls
+from PyPlasmaFractal.gui.utils.common_controls import confirm_dialog, open_folder_button
 from PyPlasmaFractal.mylib.config.config_path_manager import ConfigPathManager
-from PyPlasmaFractal.mylib.config.function_info import FunctionParam
 from PyPlasmaFractal.mylib.config.json_file_storage import JsonFileStorage
 from PyPlasmaFractal.mylib.config.source_manager import StorageSourceManager
-from PyPlasmaFractal.mylib.config.function_registry import FunctionRegistry, ParamType
-from PyPlasmaFractal.mylib.gui.ansi_style import AnsiStyle
-from PyPlasmaFractal.mylib.gui.icons import Icons
+from PyPlasmaFractal.mylib.config.function_registry import FunctionRegistry
 from PyPlasmaFractal.mylib.gui.notification_manager import NotificationManager
 from PyPlasmaFractal.mylib.gui.window_fade_manager import WindowFadeManager
 import PyPlasmaFractal.mylib.gui.imgui_helper as ih
-from PyPlasmaFractal.mylib.color.adjust_color import modify_rgba_color_hsv, sigmoid_contrast
+from PyPlasmaFractal.mylib.color.adjust_color import modify_rgba_color_hsv
 from PyPlasmaFractal.plasma_fractal_types import ShaderFunctionType
 from .plasma_fractal_params import PlasmaFractalParams
 from PyPlasmaFractal.gui.utils.common_types import GuiNotification
@@ -183,7 +176,7 @@ class PlasmaFractalGUI:
         if imgui.button("Reset to Defaults"):
             imgui.open_popup(confirm_dialog_title)
 
-        if self.confirm_dialog("Are you sure you want to reset all settings to their defaults?", confirm_dialog_title):
+        if confirm_dialog("Are you sure you want to reset all settings to their defaults?", confirm_dialog_title):
             params.apply_defaults()
             self.notifications.push_notification(GuiNotification.NEW_PRESET_LOADED)
     
@@ -232,7 +225,7 @@ class PlasmaFractalGUI:
             imgui.same_line()
             self.preset_delete_ui(params)
             imgui.same_line()
-            self.presets_open_folder_ui()
+            open_folder_button(self.get_current_preset().storage.directory)
         
         imgui.spacing()
         self.preset_save_ui(params)
@@ -317,8 +310,8 @@ class PlasmaFractalGUI:
 
         # Shows the confirmation dialog if triggered by open_popup().
         # Note: this needs to be on the same level as the button, otherwise the popup won't work
-        if self.confirm_dialog(f'A preset with this name already exists:\n"{self.current_preset_name}"\n\nDo you want to overwrite it?',
-                               confirm_dlg_title):
+        if confirm_dialog(f'A preset with this name already exists:\n"{self.current_preset_name}"\n\nDo you want to overwrite it?',
+                          confirm_dlg_title):
 
             self.save_preset(params)
             
@@ -340,17 +333,8 @@ class PlasmaFractalGUI:
                 imgui.open_popup("Confirm Deletion")
 
             # Confirmation popup logic
-            if self.confirm_dialog(f'Are you sure you want to delete the preset "{self.current_preset_name}" ?', "Confirm Deletion"):
+            if confirm_dialog(f'Are you sure you want to delete the preset "{self.current_preset_name}" ?', "Confirm Deletion"):
                 self.delete_selected_preset()
- 
-
-    def presets_open_folder_ui(self):
-        """
-        Opens the folder where the user presets are stored.
-        """            
-        if imgui.button("Open Folder"):
-            current_preset = self.get_current_preset()
-            self.open_folder(current_preset.storage.directory)
 
 
     def handle_preset_error(self):
@@ -363,55 +347,6 @@ class PlasmaFractalGUI:
             imgui.push_text_wrap_pos()
             imgui.text_colored(f"ERROR: {self.preset_error_message}", 1.0, 0.2, 0.2)
             imgui.pop_text_wrap_pos()
-
-
-    def open_folder(self, directory: str):
-        """
-        Opens the presets directory in the system's default file explorer.
-        """
-        try:
-            if platform.system() == "Windows":
-                os.startfile(directory)
-            elif platform.system() == "Darwin":  # macOS
-                os.system(f'open "{directory}"')
-            else:  # Assume Linux
-                os.system(f'xdg-open "{directory}"')
-        except Exception as e:
-            logging.error(f"Failed to open directory: {e}")
-            
-
-    def confirm_dialog(self, message: str, title: str) -> bool:
-        """
-        Displays a confirmation dialog with a message and buttons for the user to confirm or cancel.
-
-        Args:
-            message (str): The message to display in the dialog.
-            id (str, optional): An optional identifier for the dialog. Defaults to None.
-            title (str, optional): The title of the dialog. Defaults to "Confirm Overwrite".
-
-        Returns:
-            bool: True if the user confirmed, False otherwise.
-        """
-
-        user_confirmed = False  # Default to False unless user confirms
-
-        if imgui.begin_popup_modal(title, flags=imgui.WINDOW_ALWAYS_AUTO_RESIZE)[0]:
-
-            imgui.spacing()
-            imgui.text(f'{Icons.WARNING} {message}')
-            imgui.spacing()
-
-            if imgui.button("Yes"):
-                user_confirmed = True
-                imgui.close_current_popup()
-
-            imgui.same_line()
-            if imgui.button("No"):
-                imgui.close_current_popup()
-
-            imgui.end_popup()
-
-        return user_confirmed
 
 
     #.......................... Preset file management methods ...........................................................................
@@ -595,8 +530,7 @@ class PlasmaFractalGUI:
                 # Add a button to open the video folder
                 if not self.is_recording:
                     imgui.spacing()
-                    if imgui.button("Open Folder"):
-                        self.open_folder(self.recording_directory)
+                    open_folder_button(self.recording_directory)
                         
     def handle_recording_button(self):
         """
@@ -615,9 +549,8 @@ class PlasmaFractalGUI:
             else:
                 self.start_recording()
 
-        if self.confirm_dialog(f'A recording with this name already exists:\n"{self.recording_file_name}"\n\nDo you want to overwrite it?',
-                               dialog_title):
-            logging.info(f"Confirmed to overwrite existing recording file: {self.recording_file_name}")
+        if confirm_dialog(f'A recording with this name already exists:\n"{self.recording_file_name}"\n\nDo you want to overwrite it?',
+                          dialog_title):
             self.start_recording()                  
 
     def start_recording(self):
