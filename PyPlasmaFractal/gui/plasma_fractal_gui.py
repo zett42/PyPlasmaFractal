@@ -84,20 +84,7 @@ class PlasmaFractalGUI:
                 # Fade the control panel in or out based on mouse activity
                 self.fade_manager.update(imgui.get_mouse_pos(), imgui.is_window_focused(imgui.FOCUS_ANY_WINDOW))
 
-                # Display the "Reset to Defaults" button and handle the confirmation dialog
-                self.show_reset_button_and_confirm_dialog(params)
-
-                # Display the current FPS in the same line as the "Reset to Defaults" button
-                self.display_fps_same_line()
-
-                width = imgui.get_content_region_available_width()
-
-                imgui.set_next_item_width(width - 160)
-                ih.slider_float("Speed", params, 'speed', min_value=0.01, max_value=10.0, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)
-
-                imgui.same_line()
-                ih.checkbox("Paused", self, attr='animation_paused')
-                imgui.spacing()
+                self.update_main_controls(params)
 
                 with imgui.begin_tab_bar("Control Tabs") as tab_bar:
                     if tab_bar.opened:
@@ -120,6 +107,29 @@ class PlasmaFractalGUI:
                         with imgui.begin_tab_item("Recording") as recording_tab:
                             if recording_tab.selected:
                                 self.recording_tab.update()
+
+
+    def update_main_controls(self, params: PlasmaFractalParams):
+        """
+        Draws the main controls that appear above the tabs.
+        
+        Args:
+            params (PlasmaFractalParams): The current settings of the plasma fractal.
+        """
+        # Display the "Reset to Defaults" button and handle the confirmation dialog
+        self.show_reset_button_and_confirm_dialog(params)
+
+        # Display the current FPS in the same line as the "Reset to Defaults" button
+        self.display_fps_same_line()
+
+        width = imgui.get_content_region_available_width()
+
+        imgui.set_next_item_width(width - 160)
+        ih.slider_float("Speed", params, 'speed', min_value=0.01, max_value=10.0, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)
+
+        imgui.same_line()
+        ih.checkbox("Paused", self, attr='animation_paused')
+        imgui.spacing()
 
     
     def show_reset_button_and_confirm_dialog(self, params: PlasmaFractalParams):
