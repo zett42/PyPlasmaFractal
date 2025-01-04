@@ -101,8 +101,18 @@ def function_settings(ui_state: object,
                       function_attr: str,
                       params_attr: str,
                       params: PlasmaFractalParams):
+    """
+    Display the setting controls for a specific function.
     
-    """Display the setting controls for a specific function."""
+    Args:
+        ui_state: The object containing the UI state attributes.
+        header: The header text to display.
+        header_attr: The attribute name for the header state.
+        registry: The function registry containing the function information.
+        function_attr: The attribute name for the selected function key.
+        params_attr: The attribute name for the function parameters dictionary.
+        params: The PlasmaFractalParams object to update.    
+    """
     
     if ih.collapsing_header(header, ui_state, attr=header_attr):
         
