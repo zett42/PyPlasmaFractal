@@ -1,13 +1,16 @@
 ![PyPlasmaFractal Header](images/screenshot2.png)
-Screenshot
-
-[![PyPlasmaFractal Video](https://img.youtube.com/vi/P58PxfewxO4/0.jpg)](https://www.youtube.com/watch?v=P58PxfewxO4 "PyPlasmaFractal Video - Colorful Flow")
-<br>
-Video (recorded in-app)
 
 # PyPlasmaFractal
 
-PyPlasmaFractal is a Python based real-time application for rendering and exploring fractal noise visuals. It uses ModernGL for OpenGL rendering, GLFW for window management, and ImGui for an interactive user interface. This application specifically focuses on fractal noise combined with feedback effects, which employ fractal noise-based warping effects to enhance the complexity and continuity of visuals. It allows for the generation of a wide range of effects such as clouds, smoke, or fluid-like visuals.
+PyPlasmaFractal is a Python based real-time application for rendering and exploring fractal noise visuals, focusing on feedback effects to create dynamic flow. It allows for the generation of a wide range of effects such as clouds, smoke, or fluid-like visuals.
+
+[![PyPlasmaFractal Video 1](https://img.youtube.com/vi/P58PxfewxO4/0.jpg)](https://www.youtube.com/watch?v=P58PxfewxO4 "PyPlasmaFractal Video - Colorful Flow")
+<br>
+Demo Video #1
+
+[![PyPlasmaFractal Video 2](https://img.youtube.com/vi/-JK6erDcDWs/0.jpg)](https://www.youtube.com/watch?v=-JK6erDcDWs "PyPlasmaFractal Video - Flow Painting")
+<br>
+Demo Video #2
 
 ## Features
 
@@ -15,8 +18,8 @@ PyPlasmaFractal is a Python based real-time application for rendering and explor
 - Advanced feedback effects using fractal noise-based warping to create complex visual patterns.
 - Capability to generate diverse visuals including cloud-like, smoke-like, and fluid-like effects.
 - Interactive controls for adjusting fractal parameters on-the-fly.
-- Persistent user settings for fractal parameters to facilitate experimentation.
-- High-performance graphics rendering using ModernGL and GLFW.
+- Preset system to load and save fractal parameters.
+- High-performance graphics rendering using OpenGL.
 - Video recording.
 
 ## Installation
