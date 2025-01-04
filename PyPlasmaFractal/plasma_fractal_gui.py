@@ -32,7 +32,7 @@ class PlasmaFractalGUI:
         animation_paused (bool): Flag to indicate whether the animation is paused.
         noise_settings_open (bool): Flag to control the visibility of the noise settings.
         fractal_settings_open (bool): Flag to control the visibility of fractal settings.
-        output_settings_open (bool): Flag to control the visibility of output settings.
+        basic_color_settings_open (bool): Flag to control the visibility of output settings.
         feedback_general_settings_open (bool): Flag to control the visibility of general feedback settings.
         feedback_warp_noise_settings_open (bool): Flag to control the visibility of feedback noise settings.
         feedback_warp_octave_settings_open (bool): Flag to control the visibility of feedback octave settings.
@@ -61,7 +61,7 @@ class PlasmaFractalGUI:
         
         # Initialize the visibility state for the different settings tabs
         self.noise_settings_open = True
-        self.output_settings_open = True
+        self.basic_color_settings_open = True
         self.feedback_general_settings_open = True
         self.feedback_blur_settings_open = True
         self.feedback_warp_noise_settings_open = True
@@ -149,13 +149,13 @@ class PlasmaFractalGUI:
                             if noise_tab.selected:
                                 self.handle_noise_tab(params)
 
-                        with imgui.begin_tab_item("Color") as color_tab:
-                            if color_tab.selected:
-                                self.handle_color_tab(params)
-
                         with imgui.begin_tab_item("Feedback") as feedback_tab:
                             if feedback_tab.selected:
                                 self.handle_feedback_tab(params)
+
+                        with imgui.begin_tab_item("Color") as color_tab:
+                            if color_tab.selected:
+                                self.handle_color_tab(params)
 
                         with imgui.begin_tab_item("Presets") as presets_tab:
                             if presets_tab.selected:
@@ -215,27 +215,8 @@ class PlasmaFractalGUI:
         """
                
         with ih.resized_items(-160):
-
             if ih.collapsing_header("Noise Settings", self, attr='noise_settings_open'):
                 self.noise_controls(params.noise, 'noise')
-
-            if ih.collapsing_header("Output Settings", self, attr='output_settings_open'):
-                
-                ih.slider_float("Brightness", params, 'brightness', min_value=0.0, max_value=2.0)
-                ih.show_tooltip("Adjust the brightness of the rendered noise.\n"
-                                "Higher values increase the overall intensity of the noise pattern.")
-                
-                ih.slider_float("Contrast", params, 'contrast_steepness', min_value=0.001, max_value=50.0)
-                ih.show_tooltip("Set the contrast steepness of the rendered noise.\n"
-                                "Higher values result in sharper contrasts between light and dark areas.")
-                
-                ih.slider_float("Contrast Midpoint", params, 'contrast_midpoint', min_value=0.0, max_value=1.0)
-                ih.show_tooltip("Adjust the midpoint for contrast adjustments.\n"
-                                "Higher values shift the midpoint towards the brighter end of the intensity range.")
-
-                ih.plot_callable('##output_curve', 
-                                 lambda x: sigmoid_contrast(x, params.contrast_steepness, params.contrast_midpoint) * params.brightness, 
-                                 scale_max=2.0)
 
 
     def handle_feedback_tab(self, params: PlasmaFractalParams):
@@ -249,52 +230,33 @@ class PlasmaFractalGUI:
 
         if params.enable_feedback:
             imgui.spacing()
-            self.handle_feedback_controls(params)
-        else:
-            imgui.spacing()
-            imgui.spacing()
-            imgui.text_colored("Note", 1.0, 0.9, 0.2)
-            imgui.separator()
-            imgui.text_wrapped("After enabling feedback, you might want to adjust the noise settings, particularly the contrast for better results.")
+            with ih.resized_items(-160):
 
+                self.function_settings(header="Feedback Mix Settings", header_attr='feedback_general_settings_open', 
+                                    registry=self.blend_function_registry, function_attr='feedback_function', params_attr='feedback_params', 
+                                    params=params)
 
-    def handle_feedback_controls(self, params: PlasmaFractalParams):
-        """
-        Manages detailed UI controls for configuring feedback effects in the plasma fractal visualization.
+                if ih.collapsing_header("Feedback Blur Settings", self, attr='feedback_blur_settings_open'):
+                                    
+                    ih.checkbox("Enable Blur", params, 'enable_feedback_blur')
+                    if params.enable_feedback_blur:
+                        ih.slider_int("Blur Radius", params, 'feedback_blur_radius', min_value=1, max_value=16)
+                        ih.slider_float("Blur Radius Power", params, 'feedback_blur_radius_power', min_value=0.01, max_value=20, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)
+        
+                if ih.collapsing_header("Warp Noise Settings", self, attr='feedback_warp_noise_settings_open'):
+                    self.noise_controls(params.warp_noise, 'warp_noise')
 
-        Args:
-            params (PlasmaFractalParams): The current settings of the plasma fractal, specifically for configuring feedback effects.
-        """
-        with ih.resized_items(-160):
+                self.function_settings(header="Warp Function Settings", header_attr='feedback_warp_effect_settings_open', 
+                                    registry=self.warp_function_registry, function_attr='warp_function', params_attr='warp_params',
+                                    params=params)
+            return
 
-            self.function_settings(header="Feedback Mix Settings", header_attr='feedback_general_settings_open', 
-                                   registry=self.blend_function_registry, function_attr='feedback_function', params_attr='feedback_params', 
-                                   params=params)
-
-            if ih.collapsing_header("Feedback Color Settings", self, attr='feedback_color_settings_open'):
-                ih.checkbox("Enable Color Adjustment", params, 'enable_feedback_color_adjust')
-                if params.enable_feedback_color_adjust:
-                    ih.slider_float("Hue Shift", params, 'feedback_hue_shift', min_value=-1.0, max_value=1.0, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)
-                    ih.show_tooltip("Shift the hue of the feedback texture.\nValue is normalized (0-1).")
-                    
-                    ih.slider_float("Saturation Adjust", params, 'feedback_saturation', min_value=-1.0, max_value=1.0, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)
-                    ih.show_tooltip("Adjust the saturation of the feedback texture.\n"
-                                  "Negative values decrease saturation,\n"
-                                  "positive values increase it.")
-
-            if ih.collapsing_header("Feedback Blur Settings", self, attr='feedback_blur_settings_open'):
-                                   
-                ih.checkbox("Enable Blur", params, 'enable_feedback_blur')
-                if params.enable_feedback_blur:
-                    ih.slider_int("Blur Radius", params, 'feedback_blur_radius', min_value=1, max_value=16)
-                    ih.slider_float("Blur Radius Power", params, 'feedback_blur_radius_power', min_value=0.01, max_value=20, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)
-      
-            if ih.collapsing_header("Warp Noise Settings", self, attr='feedback_warp_noise_settings_open'):
-                self.noise_controls(params.warp_noise, 'warp_noise')
-
-            self.function_settings(header="Warp Function Settings", header_attr='feedback_warp_effect_settings_open', 
-                                   registry=self.warp_function_registry, function_attr='warp_function', params_attr='warp_params',
-                                   params=params)
+        # Display a note when feedback is disabled                
+        imgui.spacing()
+        imgui.spacing()
+        imgui.text_colored("Note", 1.0, 0.9, 0.2)
+        imgui.separator()
+        imgui.text_wrapped("After enabling feedback, you might want to adjust the contrast on the \"Color\" tab for better results.")
 
 
     def noise_controls(self, noise_params, unique_id: str):
@@ -347,10 +309,40 @@ class PlasmaFractalGUI:
         """
               
         with ih.resized_items(-160):
+            
+            if ih.collapsing_header("Basic Settings", self, attr='basic_color_settings_open'):
+                
+                ih.slider_float("Brightness", params, 'brightness', min_value=0.0, max_value=2.0)
+                ih.show_tooltip("Adjust the brightness of the grayscale noise, before any colorization is applied.\n"
+                                "Higher values increase the overall intensity of the noise pattern.")
+                
+                ih.slider_float("Contrast", params, 'contrast_steepness', min_value=0.001, max_value=50.0)
+                ih.show_tooltip("Set the contrast steepness of the grayscale noise, before any colorization is applied.\n"
+                                "Higher values result in sharper contrasts between light and dark areas.")
+                
+                ih.slider_float("Contrast Midpoint", params, 'contrast_midpoint', min_value=0.0, max_value=1.0)
+                ih.show_tooltip("Adjust the contrast midpoint of the grayscale noise, before any colorization is applied.\n"
+                                "Higher values shift the midpoint towards the brighter end of the intensity range.")
 
-            self.function_settings(header="Color Function Settings", header_attr='color_function_settings_open', 
+                ih.plot_callable('##output_curve', 
+                                 lambda x: sigmoid_contrast(x, params.contrast_steepness, params.contrast_midpoint) * params.brightness, 
+                                 scale_max=2.0)
+
+            self.function_settings(header="Colorization Settings", header_attr='color_function_settings_open', 
                                     registry=self.color_function_registry, function_attr='color_function', params_attr='color_params', 
                                     params=params)
+
+            if params.enable_feedback:
+                if ih.collapsing_header("Feedback Color Settings", self, attr='feedback_color_settings_open'):                    
+
+                    ih.checkbox("Enable Color Adjustment", params, 'enable_feedback_color_adjust')                    
+                    if params.enable_feedback_color_adjust:
+
+                        ih.slider_float("Hue Shift", params, 'feedback_hue_shift', min_value=-1.0, max_value=1.0, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)
+                        ih.show_tooltip("Shift the hue of the feedback frame, which causes the hue to gradually change over time.")
+                        
+                        ih.slider_float("Saturation Adjust", params, 'feedback_saturation', min_value=-1.0, max_value=1.0, flags=imgui.SLIDER_FLAGS_LOGARITHMIC)
+                        ih.show_tooltip("Adjust the saturation of the feedback frame, which causes the saturation to gradually change over time.")
 
 
     def function_combo(self, combo_label: str, params: PlasmaFractalParams, params_attr: str, registry: FunctionRegistry):

@@ -64,7 +64,7 @@
     },
     "gradient2_noise": {
       "display_name": "Noisy Colors (Hue Shift)",
-      "description": "Colors spatially adjusted with noise",
+      "description": "Uses animated noise to dynamically shift the hue of the \"high\" color.",
       "param_groups": [
         {
           "display_name": "Color Settings",
@@ -182,7 +182,7 @@
     },
     "gradient3_noise": {
       "display_name": "Noisy Colors (Discrete)",
-      "description": "Colors spatially distributed with noise",
+      "description": "Spatially distributes the three \"high\" colors using animated noise.",
       "param_groups": [
         {
           "display_name": "Color Settings",
