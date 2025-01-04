@@ -56,12 +56,12 @@ from PyPlasmaFractal.mylib.recording.video_recorder import VideoRecorder
 from PyPlasmaFractal.mylib.noise.fractal_noise_params import FractalNoiseParamsType, NoiseAlgorithmType
 
 # Local modules - application
-from PyPlasmaFractal.plasma_fractal_gui import PlasmaFractalGUI
+from PyPlasmaFractal.gui.plasma_fractal_gui import PlasmaFractalGUI
 from PyPlasmaFractal.plasma_fractal_params import PlasmaFractalParams
 from PyPlasmaFractal.plasma_fractal_renderer import PlasmaFractalRenderer
 from PyPlasmaFractal.plasma_fractal_resources import resource_path
 from PyPlasmaFractal.plasma_fractal_types import ShaderFunctionType
-from PyPlasmaFractal.gui.utils.common_types import GuiNotification
+from PyPlasmaFractal.gui.common.common_types import GuiNotification
 
 glfw = None  # Global variable to store the GLFW module reference, which is imported later in the code
 

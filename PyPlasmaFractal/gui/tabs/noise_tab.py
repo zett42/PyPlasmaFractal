@@ -1,7 +1,7 @@
 import PyPlasmaFractal.mylib.gui.imgui_helper as ih
 from PyPlasmaFractal.plasma_fractal_params import PlasmaFractalParams
 from PyPlasmaFractal.mylib.config.function_registry import FunctionRegistry
-from PyPlasmaFractal.gui.utils.common_controls import noise_controls
+from PyPlasmaFractal.gui.common.common_controls import noise_controls
 
 class NoiseTab:
     """

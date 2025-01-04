@@ -3,11 +3,10 @@ from pathlib import Path
 from typing import Union
 import imgui
 
-from PyPlasmaFractal.gui.utils.common_controls import confirm_dialog, open_folder_button
-from PyPlasmaFractal.gui.utils.common_types import GuiNotification
+from PyPlasmaFractal.gui.common.common_types import GuiNotification
+from PyPlasmaFractal.gui.common.common_controls import confirm_dialog, open_folder_button
 import PyPlasmaFractal.mylib.gui.imgui_helper as ih
 from PyPlasmaFractal.mylib.gui.notification_manager import NotificationManager
-from PyPlasmaFractal.plasma_fractal_params import PlasmaFractalParams
 
 class RecordingTab:
     """

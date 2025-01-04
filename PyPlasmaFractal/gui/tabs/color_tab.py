@@ -2,7 +2,7 @@ import imgui
 import PyPlasmaFractal.mylib.gui.imgui_helper as ih
 from PyPlasmaFractal.plasma_fractal_params import PlasmaFractalParams
 from PyPlasmaFractal.mylib.config.function_registry import FunctionRegistry
-from PyPlasmaFractal.gui.utils.common_controls import function_settings
+from PyPlasmaFractal.gui.common.common_controls import function_settings
 from PyPlasmaFractal.mylib.color.adjust_color import sigmoid_contrast
 
 

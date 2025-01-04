@@ -47,7 +47,8 @@
         "PyPlasmaFractal/gui/utils/__pycache__": true,
         "PyPlasmaFractal/gui/widgets/__pycache__": true,
         "PyPlasmaFractal/gui/tabs/__pycache__": true,
-        "PyPlasmaFractal/gui/__pycache__": true
+        "PyPlasmaFractal/gui/__pycache__": true,
+        "PyPlasmaFractal/gui/common/__pycache__": true
     },
     "hide-files.files": [
         ".vscode",
@@ -91,7 +92,8 @@
         "PyPlasmaFractal/gui/utils/__pycache__",
         "PyPlasmaFractal/gui/widgets/__pycache__",
         "PyPlasmaFractal/gui/tabs/__pycache__",
-        "PyPlasmaFractal/gui/__pycache__"
+        "PyPlasmaFractal/gui/__pycache__",
+        "PyPlasmaFractal/gui/common/__pycache__"
     ],
     "python.testing.pytestArgs": [
         "tests"

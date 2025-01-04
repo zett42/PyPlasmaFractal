@@ -4,10 +4,10 @@ import imgui
 from PyPlasmaFractal.mylib.config.config_path_manager import ConfigPathManager
 import PyPlasmaFractal.mylib.gui.imgui_helper as ih
 
-from PyPlasmaFractal.gui.utils.common_controls import confirm_dialog, open_folder_button
+from PyPlasmaFractal.gui.common.common_types import GuiNotification
+from PyPlasmaFractal.gui.common.common_controls import confirm_dialog, open_folder_button
 from PyPlasmaFractal.mylib.config.json_file_storage import JsonFileStorage
 from PyPlasmaFractal.mylib.config.source_manager import StorageSourceManager
-from PyPlasmaFractal.gui.utils.common_types import GuiNotification
 from PyPlasmaFractal.mylib.gui.notification_manager import NotificationManager
 from PyPlasmaFractal.plasma_fractal_params import PlasmaFractalParams
 

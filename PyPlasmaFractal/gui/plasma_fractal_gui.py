@@ -2,7 +2,7 @@
 from typing import *
 import imgui
  
-from PyPlasmaFractal.gui.utils.common_controls import confirm_dialog
+from PyPlasmaFractal.gui.common.common_controls import confirm_dialog
 from PyPlasmaFractal.mylib.config.config_path_manager import ConfigPathManager
 from PyPlasmaFractal.mylib.config.function_registry import FunctionRegistry
 from PyPlasmaFractal.mylib.gui.notification_manager import NotificationManager
@@ -10,8 +10,8 @@ from PyPlasmaFractal.mylib.gui.window_fade_manager import WindowFadeManager
 import PyPlasmaFractal.mylib.gui.imgui_helper as ih
 from PyPlasmaFractal.mylib.color.adjust_color import modify_rgba_color_hsv
 from PyPlasmaFractal.plasma_fractal_types import ShaderFunctionType
-from .plasma_fractal_params import PlasmaFractalParams
-from PyPlasmaFractal.gui.utils.common_types import GuiNotification
+from ..plasma_fractal_params import PlasmaFractalParams
+from PyPlasmaFractal.gui.common.common_types import GuiNotification
 from PyPlasmaFractal.gui.tabs.noise_tab import NoiseTab
 from PyPlasmaFractal.gui.tabs.feedback_tab import FeedbackTab
 from PyPlasmaFractal.gui.tabs.color_tab import ColorTab
