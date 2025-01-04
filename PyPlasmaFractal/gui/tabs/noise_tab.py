@@ -12,8 +12,9 @@ class NoiseTab:
         
         self.noise_function_registry = noise_function_registry
         self.noise_settings_open = True
+        
 
-    def draw(self, params: PlasmaFractalParams):
+    def update(self, params: PlasmaFractalParams):
 
         with ih.resized_items(-160):
             if ih.collapsing_header("Noise Settings", self, attr='noise_settings_open'):

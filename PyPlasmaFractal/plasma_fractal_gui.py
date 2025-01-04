@@ -103,23 +103,23 @@ class PlasmaFractalGUI:
                     if tab_bar.opened:
                         with imgui.begin_tab_item("Noise") as noise_tab:
                             if noise_tab.selected:
-                                self.noise_tab.draw(params)
+                                self.noise_tab.update(params)
 
                         with imgui.begin_tab_item("Feedback") as feedback_tab:
                             if feedback_tab.selected:
-                                self.feedback_tab.draw(params)
+                                self.feedback_tab.update(params)
 
                         with imgui.begin_tab_item("Color") as color_tab:
                             if color_tab.selected:
-                                self.color_tab.draw(params)
+                                self.color_tab.update(params)
 
                         with imgui.begin_tab_item("Presets") as presets_tab:
                             if presets_tab.selected:
-                                self.preset_tab.draw(params)
+                                self.preset_tab.update(params)
 
                         with imgui.begin_tab_item("Recording") as recording_tab:
                             if recording_tab.selected:
-                                self.recording_tab.draw()
+                                self.recording_tab.update()
 
     
     def show_reset_button_and_confirm_dialog(self, params: PlasmaFractalParams):

@@ -19,7 +19,7 @@ class ColorTab:
         self.color_function_settings_open = True
         self.feedback_color_settings_open = True
 
-    def draw(self, params: PlasmaFractalParams):
+    def update(self, params: PlasmaFractalParams):
         
         with ih.resized_items(-160):
             if ih.collapsing_header("Basic Settings", self, attr='basic_settings_open'):

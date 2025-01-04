@@ -31,7 +31,7 @@ class PresetTab:
         self.preset_last_saved_file_path = None      
 
 
-    def draw(self, params: PlasmaFractalParams):
+    def update(self, params: PlasmaFractalParams):
         
         # Fetch the initial list of presets if it hasn't been done yet
         if not self.preset_list:

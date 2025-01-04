@@ -10,6 +10,7 @@ class FeedbackTab:
     """
 
     def __init__(self, blend_registry: FunctionRegistry, warp_registry: FunctionRegistry, noise_registry: FunctionRegistry):
+        
         self.blend_function_registry = blend_registry
         self.warp_function_registry = warp_registry
         self.noise_function_registry = noise_registry
@@ -20,7 +21,7 @@ class FeedbackTab:
         self.warp_effect_settings_open = True
 
 
-    def draw(self, params: PlasmaFractalParams):
+    def update(self, params: PlasmaFractalParams):
 
         ih.checkbox("Enable Feedback", params, 'enable_feedback')
 

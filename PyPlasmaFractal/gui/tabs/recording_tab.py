@@ -32,7 +32,7 @@ class RecordingTab:
         self.is_recording = False
        
 
-    def draw(self):
+    def update(self):
         
         imgui.spacing()
 
