@@ -5,6 +5,10 @@ from PyPlasmaFractal.mylib.config.function_registry import FunctionRegistry
 from PyPlasmaFractal.gui.utils.common_controls import function_settings, noise_controls
 
 class FeedbackTab:
+    """
+    Manages the UI controls for the feedback settings in the plasma fractal visualization.
+    """
+
     def __init__(self, blend_registry: FunctionRegistry, warp_registry: FunctionRegistry, noise_registry: FunctionRegistry):
         self.blend_function_registry = blend_registry
         self.warp_function_registry = warp_registry
@@ -15,13 +19,9 @@ class FeedbackTab:
         self.warp_noise_settings_open = True
         self.warp_effect_settings_open = True
 
-    def draw(self, params: PlasmaFractalParams):
-        """
-        Manages the UI controls for the feedback settings in the plasma fractal visualization.
 
-        Args:
-            params (PlasmaFractalParams): The current settings of the plasma fractal.
-        """
+    def draw(self, params: PlasmaFractalParams):
+
         ih.checkbox("Enable Feedback", params, 'enable_feedback')
 
         if params.enable_feedback:
