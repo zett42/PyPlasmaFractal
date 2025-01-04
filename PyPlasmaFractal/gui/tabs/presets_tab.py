@@ -39,15 +39,14 @@ class PresetTab:
 
         self.preset_selection_ui(params)
 
-        if self.selected_preset_index >= 0:
+        if (current_preset := self.get_current_preset()):
             # Controls that depend on a selected preset
             imgui.spacing()
             self.preset_load_ui(params)
             imgui.same_line()
             self.preset_delete_ui()
             imgui.same_line()
-            if (current_preset := self.get_current_preset()):
-                open_folder_button(current_preset.storage.directory)
+            open_folder_button(current_preset.storage.directory)
         
         imgui.spacing()
         self.preset_save_ui(params)
@@ -77,7 +76,7 @@ class PresetTab:
                     self.current_preset_name = preset.name
 
                     if imgui.is_mouse_double_clicked(0):
-                        self.apply_preset(params)
+                        self.apply_current_preset(params)
 
             imgui.end_list_box()
 
@@ -85,8 +84,7 @@ class PresetTab:
     def preset_load_ui(self, params: PlasmaFractalParams):
 
         if imgui.button("Load"):
-            if self.get_current_preset():
-                self.apply_preset(params)
+            self.apply_current_preset(params)
 
 
     def preset_save_ui(self, params: PlasmaFractalParams):
@@ -145,19 +143,20 @@ class PresetTab:
         self.selected_preset_index = -1
 
 
-    def apply_preset(self, params: PlasmaFractalParams):
+    def apply_current_preset(self, params: PlasmaFractalParams):
         
         self.preset_error_message = None
         self.preset_last_saved_file_path = None
 
         try:
-            preset_data = self.get_current_preset().storage.load(self.get_current_preset().name)
+            preset = self.get_current_preset()
+            preset_data = preset.storage.load(preset.name)
             params.apply_defaults()
             params.merge_dict(preset_data)
             
             self.notifications.push_notification(GuiNotification.NEW_PRESET_LOADED)
             
-            logging.info(f'Preset "{self.get_current_preset().name}" applied successfully.')
+            logging.info(f'Preset "{preset.name}" applied successfully.')
             
         except Exception as e:
             self.preset_error_message = f"Failed to apply preset: {str(e)}"

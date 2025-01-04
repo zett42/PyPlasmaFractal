@@ -446,23 +446,24 @@ class PyPlasmaFractalApp:
         """
         Handles the recording of video frames based on the current recording state.
         """
+        recording_tab = self.gui.recording_tab
 
         # If GUI recording state has changed, start or stop recording accordingly
         if (notifyData := self.gui.notifications.pull_notification(GuiNotification.RECORDING_STATE_CHANGED)):
-
+            
             logging.debug(f"Recording state changed to: {notifyData['is_recording']}")
 
             if notifyData['is_recording']:
+                
+                logging.debug(f"Starting recording with file name: {recording_tab.recording_file_name}, size: {recording_tab.recording_width}x{recording_tab.recording_height}, fps: {recording_tab.recording_fps}, quality: {recording_tab.recording_quality}")
 
-                logging.debug(f"Starting recording with file name: {self.gui.recording_file_name}, size: {self.gui.recording_width}x{self.gui.recording_height}, fps: {self.gui.recording_fps}, quality: {self.gui.recording_quality}")
+                # Temporarily resize feedback texture to recording size  
+                self.feedback_manager.resize(*self.recorder.get_aligned_dimensions(recording_tab.recording_width, recording_tab.recording_height))
 
-                # Temporarily resize feedback texture to recording size
-                self.feedback_manager.resize(*self.recorder.get_aligned_dimensions(self.gui.recording_width, self.gui.recording_height))
-
-                video_path = self.user_videos_directory / self.gui.recording_file_name
+                video_path = recording_tab.recording_directory / recording_tab.recording_file_name
                 try:
-                    self.recorder.start_recording(video_path, self.feedback_manager.width, self.feedback_manager.height, fps=self.gui.recording_fps, 
-                                                  quality=self.gui.recording_quality)
+                    self.recorder.start_recording(video_path, self.feedback_manager.width, self.feedback_manager.height, 
+                                                  fps=recording_tab.recording_fps, quality=recording_tab.recording_quality)
                 except Exception as e:
                     logging.error(f"The recording could not be started: {e}")
                     self.gui.notifications.push_notification(GuiNotification.RECORDING_ERROR, str(e))
@@ -479,7 +480,7 @@ class PyPlasmaFractalApp:
                     logging.error(f"The recording could not be finished: {e}")
                     self.gui.notifications.push_notification(GuiNotification.RECORDING_ERROR, str(e))
 
-                self.gui.recording_time = 0
+                recording_tab.recording_time = 0
 
                 # Restore feedback texture size
                 width, height = glfw.get_framebuffer_size(self.window)
@@ -487,11 +488,9 @@ class PyPlasmaFractalApp:
 
                 # Restore normal timer operation
                 self.timer.step_mode = False
-                
 
         # Capture frame if recording is active
         if self.recorder.is_recording:
-
             # Step the timer by a fixed amount for consistent timing
             self.timer.step(1.0 / self.recorder.fps)
             try:
@@ -500,7 +499,7 @@ class PyPlasmaFractalApp:
                 logging.error(f"Failed to capture frame: {e}")
                 self.gui.notifications.push_notification(GuiNotification.RECORDING_ERROR, str(e))
 
-            self.gui.recording_time = self.recorder.recording_time
+            recording_tab.recording_time = self.recorder.recording_time
 
 
     def finalize(self):
