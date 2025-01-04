@@ -61,6 +61,7 @@ from PyPlasmaFractal.plasma_fractal_params import PlasmaFractalParams
 from PyPlasmaFractal.plasma_fractal_renderer import PlasmaFractalRenderer
 from PyPlasmaFractal.plasma_fractal_resources import resource_path
 from PyPlasmaFractal.plasma_fractal_types import ShaderFunctionType
+from PyPlasmaFractal.gui.utils.common_types import GuiNotification
 
 glfw = None  # Global variable to store the GLFW module reference, which is imported later in the code
 
@@ -161,7 +162,7 @@ class PyPlasmaFractalApp:
         except Exception as e:
             # Handle unexpected exceptions
             logging.error(f"Failed to load configuration: {e}. Using default values.")
-            self.gui.notifications.push_notification(PlasmaFractalGUI.Notification.LOAD_CONFIG_ERROR, f"Failed to load configuration: {e}")
+            self.gui.notifications.push_notification(GuiNotification.LOAD_CONFIG_ERROR, f"Failed to load configuration: {e}")
         
         logging.debug(f"PlasmaFractalParams:\n{self.params.to_dict()}")
 
@@ -380,7 +381,7 @@ class PyPlasmaFractalApp:
                 gaussian_blur.apply_blur(self.params.feedback_blur_radius, self.params.feedback_blur_radius_power)
             
         # Clear the feedback textures if a new preset has been loaded, to ensure we start with a clean state
-        if self.gui.notifications.pull_notification(PlasmaFractalGUI.Notification.NEW_PRESET_LOADED):
+        if self.gui.notifications.pull_notification(GuiNotification.NEW_PRESET_LOADED):
             self.feedback_manager.clear()
             self.first_frame = True
 
@@ -447,7 +448,7 @@ class PyPlasmaFractalApp:
         """
 
         # If GUI recording state has changed, start or stop recording accordingly
-        if (notifyData := self.gui.notifications.pull_notification(PlasmaFractalGUI.Notification.RECORDING_STATE_CHANGED)):
+        if (notifyData := self.gui.notifications.pull_notification(GuiNotification.RECORDING_STATE_CHANGED)):
 
             logging.debug(f"Recording state changed to: {notifyData['is_recording']}")
 
@@ -464,7 +465,7 @@ class PyPlasmaFractalApp:
                                                   quality=self.gui.recording_quality)
                 except Exception as e:
                     logging.error(f"The recording could not be started: {e}")
-                    self.gui.notifications.push_notification(PlasmaFractalGUI.Notification.RECORDING_ERROR, str(e))
+                    self.gui.notifications.push_notification(GuiNotification.RECORDING_ERROR, str(e))
 
                 # Configure timer for recording
                 self.timer.step_mode = True
@@ -476,7 +477,7 @@ class PyPlasmaFractalApp:
                     self.recorder.stop_recording()
                 except Exception as e:
                     logging.error(f"The recording could not be finished: {e}")
-                    self.gui.notifications.push_notification(PlasmaFractalGUI.Notification.RECORDING_ERROR, str(e))
+                    self.gui.notifications.push_notification(GuiNotification.RECORDING_ERROR, str(e))
 
                 self.gui.recording_time = 0
 
@@ -497,7 +498,7 @@ class PyPlasmaFractalApp:
                 self.recorder.capture_frame(self.feedback_manager.current_texture)
             except Exception as e:
                 logging.error(f"Failed to capture frame: {e}")
-                self.gui.notifications.push_notification(PlasmaFractalGUI.Notification.RECORDING_ERROR, str(e))
+                self.gui.notifications.push_notification(GuiNotification.RECORDING_ERROR, str(e))
 
             self.gui.recording_time = self.recorder.recording_time
 
