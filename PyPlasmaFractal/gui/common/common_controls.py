@@ -145,9 +145,10 @@ def function_settings(ui_state: object,
             if not hasattr(ui_state, group_state_attr):
                 setattr(ui_state, group_state_attr, True)  # Initialize group state if not exists
             
-            if ih.collapsing_header(group.display_name, ui_state, attr=group_state_attr, flags=imgui.TREE_NODE_DEFAULT_OPEN):
-                for param_info in group.params:
-                    param_control(param_info, function_params, header)
+            with ih.indented(20):
+                if ih.collapsing_header(group.display_name, ui_state, attr=group_state_attr, flags=imgui.TREE_NODE_DEFAULT_OPEN):
+                    for param_info in group.params:
+                        param_control(param_info, function_params, header)
 
 
 def param_control(param_info: FunctionParam, function_params: Dict, header: str):

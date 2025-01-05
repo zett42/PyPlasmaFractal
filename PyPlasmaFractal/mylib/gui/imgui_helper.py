@@ -364,6 +364,34 @@ def resized_items(width: float):
         imgui.pop_item_width()        
 
 
+@contextmanager
+def indented(amount: float = 20.0):
+    """
+    A context manager for temporarily indenting ImGui items.
+    
+    It indents the items by the specified amount using `imgui.indent()` when entering the context,
+    and unindents the items by the same amount using `imgui.unindent()` when exiting the context.
+    
+    Args:
+        amount (float): The amount by which to indent the ImGui items.
+        
+    Usage:
+    ```
+    with indented(20):
+        # Code that uses ImGui items with the specified indentation amount
+        
+    with indented(30) as amount:
+        # Code that uses ImGui items with the specified indentation amount
+        # The amount value is available here
+    ```
+    """
+    imgui.indent(amount)
+    try:
+        yield amount  # This value becomes available in the 'as' clauses
+    finally:
+        imgui.unindent(amount)
+
+
 def display_trimmed_path_with_tooltip(path: Union[Path, str], available_width: int = 0, margin: int = 6, ellipsis: str = '...'):
     """
     Display a trimmed path with a tooltip showing the full path.
