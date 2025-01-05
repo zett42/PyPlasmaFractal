@@ -63,7 +63,7 @@ vec4 colorize_gradient2_noise(
     float noise_value = fractal_noise_single_simplex_perlin_3d(
         pos * noise_scale, noise_octaves, noise_gain, noise_time_scale_factor,
         noise_position_scale_factor, noise_rotation_angle_increment,
-        noise_time_offset_increment, time);
+        noise_time_offset_increment, time * noise_speed);
 
     vec4 noisy_color = shift_hue(end_color, noise_value * hue_shift_factor);
     return mix(start_color, noisy_color, grayscale);
