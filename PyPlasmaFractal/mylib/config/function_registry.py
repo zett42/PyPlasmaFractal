@@ -14,7 +14,7 @@ class FunctionRegistry:
         ColorParamType()
     ]
     
-    def __init__(self, storage: Storage, name_filter: str = "*", param_types: List[ParamType] = None):
+    def __init__(self, storage: Storage, name_filter: str = "*", param_types: List[ParamType] = None, category: str = None):
         """
         Initialize the FunctionRegistry instance.
 
@@ -22,11 +22,13 @@ class FunctionRegistry:
             storage (Storage): Storage instance for loading and saving functions.
             name_filter (str): Pattern to match data names to load.
             param_types (List[ParamType]): Additional parameter types beyond the defaults.
+            category (str): Optional category for all functions in this registry.
         """
         self.storage = storage
         self.name_filter = name_filter
         self.description = None
         self.functions = {}
+        self.category = category
         
         # Combine default and custom param types
         all_param_types = list(self.DEFAULT_PARAM_TYPES)
@@ -85,7 +87,7 @@ class FunctionRegistry:
                 raise KeyError(f"Function key '{key}' already exists in the registry.")
             
             try:
-                self.functions[key] = FunctionInfo(info, self.param_types)
+                self.functions[key] = FunctionInfo(info, self.param_types, self.category)
             except Exception as e:
                 raise RuntimeError(f"Error processing function key '{key}': {str(e)}") from e
 

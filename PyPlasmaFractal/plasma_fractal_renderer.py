@@ -109,18 +109,23 @@ class PlasmaFractalRenderer:
             'NOISE_FUNC': params.noise.noise_algorithm,
             'NOISE_MIN': noise_function_info.min_value,
             'NOISE_MAX': noise_function_info.max_value,
+
             'FB_ENABLED': 'enabled' if params.enable_feedback else 'disabled',
+
             'FB_BLEND_FUNC': params.feedback_function,
             'FB_BLEND_FUNC_UNIFORMS': GlslGenerator.generate_function_params_uniforms(params.get_current_feedback_blend_function_info()),
             'FB_BLEND_FUNC_ARGS': GlslGenerator.generate_function_args(params.get_current_feedback_blend_function_info(), initial_comma=True),
+
             'FB_WARP_FRACTAL_NOISE_VARIANT': params.get_current_warp_function_info().fractal_noise_variant,
             'FB_WARP_NOISE_FUNC': params.warp_noise.noise_algorithm,
             'FB_WARP_XFORM_FUNC': params.warp_function,
             'FB_WARP_FUNC_UNIFORMS': GlslGenerator.generate_function_params_uniforms(params.get_current_warp_function_info()),
             'FB_WARP_FUNC_ARGS': GlslGenerator.generate_function_args(params.get_current_warp_function_info(), initial_comma=True),
+
             'COLOR_FUNC': params.color_function,
             'COLOR_FUNC_UNIFORMS': GlslGenerator.generate_function_params_uniforms(params.get_current_color_function_info()),
             'COLOR_FUNC_ARGS': GlslGenerator.generate_function_args(params.get_current_color_function_info(), initial_comma=True),
+
             'FB_COLOR_ADJUST_ENABLED': 'enabled' if params.enable_feedback_color_adjust else 'disabled',
         }
         self.program, _ = self.shader_cache.get_or_create_program(fragment_template_params=fragment_template_params)
@@ -176,10 +181,10 @@ class PlasmaFractalRenderer:
         self.set_function_uniforms(params.get_current_color_function_info(), params.get_current_color_params())
 
         
-    def set_function_uniforms(self, function_info: FunctionInfo, values: List[Any]) -> None:
+    def set_function_uniforms(self, function_info: FunctionInfo, values: List[Any], uniform_prefix: str|None = None) -> None:
         """Sets shader uniforms for function parameters."""
         
-        uniform_names = GlslGenerator.get_function_params_uniform_names(function_info)
+        uniform_names = GlslGenerator.get_function_params_uniform_names(function_info, uniform_prefix)
         
         for uniform_name, value in zip(uniform_names, values):
             self.program[uniform_name] = value

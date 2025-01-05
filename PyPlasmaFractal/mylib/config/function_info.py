@@ -251,16 +251,18 @@ class ParamGroup:
 class FunctionInfo(DynamicAttributes):
     """Contains information about a function, including its parameters."""
     
-    def __init__(self, attributes: Dict[str, Any], param_types: Dict[str, ParamType]):
+    def __init__(self, attributes: Dict[str, Any], param_types: Dict[str, ParamType], category: str = None):
         """
         Initialize the FunctionInfo instance.
         
         Args:
             attributes (Dict[str, Any]): Dictionary of attributes to set on the instance.
             param_types (Dict[str, ParamType]): Dictionary of parameter types to use.
+            category (str): Optional category for this function.
         """
-               
         super().__init__(attributes, mandatory_attrs=['display_name', 'params'])
+        
+        self.category = category
 
         # Convert params to FunctionParam instances
         self.params = [FunctionParam(param, param_types) for param in self.params]
