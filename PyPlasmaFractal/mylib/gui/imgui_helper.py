@@ -2,6 +2,7 @@
 This module provides wrapper functions for ImGui controls to update attributes of objects or elements in lists more directly, with less code. 
 """
 
+from contextlib import contextmanager
 from enum import Enum
 from pathlib import Path
 import re
@@ -17,7 +18,8 @@ IndexType = Union[int, Hashable]
 
 def collapsing_header(title: str, obj: Any, attr: str = None, index: Optional[IndexType] = None, flags: int = 0) -> bool:
     """
-    Create and manage an ImGui collapsing header that updates a boolean attribute of an object or a specific index within a collection directly. It can use a default value if the attribute or index does not exist.
+    Create and manage an ImGui collapsing header that manages the "collapsed" state via a boolean attribute of an object or a specific index within a collection. 
+    It can use a default value if the attribute or index does not exist.
 
     Args:
         title (str): The title of the collapsing header in the ImGui interface.
@@ -330,36 +332,36 @@ def _manage_attribute_interaction(obj: Any,
     return False  # Return False if no change occurred
 
 
-class resized_items:
+@contextmanager
+def resized_items(width: float):
     """
     A context manager for temporarily resizing ImGui items.
 
-    This class is used as a context manager to temporarily set the width of ImGui items.
     It pushes the specified width using `imgui.push_item_width()` when entering the context,
     and pops the width using `imgui.pop_item_width()` when exiting the context.
 
-    Parameters:
-    - width: The width to set for the ImGui items.
-        0.0 - default to ~2/3 of windows width
-        >0.0 - width in pixels
-        <0.0 - align xx pixels to the right of window (so -FLOAT_MIN always align width to the right side)
+    Args:
+        width(float): The width to set for the ImGui items.
+            0.0 - default to ~2/3 of windows width
+            >0.0 - width in pixels
+            <0.0 - align xx pixels to the right of window (so -FLOAT_MIN always align width to the right side)  
 
     Usage:
     ```
-    with resized_items(width):
+    with resized_items(100):
         # Code that uses ImGui items with the specified width
+        
+    with resized_items(200) as width:
+        # Code that uses ImGui items with the specified width
+        # The width value is available here
     ```
     """
 
-    def __init__(self, width):
-        self.width = width
-
-    def __enter__(self):
-        imgui.push_item_width(self.width)
-        return self.width
-    
-    def __exit__(self, exc_type, exc_value, traceback):
-        imgui.pop_item_width()
+    imgui.push_item_width(width)
+    try:
+        yield width  # This value becomes available in the 'as' clause
+    finally:
+        imgui.pop_item_width()        
 
 
 def display_trimmed_path_with_tooltip(path: Union[Path, str], available_width: int = 0, margin: int = 6, ellipsis: str = '...'):
